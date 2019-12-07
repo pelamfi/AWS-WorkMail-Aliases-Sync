@@ -1,7 +1,7 @@
 {
-  "name": "node-typescript-boilerplate",
-  "version": "0.0.0",
-  "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
+  "name": "aws-pelam-fi-management",
+  "version": "0.0.1",
+  "description": "My custom management scripts for my personal domains.",
   "engines": {
     "node": ">= 12.13 <13"
   },
@@ -26,9 +26,10 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "author": "Jakub Synowiec <github@jakubsynowiec.info>",
-  "license": "Apache-2.0",
+  "author": "Peter Lamberg",
+  "license": "UNLICENSED",
   "dependencies": {
-    "tslib": "~1.10.0"
+    "tslib": "~1.10.0",
+    "aws-sdk": ">=2.585.0"
   }
 }

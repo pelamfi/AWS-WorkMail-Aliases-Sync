@@ -1,15 +1,23 @@
-[![TypeScript version][ts-badge]][typescript-37]
-[![Node.js version][nodejs-badge]][nodejs]
-[![APLv2][license-badge]][LICENSE]
-[![Build Status][travis-badge]][travis-ci]
+# AWS-WorkMail-Aliases-Sync
 
-[![Donate][donate-badge]][donate]
+* /etc/aliases AWS WorkMail sync tool
 
-# node-typescript-boilerplate
+NOTE: This version is a work in progress and should not be used.
+The goal of this project is to synchronize a traditional /etc/aliases
+style file to AWS WorkMail Groups and Aliases. 
 
-Minimalistic boilerplate to jump-start a [Node.js][nodejs] project in [TypeScript][typescript] [3.7][typescript-37].
+## Quick start
 
-What's included:
+This project is intended to be used with the latest Active LTS release of [Node.js][nodejs]. 
+
+To start you need to install dependencies using the following command:
+```sh
+npm install
+```
+
+The code is in the `src` and tests are in the `__tests__` directory.
+
+## Project setup:
 
 + [TypeScript][typescript] [3.7][typescript-37],
 + [TSLint][tslint] with [Microsoft rules][tslint-microsoft-contrib],
@@ -19,35 +27,6 @@ What's included:
 + [NPM scripts for common operations](#available-scripts),
 + a simple example of TypeScript code and unit test,
 + .editorconfig for consistent file format.
-
-## Quick start
-
-This project is intended to be used with the latest Active LTS release of [Node.js][nodejs]. 
-
-To start, just click the **[Use template][repo-template-action]** link (or the green button), 
-
-or clone the repository with following commands:
-
-```sh
-git clone https://github.com/jsynowiec/node-typescript-boilerplate
-cd node-typescript-boilerplate
-npm install
-```
-
-or download and unzip current `master` branch:
-
-```sh
-wget https://github.com/jsynowiec/node-typescript-boilerplate/archive/master.zip -O node-typescript-boilerplate
-unzip node-typescript-boilerplate.zip && rm node-typescript-boilerplate.zip
-```
-
-Now start adding your code in the `src` and unit tests in the `__tests__` directories. Have fun and build amazing things 🚀
-
-### Unit tests in JavaScript
-
-Writing unit tests in TypeScript can sometimes be troublesome and confusing. Especially when mocking dependencies and using spies.
-
-This is **optional**, but if you want to learn how to write JavaScript tests for TypeScript modules, read the [corresponding wiki page][wiki-js-tests].
 
 ## Available scripts
 
