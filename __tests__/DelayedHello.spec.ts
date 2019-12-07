@@ -1,4 +1,4 @@
-import { Delays, greeter } from '../src/main';
+import { Delays, greeter } from '../src/DelayedHello';
 
 describe('greeter function', () => {
   // Read more about fake timers: http://facebook.github.io/jest/docs/en/timer-mocks.html#content
