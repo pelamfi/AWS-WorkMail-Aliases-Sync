@@ -23,10 +23,12 @@
             "type": "node",
             "request": "launch",
             "name": "main.ts",
+            "program": "${workspaceFolder}/src/main.ts",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/build/src/main.js"
+            // Keep "npm run build:watch" running manually for faster builds
+            "outFiles": ["${workspaceFolder}/dev-build/**/*.js"]
         }
     ]
 }
