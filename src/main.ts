@@ -1,28 +1,16 @@
 import * as AWS from 'aws-sdk'
+import * as ScriptConfig from './ScriptConfig'
 
-console.log("Script starting");
+console.log("Script starting, configuring AWS");
 
-AWS.config.setPromisesDependency(null); 
+AWS.config.setPromisesDependency(null);
+AWS.config.loadFromPath("./aws-sdk-config.json")
+const workmail = new AWS.WorkMail({ endpoint: "https://workmail.eu-west-1.amazonaws.com" });
 
-export interface ManagementScriptConfig {
-  workmailOrganizationId: string
-}
-
-import {readFileSync} from 'fs';
-
-export function loadConfiguration(): ManagementScriptConfig {
-  const data = readFileSync("./management-script-config.json")
-  return JSON.parse(data.toString()) as ManagementScriptConfig
-}
-
-const workmail = new AWS.WorkMail({endpoint: "https://workmail.eu-west-1.amazonaws.com"});
-
-workmail.config.loadFromPath("./aws-sdk-config.json")
-
-const scriptConfig = loadConfiguration()
+const scriptConfig = ScriptConfig.load()
 
 async function main() {
-  const foo = await workmail.listUsers({OrganizationId: scriptConfig.workmailOrganizationId}).promise()
+  const foo = await workmail.listUsers({ OrganizationId: scriptConfig.workmailOrganizationId }).promise()
   console.log(foo)
 }
 
