@@ -33,3 +33,6 @@ dev-build/
 # Protect credentials from ending up in git
 aws-sdk-config.json
 management-script-config.json
+
+# Don't put an aliases file that user may be syncing into git
+aliases
