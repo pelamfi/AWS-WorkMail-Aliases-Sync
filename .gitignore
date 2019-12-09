@@ -11,6 +11,7 @@ coverage
 
 # Transpiled files
 build/
+dev-build/
 
 # VS Code
 .vscode/
