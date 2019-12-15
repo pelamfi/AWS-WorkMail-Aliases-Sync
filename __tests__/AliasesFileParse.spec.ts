@@ -20,4 +20,10 @@ describe('Parsing aliases file', () => {
   it('parses multiple targets', () => {
     expect(parse("foo: bar,baz")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar", "baz"] }] });
   });
+
+  it('skips comments at end of line', () => {
+    expect(parse("foo: bar,baz#comment")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar","baz"] }] });
+  });
+
+
 });
