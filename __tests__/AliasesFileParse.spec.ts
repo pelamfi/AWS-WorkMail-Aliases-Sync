@@ -17,4 +17,7 @@ describe('Parsing aliases file', () => {
     expect(parse("\nunknown stuff!!!\nfoo: bar\n\n")).toStrictEqual(new ParseError("Unrecognized aliases file line: unknown stuff!!!"));
   });
 
+  it('parses multiple targets', () => {
+    expect(parse("foo: bar,baz")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar", "baz"] }] });
+  });
 });
