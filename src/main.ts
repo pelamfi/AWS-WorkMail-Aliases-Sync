@@ -24,6 +24,7 @@ export function aliasesFromFile(): Alias.AliasesFile {
 
 async function main() {
   const aliases = aliasesFromFile()
+  const aliasesPerUser = Alias.aliasesPerUser(aliases)
 
   console.log("Reading users and aliases from AWS WorkMail")
 

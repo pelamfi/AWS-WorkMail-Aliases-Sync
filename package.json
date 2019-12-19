@@ -16,7 +16,8 @@
     "tslint-config-prettier": "1.18.0",
     "tslint-microsoft-contrib": "~6.2.0",
     "tsutils": "~3.17.1",
-    "typescript": "~3.7.3"
+    "typescript": "~3.7.3",
+    "@types/ramda": "^0.26.38"
   },
   "scripts": {
     "clean": "rimraf coverage build tmp dev-build",
@@ -31,6 +32,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "aws-sdk": ">=2.585.0",
+    "ramda": "^0.26.1",
     "tslib": "~1.10.0"
   }
 }
