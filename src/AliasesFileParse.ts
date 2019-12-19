@@ -1,12 +1,4 @@
-
-export interface Alias {
-  localEmail: string
-  targets: string[]
-}
-
-export interface AliasesFile {
-  aliases: Alias[]
-}
+import {Alias, AliasesFile} from '../src/Alias'
 
 export class ParseError {
   error: string
