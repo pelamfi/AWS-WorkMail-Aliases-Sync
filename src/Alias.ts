@@ -6,8 +6,8 @@ export interface AliasesUser {
 }
 
 export interface Alias {
-  localEmail: string // the name of the the alias, no domain part
-  targets: string[] // name(s) of local users that this localEmail is alias of
+  alias: string // the name of the the alias, no domain part
+  localEmails: string[] // name(s) of local users that this localEmail is alias of
 }
 
 export interface AliasesFile {
@@ -19,7 +19,7 @@ export interface AliasesPerUser {
 }
 
 function toAliasesPerUser(alias: Alias): AliasesUser[] {
-  return alias.targets.map(target => ({localEmail: alias.localEmail, aliases:[target]}))
+  return alias.localEmails.map(localEmail => ({localEmail: localEmail, aliases:[alias.alias]}))
 }
 
 export function aliasesPerUser(aliasesFile: AliasesFile): AliasesPerUser {

@@ -7,7 +7,7 @@ describe('Converting aliases file data', () => {
   });
 
   it('accepts simple data', () => {
-    expect(aliasesPerUser({aliases: [{localEmail: "aliasfoo", targets: ["targetfoo"]}]})).toStrictEqual({ users: [{localEmail: "targetfoo", aliases: ["aliasfoo"]}] } as AliasesPerUser);
+    expect(aliasesPerUser({aliases: [{alias: "aliasfoo", localEmails: ["targetfoo"]}]})).toStrictEqual({ users: [{localEmail: "targetfoo", aliases: ["aliasfoo"]}] } as AliasesPerUser);
   });
 
 });
