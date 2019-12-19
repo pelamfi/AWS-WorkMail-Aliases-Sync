@@ -17,10 +17,10 @@
     "no-void-expression": false,
     "no-redundant-jsdoc": false,
     "prefer-type-cast": false,
-    "typedef": [
+    "no-suspicious-comment": true,
+  "typedef": [
       true,
       "parameter",
-      "arrow-parameter",
       "property-declaration",
       "member-variable-declaration"
     ]
