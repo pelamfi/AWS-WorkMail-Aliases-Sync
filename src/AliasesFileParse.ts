@@ -18,7 +18,7 @@ export function parse(input: string): AliasesFile | ParseError {
   const aliasesOrErrors: (Alias|ParseError)[] = input
     .split(lineSplitRegex)
     .filter(line => line !== "")
-    .map((line: string) => {
+    .map((line: string): Alias|ParseError => {
       let match = line.match(aliasRegex)
       if (match == null) {
         if (line.match(commentRegex)) {
@@ -27,12 +27,12 @@ export function parse(input: string): AliasesFile | ParseError {
           return new ParseError(`Unrecognized aliases file line: ${line}`)
         }
       } else {
-        const [, localEmail, targetsPart] = match
-        const targets = targetsPart.split(targetsSplitRegex)
-        return { localEmail, targets }
+        const [, alias, targetsPart] = match
+        const localEmails = targetsPart.split(targetsSplitRegex)
+        return { alias, localEmails }
       }
     })
-    .filter((x: Alias|ParseError|null) => x != null)
+    .filter(x => x != null)
   
   const errors: ParseError[] = aliasesOrErrors.filter((x: ParseError|Alias) => x instanceof(ParseError)) as ParseError[]
   
