@@ -3,6 +3,7 @@ import * as ScriptConfig from './ScriptConfig'
 import * as AliasesFileParse from '../src/AliasesFileParse';
 import * as Alias from '../src/Alias';
 import { readFileSync } from 'fs';
+import * as R from 'ramda';
 
 console.log("Script starting, configuring AWS");
 
@@ -31,12 +32,29 @@ async function main() {
   const users = await workmail.listUsers({ OrganizationId: scriptConfig.workmailOrganizationId }).promise()
 
   users.Users.forEach(async (user) => {
-    const aliases = await workmail.listAliases({ EntityId: user.Id, OrganizationId: scriptConfig.workmailOrganizationId }).promise()
-    console.log(`user ${user.Email} ${user.Name}`)
-    aliases.Aliases.forEach((alias) => {
-      console.log(`  alias ${alias}`)
-      
-    })
+    let localUser = scriptConfig.emailToLocalEmail[user.Email]
+    if (localUser == undefined) {
+      console.log(`Ignoring user ${user.Email} ${user.Name} that is not present in emailToLocalEmail dictionary in ${ScriptConfig.configFile}`)
+    } else {
+
+      const fileAliases = aliasesPerUser.users.find(aliases => aliases.localEmail == localUser)
+    
+      if (fileAliases == undefined) {
+        console.log("  No aliases defined in aliases file for ${localUser}. skipping")
+      } else {
+        const currentAliasesResponse = await workmail.listAliases({ EntityId: user.Id, OrganizationId: scriptConfig.workmailOrganizationId }).promise()
+        const currentAliases = currentAliasesResponse.Aliases.sort()
+        const fileAliasesThatDontExist = R.difference(fileAliases.aliases, currentAliases).sort()
+        const fileAliasesThatExist = R.intersection(fileAliases.aliases, currentAliases).sort()
+        const aliasesThatDontExistInFile = R.difference(currentAliases, fileAliases.aliases).sort()
+        console.log(`user ${user.Email} ${user.Name} is mapped to ${localUser} in ${ScriptConfig.configFile}`)
+        console.log(`  aliases to be added: ${fileAliasesThatDontExist.join(",")}`)
+        console.log(`  aliases to be removed: ${aliasesThatDontExistInFile.join(",")}`)
+        console.log(`  ok aliases: ${fileAliasesThatExist.join(",")}`)
+      }
+
+
+    }
   })
 }
 
