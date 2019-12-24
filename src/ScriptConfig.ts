@@ -4,10 +4,12 @@ export interface Config {
   workmailOrganizationId: string
   aliasesFile: string
   aliasesFileDomain: string
+  emailToLocalEmail: { [index: string]: string }
 }
 
+export const configFile = "./management-script-config.json"
+  
 export function load(): Config {
-  const configFile = "./management-script-config.json"
   console.log(`Loading ${configFile}`);
   const data = readFileSync(configFile)
   // tslint:disable-next-line: no-suspicious-comment
