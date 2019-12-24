@@ -6,11 +6,11 @@ describe('Parsing aliases file', () => {
   });
 
   it('accepts single alias', () => {
-    expect(parse("foo: bar")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar"] }] });
+    expect(parse("foo: bar")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar"] }] });
   });
 
   it('skips comments and empty lines', () => {
-    expect(parse("#comment\nfoo: bar\n\n")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar"] }] });
+    expect(parse("#comment\nfoo: bar\n\n")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar"] }] });
   });
 
   it('detects error', () => {
@@ -18,12 +18,15 @@ describe('Parsing aliases file', () => {
   });
 
   it('parses multiple targets', () => {
-    expect(parse("foo: bar,baz")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar", "baz"] }] });
+    expect(parse("foo: bar,baz")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar", "baz"] }] });
   });
 
   it('skips comments at end of line', () => {
-    expect(parse("foo: bar,baz#comment")).toStrictEqual({ aliases: [{ localEmail: "foo", targets: ["bar","baz"] }] });
+    expect(parse("foo: bar,baz#comment")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
   });
 
+  it('skips that look like aliases', () => {
+    expect(parse("foo: bar,baz\n#a: b")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
+  });
 
 });
