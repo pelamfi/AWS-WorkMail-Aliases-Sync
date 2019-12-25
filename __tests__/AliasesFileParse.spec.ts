@@ -25,7 +25,7 @@ describe('Parsing aliases file', () => {
     expect(parse("foo: bar,baz#comment")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
   });
 
-  it('skips that look like aliases', () => {
+  it('skips comments that look like aliases', () => {
     expect(parse("foo: bar,baz\n#a: b")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
   });
 
