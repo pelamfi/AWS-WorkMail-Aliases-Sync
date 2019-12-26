@@ -66,18 +66,26 @@ async function main() {
         console.log(`  aliases to be removed (${aliasesToRemove.length}): ${aliasesToRemove.map(emailLocal).join(", ")}`)
         console.log(`  ok aliases ${okAliases.length}`)
 
-        let initial = Promise.resolve<void>(undefined)
+        
 
-        let addAliasesRequests: Promise<void> =
+        let addAliasesRequests: AWS.Request<any, AWS.AWSError>[] =
           aliasesToAdd
           .map(alias => {
             let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: user.Id, Alias: alias}
             return workmail.createAlias(request)
           })
-          .reduce((a, b) => a.then(() => b.promise().then(_ => undefined)), initial)
           
-        let chainedAdds = addAliasesRequests
-        await chainedAdds.catch(error => console.log(`Error adding alias to user ${user.Email}: ${error}`))
+        let removeAliasesRequests: AWS.Request<any, AWS.AWSError>[] =
+          aliasesToRemove
+          .map(alias => {
+            let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: user.Id, Alias: alias}
+            return workmail.deleteAlias(request)
+          })
+
+        let initial = Promise.resolve<void>(undefined)
+        let serialPromises = R.concat(removeAliasesRequests, addAliasesRequests).reduce((a, b) => a.then(() => b.promise()), initial)
+
+        await serialPromises.catch(error => console.log(`Error updating AWS WorkMail for user ${user.Email}: ${error}`))
         
       }
 
