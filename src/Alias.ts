@@ -22,8 +22,8 @@ function toAliasesPerUser(alias: Alias): AliasesUser[] {
   return alias.localEmails.map(localEmail => ({ localEmail: localEmail, aliases: [alias.alias] }))
 }
 
-export function aliasesPerUser(aliasesFile: AliasesFile): AliasesPerUser {
-  let asAliasesPerUser: AliasesUser[] = R.chain(toAliasesPerUser, aliasesFile.aliases)
+export function aliasesPerUser(aliasesFile: Alias[]): AliasesPerUser {
+  let asAliasesPerUser: AliasesUser[] = R.chain(toAliasesPerUser, aliasesFile)
   let grouped: { [index: string]: AliasesUser[] } = R.groupBy(aliasesPerUser => aliasesPerUser.localEmail, asAliasesPerUser)
   
   let users = Object
