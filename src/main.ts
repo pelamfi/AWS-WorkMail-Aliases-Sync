@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import * as R from 'ramda';
 import {emailDomain, emailLocal} from '../src/EmailUtil'
 
-import {getEmailMap} from '../src/AwsEmail'
+import {getAwsEmailMap} from '../src/AwsEmail'
 
 console.log("Script starting, configuring AWS");
 
@@ -29,9 +29,9 @@ export function aliasesFromFile(): Alias.AliasesFile {
 
 async function main() {
 
-  let result = await getEmailMap({service: workmail, organizationId: scriptConfig.workmailOrganizationId})
+  let awsEmailMap = await getAwsEmailMap({service: workmail, organizationId: scriptConfig.workmailOrganizationId})
 
-  console.log(result)
+  console.log(awsEmailMap)
 
   let aliases = aliasesFromFile().aliases.filter(alias => alias.localEmails.length == 1)
   let groups = aliasesFromFile().aliases.filter(alias => alias.localEmails.length > 1)
@@ -44,8 +44,6 @@ async function main() {
     `  domain: ${scriptConfig.aliasesFileDomain}`)
 
   let currentUsersResponse = await workmail.listUsers({ OrganizationId: scriptConfig.workmailOrganizationId }).promise()
-  let currentGroupsResponse = await workmail.listGroups({ OrganizationId: scriptConfig.workmailOrganizationId }).promise()
-  let currentGroups = currentGroupsResponse.Groups
   let currentUsers = currentUsersResponse.Users
 
   currentUsers.forEach(async (user) => {
