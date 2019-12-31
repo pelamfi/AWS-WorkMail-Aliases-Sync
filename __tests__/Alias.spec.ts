@@ -1,14 +1,14 @@
-import { AliasesPerUser, aliasesPerUser } from '../src/Alias';
+import { AliasesFileUsers, aliasesPerUser } from '../src/AliasesFile';
 
 describe('Converting aliases file data', () => {
 
   it('accepts empty data', () => {
-    expect(aliasesPerUser([])).toStrictEqual({ users: [] } as AliasesPerUser);
+    expect(aliasesPerUser([])).toStrictEqual({ users: [] } as AliasesFileUsers);
   });
 
   it('accepts simple data', () => {
     expect(aliasesPerUser([{ alias: "aliasfoo", localEmails: ["localfoo"] }]))
-      .toStrictEqual({ users: [{ localEmail: "localfoo", aliases: ["aliasfoo"] }] } as AliasesPerUser);
+      .toStrictEqual({ users: [{ localEmail: "localfoo", aliases: ["aliasfoo"] }] } as AliasesFileUsers);
   });
 
   it('correctly "transposes" a bit more complex data with 2 simple aliases', () => {
@@ -21,7 +21,7 @@ describe('Converting aliases file data', () => {
         { localEmail: "localbar", aliases: ["aliasbar"] },
         { localEmail: "localfoo", aliases: ["aliasfoo"] },
       ]
-    } as AliasesPerUser);
+    } as AliasesFileUsers);
   });
 
   it('correctly "transposes" a bit more complex data with 2 recipients', () => {
@@ -32,7 +32,7 @@ describe('Converting aliases file data', () => {
         { localEmail: "localbar", aliases: ["aliasfoo"] },
         { localEmail: "localfoo", aliases: ["aliasfoo"] },
       ]
-    } as AliasesPerUser);
+    } as AliasesFileUsers);
   });
 
   it('correctly "transposes" 2 recipients', () => {
@@ -42,7 +42,7 @@ describe('Converting aliases file data', () => {
         { localEmail: "localbar", aliases: ["aliasfoo"] },
         { localEmail: "localfoo", aliases: ["aliasfoo"] },
       ]
-    } as AliasesPerUser);
+    } as AliasesFileUsers);
   });
 
   it('correctly "transposes" even more complex data', () => {

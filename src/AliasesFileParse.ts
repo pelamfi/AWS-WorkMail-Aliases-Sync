@@ -1,4 +1,4 @@
-import {Alias, AliasesFile} from '../src/Alias'
+import {AliasesFileAlias, AliasesFile} from './AliasesFile'
 
 export class ParseError {
   error: string
@@ -15,10 +15,10 @@ const targetsSplitRegex = /\s*,\s*/
 
 export function parse(input: string): AliasesFile | ParseError {
   
-  const aliasesOrErrors: (Alias|ParseError)[] = input
+  const aliasesOrErrors: (AliasesFileAlias|ParseError)[] = input
     .split(lineSplitRegex)
     .filter(line => line !== "")
-    .map((line: string): Alias|ParseError => {
+    .map((line: string): AliasesFileAlias|ParseError => {
       let match = line.match(aliasRegex)
       if (match == null) {
         if (line.match(commentRegex)) {
@@ -34,12 +34,12 @@ export function parse(input: string): AliasesFile | ParseError {
     })
     .filter(x => x != null)
   
-  const errors: ParseError[] = aliasesOrErrors.filter((x: ParseError|Alias) => x instanceof(ParseError)) as ParseError[]
+  const errors: ParseError[] = aliasesOrErrors.filter((x: ParseError|AliasesFileAlias) => x instanceof(ParseError)) as ParseError[]
   
   if (errors.length > 0) {
     return errors[0]
   } else {
-    const aliases: Alias[] = aliasesOrErrors.filter((x: ParseError|Alias) => !(x instanceof(ParseError))) as Alias[]
+    const aliases: AliasesFileAlias[] = aliasesOrErrors.filter((x: ParseError|AliasesFileAlias) => !(x instanceof(ParseError))) as AliasesFileAlias[]
     return {aliases}
   }
 }

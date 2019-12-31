@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import * as ScriptConfig from './ScriptConfig'
 import * as AliasesFileParse from '../src/AliasesFileParse';
-import * as Alias from '../src/Alias';
+import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
 import * as R from 'ramda';
 import {emailDomain, emailLocal} from '../src/EmailUtil'
