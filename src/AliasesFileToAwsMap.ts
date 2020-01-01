@@ -1,11 +1,14 @@
 import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
-import {AwsEmailMap, AwsUserAlias, AwsEmail} from './AwsEmail';
+import {AliasesFileUser} from './AliasesFile';
+import {AwsEmailMap, AwsUserAlias} from './AwsEmail';
 import {emailAddDomain} from '../src/EmailUtil'
 
-export default function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEntityId: ((localEmail: string) => AWS.WorkMail.WorkMailIdentifier|undefined)): AwsEmailMap {
+export function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEntityId: ((localEmail: string) => AWS.WorkMail.WorkMailIdentifier|undefined)): AwsEmailMap {
+
   // TODO: Handle more than 100 aliases by creating groups
-  let allAliases = R.flatten(aliasesFileUsers.users.map((localUser): AwsUserAlias[] => {
+
+  function localUserToAwsAlias(localUser: AliasesFileUser): AwsUserAlias[] {
     let userEntityId = localUserToEntityId(localUser.localEmail)
     if (userEntityId === null) {
       throw `No AWS user for local user ${localUser.localEmail}`
@@ -15,7 +18,9 @@ export default function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, 
         return {kind: "AwsUserAlias", userEntityId: userEntityId || "", email}
       })
     }
-  }))
+  }
+
+  let allAliases = R.flatten(aliasesFileUsers.users.map(localUserToAwsAlias))
 
   let allAliasesByEmail = R.groupBy((alias) => alias.email, allAliases)
 
