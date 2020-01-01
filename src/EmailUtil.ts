@@ -12,3 +12,7 @@ export function emailLocal(email: string): string {
   let domain = emailDomain(email)
   return email.substring(0, email.length - domain.length - 1)
 }
+
+export function emailAddDomain(localEmail: string, domain: string): string {
+  return `${localEmail}@${domain}`
+}
