@@ -1,4 +1,5 @@
 import {AliasesFileAlias, AliasesFile} from './AliasesFile'
+import {filterUndef} from './UndefUtil'
 
 export class ParseError {
   error: string
@@ -13,26 +14,29 @@ const commentRegex = /^\s*#.*$/
 const lineSplitRegex = /[\r\n]+/
 const targetsSplitRegex = /\s*,\s*/
 
+
 export function parse(input: string): AliasesFile | ParseError {
   
-  const aliasesOrErrors: (AliasesFileAlias|ParseError)[] = input
-    .split(lineSplitRegex)
-    .filter(line => line !== "")
-    .map((line: string): AliasesFileAlias|ParseError => {
-      let match = line.match(aliasRegex)
-      if (match == null) {
-        if (line.match(commentRegex)) {
-          return null
-        } else {
-          return new ParseError(`Unrecognized aliases file line: ${line}`)
-        }
+  let aliasesOrUndefs = filterUndef(input
+  .split(lineSplitRegex)
+  .filter(line => line !== "")
+  .map((line: string): AliasesFileAlias|ParseError|undefined => {
+    let match = line.match(aliasRegex)
+    if (match == null) {
+      if (line.match(commentRegex)) {
+        return undefined
       } else {
-        const [, alias, targetsPart] = match
-        const localEmails = targetsPart.split(targetsSplitRegex)
-        return { alias, localEmails }
+        return new ParseError(`Unrecognized aliases file line: ${line}`)
       }
-    })
-    .filter(x => x != null)
+    } else {
+      const [, alias, targetsPart] = match
+      const localEmails = targetsPart.split(targetsSplitRegex)
+      return { alias, localEmails }
+    }
+  }))
+
+
+  const aliasesOrErrors: (AliasesFileAlias|ParseError)[] = filterUndef(aliasesOrUndefs)
   
   const errors: ParseError[] = aliasesOrErrors.filter((x: ParseError|AliasesFileAlias) => x instanceof(ParseError)) as ParseError[]
   
