@@ -44,12 +44,19 @@ async function main() {
     `  domain: ${scriptConfig.aliasesFileDomain}`)
 
   let currentUsersResponse = await workmail.listUsers({ OrganizationId: scriptConfig.workmailOrganizationId }).promise()
-  let currentUsers = currentUsersResponse.Users
+  let currentUsers = currentUsersResponse.Users ?? []
 
   currentUsers.forEach(async (user) => {
-    let localUser = scriptConfig.emailToLocalEmail[user.Email]
+    if (user.Email === undefined || user.Id === undefined) {
+      console.log("ERROR: User with missing data")
+      return
+    }
+    let userEmail = user.Email ?? "" // inference problems
+    let userEntityId = user.Id ?? ""
+
+    let localUser = scriptConfig.emailToLocalEmail[userEmail]
     if (localUser == undefined) {
-      console.log(`Ignoring user ${user.Email} ${user.Name} that is not present in emailToLocalEmail dictionary in configuration file`)
+      console.log(`Ignoring user ${userEmail} ${user.Name} that is not present in emailToLocalEmail dictionary in configuration file`)
     } else {
 
       let fileAliases = aliasesPerUser.find(aliases => aliases.localEmail == localUser)
@@ -60,8 +67,10 @@ async function main() {
         console.log(`  No aliases defined in aliases file for ${localUser}. skipping`)
       } else {
         let fileAliasesAsEmails = fileAliases.aliases.map(aliasToEmail)
-        let currentAliasesResponse = await workmail.listAliases({ EntityId: user.Id, OrganizationId: scriptConfig.workmailOrganizationId }).promise()
-
+        let currentAliasesResponse = await workmail.listAliases({ EntityId: userEntityId, OrganizationId: scriptConfig.workmailOrganizationId }).promise()
+        if (currentAliasesResponse.Aliases === undefined) {
+          return
+        }
         let currentAliases = currentAliasesResponse.Aliases.filter(alias => emailDomain(alias) == scriptConfig.aliasesFileDomain).sort()
         let aliasesToAdd = R.difference(fileAliasesAsEmails, currentAliases).sort()
         let okAliases = R.intersection(fileAliasesAsEmails, currentAliases).sort()
@@ -77,14 +86,14 @@ async function main() {
         let addAliasesRequests: AWS.Request<any, AWS.AWSError>[] =
           aliasesToAdd
           .map(alias => {
-            let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: user.Id, Alias: alias}
+            let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: userEntityId, Alias: alias}
             return workmail.createAlias(request)
           })
           
         let removeAliasesRequests: AWS.Request<any, AWS.AWSError>[] =
           aliasesToRemove
           .map(alias => {
-            let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: user.Id, Alias: alias}
+            let request = {OrganizationId: scriptConfig.workmailOrganizationId, EntityId: userEntityId, Alias: alias}
             return workmail.deleteAlias(request)
           })
 
