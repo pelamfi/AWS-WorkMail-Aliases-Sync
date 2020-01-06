@@ -1,4 +1,5 @@
-import {AwsEmailMap, AwsEmailOperation} from './AwsEmail';
+import {AwsEmailMap} from './AwsEmailMap';
+import {AwsEmailOperation} from './AwsEmailOperation';
 import * as R from 'ramda';
 import {filterUndef} from './UndefUtil'
 

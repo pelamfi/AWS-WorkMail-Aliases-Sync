@@ -1,5 +1,5 @@
 import { awsMapSync } from '../src/AwsMapSync';
-import { AwsEmailMap } from '../src/AwsEmail';
+import { AwsEmailMap } from '../src/AwsEmailMap';
 
 describe('Synchronizing 2 AwsMaps', () => {
   it('accepts empty data', () => {

@@ -5,8 +5,7 @@ import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
 import * as R from 'ramda';
 import {emailDomain, emailLocal} from '../src/EmailUtil'
-
-import {getAwsEmailMap} from '../src/AwsEmail'
+import {getAwsEmailMap} from '../src/GetAwsEmailMap'
 
 console.log("Script starting, configuring AWS");
 

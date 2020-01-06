@@ -1,65 +1,7 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
-
-export interface Workmail {
-  service: AWS.WorkMail,
-  organizationId: string,
-}
-
-export interface AwsUserDefaultEmail {
-  kind: "AwsUserDefaultEmail",
-  userEntityId: AWS.WorkMail.WorkMailIdentifier,
-  email: string
-}
-
-export interface AwsUserAlias {
-  kind: "AwsUserAlias"
-  userEntityId: AWS.WorkMail.WorkMailIdentifier,
-  email: string
-}
-
-export interface AwsGroupDefaultEmail {
-  kind: "AwsGroupDefaultEmail",
-  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
-  email: string
-}
-
-export interface AwsGroupAlias {
-  kind: "AwsGroupAlias",
-  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
-  email: string
-}
-
-
-export type AwsEmail = AwsUserDefaultEmail | AwsUserAlias | AwsGroupDefaultEmail | AwsGroupAlias
-
-export type AwsEmailMap = {[index: string]: AwsEmail}
-
-export interface AddUserAlias {
-  kind: "AddUserAlias",
-  userEntityId: AWS.WorkMail.WorkMailIdentifier,
-  aliasEmail: string
-}
-
-export interface RemoveUserAlias {
-  kind: "RemoveUserAlias",
-  userEntityId: AWS.WorkMail.WorkMailIdentifier,
-  aliasEmail: string
-}
-
-export interface RemoveGroupAlias {
-  kind: "RemoveGroupAlias",
-  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
-  aliasEmail: string
-}
-
-export interface AddGroupAlias {
-  kind: "AddGroupAlias",
-  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
-  aliasEmail: string
-}
-
-export type AwsEmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias
+import {Workmail} from './AwsWorkMailUtil';
+import {AwsEmail, AwsUserDefaultEmail, AwsGroupDefaultEmail, AwsEmailMap} from './AwsEmailMap';
 
 async function awsUserToEmail(workmail: Workmail, user: AWS.WorkMail.User): Promise<AwsEmail[]> {
   let userDefault: AwsUserDefaultEmail[]
@@ -89,8 +31,6 @@ async function awsGroupToEmail(workmail: Workmail, group: AWS.WorkMail.Group): P
   let aliases: Promise<AwsEmail[]|undefined> = currentAliases.then(response => response.Aliases?.map(alias => ({kind: "AwsGroupAlias", groupEntityId, email: alias})))
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], groupDefault)))
 }
-
-
 
 function serialPromises(promises: (() => Promise<AwsEmail[]>)[]): Promise<AwsEmail[]> {
   let initial: Promise<AwsEmail[]> = Promise.resolve<AwsEmail[]>([])
