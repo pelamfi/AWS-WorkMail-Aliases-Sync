@@ -37,17 +37,29 @@ export type AwsEmailMap = {[index: string]: AwsEmail}
 
 export interface AddUserAlias {
   kind: "AddUserAlias",
-  user: AWS.WorkMail.User,
+  userEntityId: AWS.WorkMail.WorkMailIdentifier,
   aliasEmail: string
 }
 
 export interface RemoveUserAlias {
   kind: "RemoveUserAlias",
-  user: AWS.WorkMail.User,
+  userEntityId: AWS.WorkMail.WorkMailIdentifier,
   aliasEmail: string
 }
 
-export type Operation = AddUserAlias | RemoveUserAlias
+export interface RemoveGroupAlias {
+  kind: "RemoveGroupAlias",
+  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
+  aliasEmail: string
+}
+
+export interface AddGroupAlias {
+  kind: "AddGroupAlias",
+  groupEntityId: AWS.WorkMail.WorkMailIdentifier,
+  aliasEmail: string
+}
+
+export type AwsEmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias
 
 async function awsUserToEmail(workmail: Workmail, user: AWS.WorkMail.User): Promise<AwsEmail[]> {
   let userDefault: AwsUserDefaultEmail[]
