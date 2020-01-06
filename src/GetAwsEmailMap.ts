@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
 import {AwsEmail, AwsUserDefaultEmail, AwsGroupDefaultEmail, AwsEmailMap} from './AwsEmailMap';
+import { serialPromises } from './PromiseUtil';
 
 async function awsUserToEmail(workmail: Workmail, user: AWS.WorkMail.User): Promise<AwsEmail[]> {
   let userDefault: AwsUserDefaultEmail[]
@@ -32,17 +33,15 @@ async function awsGroupToEmail(workmail: Workmail, group: AWS.WorkMail.Group): P
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], groupDefault)))
 }
 
-function serialPromises(promises: (() => Promise<AwsEmail[]>)[]): Promise<AwsEmail[]> {
-  let initial: Promise<AwsEmail[]> = Promise.resolve<AwsEmail[]>([])
-  return promises
-    .reduce((a, b) => a.then(prev => b().then(next => R.concat(prev, next))), initial)
+function serialAwsPromises(promises: (() => Promise<AwsEmail[]>)[]): Promise<AwsEmail[]> {
+  return serialPromises(promises, [] as any[], R.concat)
 }
 
 export async function getAwsEmailMap(workmail: Workmail): Promise<AwsEmailMap> {
   let currentUsersResponse = workmail.service.listUsers({ OrganizationId: workmail.organizationId }).promise()
   let currentGroupsResponse = workmail.service.listGroups({ OrganizationId: workmail.organizationId }).promise()
-  let currentGroups = currentGroupsResponse.then(response => serialPromises(response.Groups?.map(group => () => awsGroupToEmail(workmail, group)) ?? []))
-  let currentUsers = currentUsersResponse.then(response => serialPromises(response.Users?.map(user => () => awsUserToEmail(workmail, user)) ?? []))
+  let currentGroups = currentGroupsResponse.then(response => serialAwsPromises(response.Groups?.map(group => () => awsGroupToEmail(workmail, group)) ?? []))
+  let currentUsers = currentUsersResponse.then(response => serialAwsPromises(response.Users?.map(user => () => awsUserToEmail(workmail, user)) ?? []))
   let emails: Promise<AwsEmail[]> = Promise.all([currentGroups, currentUsers]).then(R.flatten)
   return emails.then(emails => R.zipObj(emails.map(x => x.email), emails))
 }
