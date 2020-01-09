@@ -33,15 +33,14 @@ async function awsGroupToEmail(workmail: Workmail, group: AWS.WorkMail.Group): P
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], groupDefault)))
 }
 
-function serialAwsPromises(promises: (() => Promise<AwsEmail[]>)[]): Promise<AwsEmail[]> {
-  return serialPromises(promises, [] as any[], R.concat)
-}
-
 export async function getAwsEmailMap(workmail: Workmail): Promise<AwsEmailMap> {
   let currentUsersResponse = workmail.service.listUsers({ OrganizationId: workmail.organizationId }).promise()
   let currentGroupsResponse = workmail.service.listGroups({ OrganizationId: workmail.organizationId }).promise()
-  let currentGroups = currentGroupsResponse.then(response => serialAwsPromises(response.Groups?.map(group => () => awsGroupToEmail(workmail, group)) ?? []))
-  let currentUsers = currentUsersResponse.then(response => serialAwsPromises(response.Users?.map(user => () => awsUserToEmail(workmail, user)) ?? []))
+  let currentGroups = currentGroupsResponse.then(response => serialPromisesFlatten(response.Groups?.map(group => () => awsGroupToEmail(workmail, group)) ?? []))
+  let currentUsers = currentUsersResponse.then(response => serialPromisesFlatten(response.Users?.map(user => () => awsUserToEmail(workmail, user)) ?? []))
   let emails: Promise<AwsEmail[]> = Promise.all([currentGroups, currentUsers]).then(R.flatten)
-  return emails.then(emails => R.zipObj(emails.map(x => x.email), emails))
+  return emails.then(
+    emails => {
+      return R.zipObj(emails.map(x => x.email), emails)
+    })
 }
