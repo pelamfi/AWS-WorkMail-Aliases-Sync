@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {AwsEmailMap, AwsUserAlias} from './AwsEmailMap';
-import {emailAddDomain} from '../src/EmailUtil'
+import {emailAddDomain} from './EmailUtil'
 
 export function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEntityId: ((localEmail: string) => AWS.WorkMail.WorkMailIdentifier|undefined)): AwsEmailMap {
 
