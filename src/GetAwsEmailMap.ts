@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
 import {AwsEmail, AwsUserDefaultEmail, AwsGroupDefaultEmail, AwsEmailMap} from './AwsEmailMap';
-import { serialPromises } from './PromiseUtil';
+import { serialPromisesFlatten } from './PromiseUtil';
 
 async function awsUserToEmail(workmail: Workmail, user: AWS.WorkMail.User): Promise<AwsEmail[]> {
   let userDefault: AwsUserDefaultEmail[]

@@ -1,5 +1,4 @@
 import * as AWS from 'aws-sdk'
-import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
 import {AwsEmailOperation} from './AwsEmailOperation';
 
