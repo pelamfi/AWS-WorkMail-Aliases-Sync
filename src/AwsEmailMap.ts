@@ -29,7 +29,24 @@ export interface AwsGroupAlias {
   email: string
 }
 
+export interface WorkmailEntityCommon {
+  entityId: AWS.WorkMail.WorkMailIdentifier,
+  name: string,
+  email?: string
+}
+
+export type WorkmailUser = {kind: "WorkmailUser"} & WorkmailEntityCommon
+export type WorkmailGroup = {kind: "WorkmailGroup"} & WorkmailEntityCommon
+export type WorkmailEntity = WorkmailUser | WorkmailGroup
 
 export type AwsEmail = AwsUserDefaultEmail | AwsUserAlias | AwsGroupDefaultEmail | AwsGroupAlias
 
-export type AwsEmailMap = {[index: string]: AwsEmail}
+export type WorkmailEntityMap = {[index: string]: WorkmailEntity}
+
+export type WorkmailEmailmap = {[index: string]: AwsEmail}
+
+// Rename to WormailMap
+export type AwsEmailMap = {
+  byEntityId: WorkmailEntityMap
+  byEmail: WorkmailEmailmap
+}

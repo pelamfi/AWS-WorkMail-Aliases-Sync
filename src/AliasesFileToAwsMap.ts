@@ -1,10 +1,10 @@
 import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
-import {AwsEmailMap, AwsUserAlias} from './AwsEmailMap';
+import {WorkmailEmailmap, AwsUserAlias} from './AwsEmailMap';
 import {emailAddDomain} from './EmailUtil'
 
-export function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEntityId: ((localEmail: string) => AWS.WorkMail.WorkMailIdentifier|undefined)): AwsEmailMap {
+export function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEntityId: ((localEmail: string) => AWS.WorkMail.WorkMailIdentifier|undefined)): WorkmailEmailmap {
 
   // TODO: Handle more than 100 aliases by creating groups
 
