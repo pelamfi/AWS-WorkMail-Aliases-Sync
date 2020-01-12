@@ -1,28 +1,29 @@
-import {AwsEmailMap} from './AwsEmailMap';
+import {WorkmailEmailmap} from './AwsEmailMap';
 import {AwsEmailOperation} from './AwsEmailOperation';
 import * as R from 'ramda';
 import {filterUndef} from './UndefUtil'
 
-export function awsMapSync(currentMap: AwsEmailMap, targetMap: AwsEmailMap): AwsEmailOperation[] {
+export function awsMapSync(currentMap: WorkmailEmailmap, targetMap: WorkmailEmailmap): AwsEmailOperation[] {
 
   let removals = R.keys(currentMap).map((email): AwsEmailOperation|undefined => {
     let current = currentMap[email]
     let target = targetMap[email]
+
     if (current === undefined) {
       return undefined
     }
 
-    if (current.kind == "AwsGroupAlias" && ((target?.kind == "AwsGroupAlias" && target.groupEntityId != current.groupEntityId) || current.kind != target?.kind)) {
+    if (current.kind == "AwsGroupAlias" && ((target?.kind == "AwsGroupAlias" && target?.groupEntityId != current.groupEntityId) || current.kind != target?.kind)) {
       return {kind: "RemoveGroupAlias", groupEntityId: current.groupEntityId, aliasEmail: current.email}
     }
-    else if (current.kind == "AwsGroupDefaultEmail" && ((target?.kind == "AwsGroupDefaultEmail" && target.groupEntityId != current.groupEntityId) || current.kind != target?.kind)) {
-      throw `Email ${current.email} is configured as ${target.kind}. Changing it is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
+    else if (current.kind == "AwsGroupDefaultEmail" && target !== undefined && ((target.kind == "AwsGroupDefaultEmail" && target.groupEntityId != current.groupEntityId) || current.kind != target.kind)) {
+      throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the group is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
     }
-    else if (current.kind == "AwsUserAlias" && ((target?.kind == "AwsUserAlias" && target.userEntityId != current.userEntityId) || current.kind != target?.kind)) {
+    else if (current.kind == "AwsUserAlias" && ((target?.kind == "AwsUserAlias" && target?.userEntityId != current.userEntityId) || current.kind != target?.kind)) {
       return {kind: "RemoveUserAlias", userEntityId: current.userEntityId, aliasEmail: current.email}
     }
-    else if (current.kind == "AwsUserDefaultEmail" && ((target?.kind == "AwsUserDefaultEmail" && target.userEntityId != current.userEntityId) || current.kind != target?.kind)) {
-      throw `Email ${current.email} is configured as ${target.kind}. Changing it is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
+    else if (current.kind == "AwsUserDefaultEmail" && target !== undefined && ((target.kind == "AwsUserDefaultEmail" && target.userEntityId != current.userEntityId) || current.kind != target.kind)) {
+      throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the user is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
     }
 
     return undefined
