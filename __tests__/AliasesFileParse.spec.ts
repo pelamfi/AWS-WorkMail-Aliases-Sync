@@ -25,6 +25,10 @@ describe('Parsing aliases file', () => {
     expect(parse("foo: bar,baz#comment")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
   });
 
+  it('skips comments and whitespace at end of line', () => {
+    expect(parse("foo: bar,baz #comment")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
+  });
+
   it('skips comments that look like aliases', () => {
     expect(parse("foo: bar,baz\n#a: b")).toStrictEqual({ aliases: [{ alias: "foo", localEmails: ["bar","baz"] }] });
   });
