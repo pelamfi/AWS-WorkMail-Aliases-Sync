@@ -4,7 +4,7 @@ export interface Config {
   workmailOrganizationId: string
   aliasesFile: string
   aliasesFileDomain: string
-  emailToLocalEmail: { [index: string]: string }
+  localEmailUserToEmail: { [index: string]: string }
 }
 
 export const configFile = "./management-script-config.json"

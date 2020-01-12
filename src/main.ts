@@ -19,7 +19,6 @@ let workmailService = new AWS.WorkMail({ endpoint: "https://workmail.eu-west-1.a
 let scriptConfig = ScriptConfig.load()
 
 function aliasesFromFile(): Alias.AliasesFile {
-  console.log(`Parsing file: ${scriptConfig.aliasesFile}`)
   let result = AliasesFileParse.parse(readFileSync(scriptConfig.aliasesFile).toString())
   if (result instanceof AliasesFileParse.ParseError) {
     throw `Error parsing ${scriptConfig.aliasesFile}: ${result.error}`
@@ -36,10 +35,31 @@ async function main() {
     `  domain: ${scriptConfig.aliasesFileDomain}`)
 
   let workmail = {service: workmailService, organizationId: scriptConfig.workmailOrganizationId}
+  console.log('Fetching the current users, groups and aliases from AWS')
   let currentAwsEmailMap = await getAwsEmailMap(workmail)
+
+  console.log('Reading the aliases file')
   let aliasesFile = aliasesFromFile()
   let aliasesFileUsers = aliasesPerUser(aliasesFile.aliases)
-  let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, x => scriptConfig.emailToLocalEmail[x])
+
+  function localUserToEntityId(localUser: string): AWS.WorkMail.WorkMailIdentifier|undefined {
+    let localEmail = scriptConfig.localEmailUserToEmail[localUser]
+    if (localEmail === undefined) {
+      return undefined
+    }
+    let entity = currentAwsEmailMap.byEmail[localEmail]
+    switch (entity?.kind) {
+      case "AwsUserDefaultEmail":
+        return entity.userEntityId
+      default:
+    }
+    throw `Local email user ${localUser} and its defined email address ${localEmail} is not the default email of any current Aws Workmail user.`
+  }
+
+  let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEntityId)
+
+  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentAwsEmailMap).length} aliases`)
+  
   let syncOperations = awsMapSync(currentAwsEmailMap.byEmail, targetAwsEmailMap)
   let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentAwsEmailMap.byEntityId, op).promise())
   let results: any[] = await serialPromises(syncOperationPromises)
