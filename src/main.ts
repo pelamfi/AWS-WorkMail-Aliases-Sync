@@ -32,7 +32,7 @@ async function main() {
   console.log(`Syncing users and aliases from with AWS WorkMail:\n` + 
     `  Using configuration file: ${ScriptConfig.configFile}\n` +
     `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
-    `  aliases file to sync with: ${scriptConfig.aliasesFileDomain}\n` +
+    `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
     `  domain: ${scriptConfig.aliasesFileDomain}`)
 
   let workmail = {service: workmailService, organizationId: scriptConfig.workmailOrganizationId}
@@ -40,8 +40,8 @@ async function main() {
   let aliasesFile = aliasesFromFile()
   let aliasesFileUsers = aliasesPerUser(aliasesFile.aliases)
   let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, x => scriptConfig.emailToLocalEmail[x])
-  let syncOperations = awsMapSync(currentAwsEmailMap, targetAwsEmailMap)
-  let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, op).promise())
+  let syncOperations = awsMapSync(currentAwsEmailMap.byEmail, targetAwsEmailMap)
+  let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentAwsEmailMap.byEntityId, op).promise())
   let results: any[] = await serialPromises(syncOperationPromises)
   console.log(`${results.length} operations completed`)
 }
