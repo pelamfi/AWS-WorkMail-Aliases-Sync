@@ -9,7 +9,7 @@ export class ParseError {
   }
 }
 
-const aliasRegex = /^\s*(?!#)([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)\s*:\s*([-a-z0-9A-Z_,\s]+)\s*(#.*)?$/
+const aliasRegex = /^\s*(?!#)([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)\s*:\s*((?:[-a-z0-9A-Z_]+(?:\s*,\s*)?)+)\s*(#.*)?$/
 const commentRegex = /^\s*#.*$/
 const lineSplitRegex = /[\r\n]+/
 const targetsSplitRegex = /\s*,\s*/
