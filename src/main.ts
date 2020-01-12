@@ -58,8 +58,8 @@ async function main() {
 
   let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEntityId)
 
-  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentAwsEmailMap).length} aliases`)
-  
+  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentAwsEmailMap.byEmail).length} aliases`)
+
   let syncOperations = awsMapSync(currentAwsEmailMap.byEmail, targetAwsEmailMap)
   let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentAwsEmailMap.byEntityId, op).promise())
   let results: any[] = await serialPromises(syncOperationPromises)
