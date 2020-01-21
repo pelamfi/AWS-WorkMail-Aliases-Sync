@@ -1,30 +1,30 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
-import {AwsEmail, AwsUserDefaultEmail, AwsGroupDefaultEmail, AwsEmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityMap, WorkmailEmailmap, WorkmailEntityCommon} from './AwsEmailMap';
+import {WorkmailEmail, WorkmailUserDefault, WorkmailGroupDefault, WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityMap, WorkmailEmailmap, WorkmailEntityCommon} from './WorkmailMap';
 import { serialPromisesFlatten } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 
-async function awsGroupToEmail(workmail: Workmail, group: WorkmailGroup): Promise<AwsEmail[]> {
-  let groupDefault: AwsGroupDefaultEmail[] =
-    mapUndef(email => [{kind: "AwsGroupDefaultEmail", groupEntityId: group.entityId, email: email}], group.email) ?? []
+async function awsGroupToEmail(workmail: Workmail, group: WorkmailGroup): Promise<WorkmailEmail[]> {
+  let groupDefault: WorkmailGroupDefault[] =
+    mapUndef(email => [{kind: "WorkmailGroupDefault", groupEntityId: group.entityId, email: email}], group.email) ?? []
 
   let currentAliases = workmail.service.listAliases({ EntityId: group.entityId, OrganizationId: workmail.organizationId}).promise()
 
-  let aliases: Promise<AwsEmail[]|undefined> = currentAliases.then(
-    response => response.Aliases?.map(alias => ({kind: "AwsGroupAlias", groupEntityId: group.entityId, email: alias})))
+  let aliases: Promise<WorkmailEmail[]|undefined> = currentAliases.then(
+    response => response.Aliases?.map(alias => ({kind: "WorkmailGroupAlias", groupEntityId: group.entityId, email: alias})))
 
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], groupDefault)))
 }
 
-async function awsUserToEmail(workmail: Workmail, user: WorkmailUser): Promise<AwsEmail[]> {
-  let userDefault: AwsUserDefaultEmail[] =
-    mapUndef(email => [{kind: "AwsUserDefaultEmail", userEntityId: user.entityId, email: email}], user.email) ?? []
+async function awsUserToEmail(workmail: Workmail, user: WorkmailUser): Promise<WorkmailEmail[]> {
+  let userDefault: WorkmailUserDefault[] =
+    mapUndef(email => [{kind: "WorkmailUserDefault", userEntityId: user.entityId, email: email}], user.email) ?? []
 
   let currentAliases = workmail.service.listAliases({ EntityId: user.entityId, OrganizationId: workmail.organizationId}).promise()
 
-  let aliases: Promise<AwsEmail[]|undefined> = currentAliases.then(
-    response => response.Aliases?.map(alias => ({kind: "AwsUserAlias", userEntityId: user.entityId, email: alias})))
+  let aliases: Promise<WorkmailEmail[]|undefined> = currentAliases.then(
+    response => response.Aliases?.map(alias => ({kind: "WorkmailUserAlias", userEntityId: user.entityId, email: alias})))
 
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], userDefault)))
 }
@@ -66,7 +66,7 @@ function awsUsersToMap(awsUsers?: AWS.WorkMail.Users): WorkmailEntityMap {
 }
 
 function entityMapToEmailMap(workmail: Workmail, entityMap: WorkmailEntityMap): Promise<WorkmailEmailmap> {
-  let emailPromises = Object.values(entityMap).map((entity): (() => Promise<AwsEmail[]>) =>
+  let emailPromises = Object.values(entityMap).map((entity): (() => Promise<WorkmailEmail[]>) =>
     {
       switch (entity.kind) {
         case "WorkmailGroup":
@@ -84,7 +84,7 @@ function entityMapToEmailMap(workmail: Workmail, entityMap: WorkmailEntityMap): 
     })
 }
 
-export async function getAwsEmailMap(workmail: Workmail): Promise<AwsEmailMap> {
+export async function getAwsEmailMap(workmail: Workmail): Promise<WorkmailMap> {
   let currentUsersResponse = workmail.service.listUsers({ OrganizationId: workmail.organizationId }).promise()
   let currentGroupsResponse = workmail.service.listGroups({ OrganizationId: workmail.organizationId }).promise()
   let groupsMapPromise = currentGroupsResponse.then(response => awsGroupsToMap(response.Groups))

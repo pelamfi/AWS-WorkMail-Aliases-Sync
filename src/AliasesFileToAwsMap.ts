@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
-import {WorkmailEmailmap, AwsUserAlias} from './AwsEmailMap';
+import {WorkmailEmailmap, WorkmailUserAlias} from './WorkmailMap';
 import {emailAddDomain} from './EmailUtil'
 import {filterUndef} from './UndefUtil'
 
@@ -9,15 +9,15 @@ export function aliasesFileToAwsMap(aliasesFileUsers: AliasesFileUsers, aliasesF
 
   // TODO: Handle more than 100 aliases by creating groups
 
-  function localUserToAwsAlias(localUser: AliasesFileUser): AwsUserAlias[]|undefined {
+  function localUserToAwsAlias(localUser: AliasesFileUser): WorkmailUserAlias[]|undefined {
     let userEntityId = localUserToEntityId(localUser.localEmail)
     if (userEntityId === undefined) {
       console.log(`Local email user '${localUser.localEmail}' is not in the configuration file localEmailUserToEmail map. Ignored.`)
       return undefined
     } else {
-      return localUser.aliases.map( (alias): AwsUserAlias  => {
+      return localUser.aliases.map( (alias): WorkmailUserAlias  => {
         let email = emailAddDomain(alias, aliasesFileDomain)
-        return {kind: "AwsUserAlias", userEntityId: userEntityId || "", email}
+        return {kind: "WorkmailUserAlias", userEntityId: userEntityId || "", email}
       })
     }
   }
