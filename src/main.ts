@@ -49,7 +49,7 @@ async function main() {
     }
     let entity = currentAwsEmailMap.byEmail[localEmail]
     switch (entity?.kind) {
-      case "AwsUserDefaultEmail":
+      case "WorkmailUserDefault":
         return entity.userEntityId
       default:
     }

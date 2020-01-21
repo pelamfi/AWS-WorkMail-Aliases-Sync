@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import {Workmail} from './AwsWorkMailUtil';
 import {AwsEmailOperation} from './AwsEmailOperation';
-import {WorkmailEntityMap} from './AwsEmailMap';
+import {WorkmailEntityMap} from './WorkmailMap';
 
 export function executeAwsEmailOperation(workmail: Workmail, entityMap: WorkmailEntityMap, op: AwsEmailOperation): AWS.Request<any, AWS.AWSError> {
   switch (op.kind) {

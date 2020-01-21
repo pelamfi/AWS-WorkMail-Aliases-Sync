@@ -4,21 +4,21 @@ function localUserToEntityId(localEmail: string): AWS.WorkMail.WorkMailIdentifie
   return `${localEmail}-entityId`
 }
 
-describe('Creating AwsEmailMap', () => {
+describe('Creating WorkmailMap', () => {
   it('accepts empty data', () => {
     expect(aliasesFileToAwsMap({ users: [] }, "domain", () => "")).toStrictEqual({});
   });
 
   it('creates a single alias', () => {
     expect(aliasesFileToAwsMap({ users: [{ localEmail: "localemail", aliases: ["fooalias"] }] }, "domain", localUserToEntityId))
-      .toStrictEqual({ "fooalias@domain": { kind: "AwsUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" } });
+      .toStrictEqual({ "fooalias@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" } });
   });
 
   it('creates 2 aliases for a single user', () => {
     expect(aliasesFileToAwsMap({ users: [{ localEmail: "localemail", aliases: ["fooalias", "fooalias2"] }] }, "domain", localUserToEntityId))
       .toStrictEqual({
-        "fooalias@domain": { kind: "AwsUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" },
-        "fooalias2@domain": { kind: "AwsUserAlias", userEntityId: "localemail-entityId", email: "fooalias2@domain" }
+        "fooalias@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" },
+        "fooalias2@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail-entityId", email: "fooalias2@domain" }
       });
   });
 
@@ -28,9 +28,9 @@ describe('Creating AwsEmailMap', () => {
       { localEmail: "localemail2", aliases: ["fooalias2", "fooalias3"] },
       ] }, "domain", localUserToEntityId))
       .toStrictEqual({
-        "fooalias@domain": { kind: "AwsUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" },
-        "fooalias2@domain": { kind: "AwsUserAlias", userEntityId: "localemail2-entityId", email: "fooalias2@domain" },
-        "fooalias3@domain": { kind: "AwsUserAlias", userEntityId: "localemail2-entityId", email: "fooalias3@domain" }
+        "fooalias@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail-entityId", email: "fooalias@domain" },
+        "fooalias2@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail2-entityId", email: "fooalias2@domain" },
+        "fooalias3@domain": { kind: "WorkmailUserAlias", userEntityId: "localemail2-entityId", email: "fooalias3@domain" }
       });
   });
 
