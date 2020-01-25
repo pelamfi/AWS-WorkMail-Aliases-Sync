@@ -3,7 +3,7 @@ import * as ScriptConfig from './ScriptConfig'
 import * as AliasesFileParse from './AliasesFileParse';
 import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
-import { getAwsEmailMap } from './GetAwsEmailMap'
+import { getWorkmailMap } from './GetWorkmailMap'
 import { aliasesFileToAwsMap } from './AliasesFileToAwsMap';
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync } from './AwsMapSync';
@@ -36,7 +36,7 @@ async function main() {
 
   let workmail = {service: workmailService, organizationId: scriptConfig.workmailOrganizationId}
   console.log('Fetching the current users, groups and aliases from AWS')
-  let currentAwsEmailMap = await getAwsEmailMap(workmail)
+  let currentWorkmailMap = await getWorkmailMap(workmail)
 
   console.log('Reading the aliases file')
   let aliasesFile = aliasesFromFile()
@@ -47,7 +47,7 @@ async function main() {
     if (localEmail === undefined) {
       return undefined
     }
-    let entity = currentAwsEmailMap.byEmail[localEmail]
+    let entity = currentWorkmailMap.byEmail[localEmail]
     switch (entity?.kind) {
       case "WorkmailUserDefault":
         return entity.userEntityId
@@ -58,10 +58,10 @@ async function main() {
 
   let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEntityId)
 
-  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentAwsEmailMap.byEmail).length} aliases`)
+  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.byEmail).length} aliases`)
 
-  let syncOperations = awsMapSync(currentAwsEmailMap.byEmail, targetAwsEmailMap)
-  let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentAwsEmailMap.byEntityId, op).promise())
+  let syncOperations = awsMapSync(currentWorkmailMap.byEmail, targetAwsEmailMap)
+  let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentWorkmailMap.byEntityId, op).promise())
   let results: any[] = await serialPromises(syncOperationPromises)
   console.log(`${results.length} operations completed`)
 }
