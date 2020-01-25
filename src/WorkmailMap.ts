@@ -3,11 +3,6 @@ import * as AWS from 'aws-sdk'
 import { EmailMap, EmailAddr, EmailGroup, Email, EmailUser } from './EmailMap'
 import { filterUndef } from './UndefUtil';
 
-export interface Workmail {
-  service: AWS.WorkMail,
-  organizationId: string,
-}
-
 export interface WorkmailEntityCommon {
   entityId: AWS.WorkMail.WorkMailIdentifier,
   name: string,

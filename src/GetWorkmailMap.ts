@@ -1,11 +1,11 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
-import {WorkmailEmail, WorkmailUserDefault, WorkmailGroupDefault, WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityMap, WorkmailEmailmap, WorkmailEntityCommon} from './WorkmailMap';
+import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityMap, WorkmailEntityCommon} from './WorkmailMap';
 import { serialPromisesFlatten } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 
-async function awsGroupToEmail(workmail: Workmail, group: WorkmailGroup): Promise<WorkmailEmail[]> {
+async function workmailGroupToEmail(workmail: Workmail, group: WorkmailGroup): Promise<WorkmailEmail[]> {
   let groupDefault: WorkmailGroupDefault[] =
     mapUndef(email => [{kind: "WorkmailGroupDefault", groupEntityId: group.entityId, email: email}], group.email) ?? []
 
@@ -17,7 +17,7 @@ async function awsGroupToEmail(workmail: Workmail, group: WorkmailGroup): Promis
   return aliases.then(aliases => Promise.resolve(R.concat(aliases ?? [], groupDefault)))
 }
 
-async function awsUserToEmail(workmail: Workmail, user: WorkmailUser): Promise<WorkmailEmail[]> {
+async function workmailUserToEmail(workmail: Workmail, user: WorkmailUser): Promise<WorkmailEmail[]> {
   let userDefault: WorkmailUserDefault[] =
     mapUndef(email => [{kind: "WorkmailUserDefault", userEntityId: user.entityId, email: email}], user.email) ?? []
 
@@ -49,8 +49,8 @@ function convertGroup(user: AWS.WorkMail.Group): WorkmailGroup|undefined {
   return mapUndef(common => ({...common, kind}), common)
 }
 
-function awsGroupsToMap(awsGroups?: AWS.WorkMail.Groups): WorkmailEntityMap {
-  let groups = R.pipe(R.map(convertGroup), filterUndef)(awsGroups ?? [])
+function workmailGroupsToMap(workmailGroups?: AWS.WorkMail.Groups): WorkmailEntityMap {
+  let groups = R.pipe(R.map(convertGroup), filterUndef)(workmailGroups ?? [])
   return R.zipObj(groups.map(x => x.entityId), groups)
 }
 
@@ -60,8 +60,8 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
   return mapUndef(common => ({...common, kind}), common)
 }
 
-function awsUsersToMap(awsUsers?: AWS.WorkMail.Users): WorkmailEntityMap {
-  let users = R.pipe(R.map(convertUser), filterUndef)(awsUsers ?? [])
+function workmailUsersToMap(workmailUsers?: AWS.WorkMail.Users): WorkmailEntityMap {
+  let users = R.pipe(R.map(convertUser), filterUndef)(workmailUsers ?? [])
   return R.zipObj(users.map(x => x.entityId), users)
 }
 
@@ -70,9 +70,9 @@ function entityMapToEmailMap(workmail: Workmail, entityMap: WorkmailEntityMap): 
     {
       switch (entity.kind) {
         case "WorkmailGroup":
-          return () => awsGroupToEmail(workmail, entity)
+          return () => workmailGroupToEmail(workmail, entity)
         case "WorkmailUser":
-          return () => awsUserToEmail(workmail, entity)
+          return () => workmailUserToEmail(workmail, entity)
       }
     })
 
@@ -84,11 +84,11 @@ function entityMapToEmailMap(workmail: Workmail, entityMap: WorkmailEntityMap): 
     })
 }
 
-export async function getAwsEmailMap(workmail: Workmail): Promise<WorkmailMap> {
+export async function getWorkmaillMap(workmail: Workmail): Promise<WorkmailMap> {
   let currentUsersResponse = workmail.service.listUsers({ OrganizationId: workmail.organizationId }).promise()
   let currentGroupsResponse = workmail.service.listGroups({ OrganizationId: workmail.organizationId }).promise()
-  let groupsMapPromise = currentGroupsResponse.then(response => awsGroupsToMap(response.Groups))
-  let usersMapPromise = currentUsersResponse.then(response => awsUsersToMap(response.Users))
+  let groupsMapPromise = currentGroupsResponse.then(response => workmailGroupsToMap(response.Groups))
+  let usersMapPromise = currentUsersResponse.then(response => workmailUsersToMap(response.Users))
   return Promise
     .all([groupsMapPromise, usersMapPromise])
     .then(R.mergeAll)
