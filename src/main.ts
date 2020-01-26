@@ -3,12 +3,12 @@ import * as ScriptConfig from './ScriptConfig'
 import * as AliasesFileParse from './AliasesFileParse';
 import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
-import { getWorkmailMap } from './GetWorkmailMap'
-import { aliasesFileToAwsMap } from './AliasesFileToAwsMap';
+import { aliasesFileToAwsMap as aliasesFileToEmailMap } from './AliasesFileToAwsMap';
 import { aliasesPerUser } from './AliasesFile';
-import { awsMapSync } from './AwsMapSync';
+import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { executeAwsEmailOperation } from './AwsEmailExecute';
 import { serialPromises } from './PromiseUtil';
+import { getWorkmailMap } from './GetWorkmailMap';
 
 console.log("Script starting, configuring AWS");
 
@@ -56,11 +56,11 @@ async function main() {
     throw `Local email user ${localUser} and its defined email address ${localEmail} is not the default email of any current Aws Workmail user.`
   }
 
-  let targetAwsEmailMap = aliasesFileToAwsMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEntityId)
+  let targetAwsEmailMap = aliasesFileToEmailMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEntityId)
 
   console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.byEmail).length} aliases`)
 
-  let syncOperations = awsMapSync(currentWorkmailMap.byEmail, targetAwsEmailMap)
+  let syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
   let syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentWorkmailMap.byEntityId, op).promise())
   let results: any[] = await serialPromises(syncOperationPromises)
   console.log(`${results.length} operations completed`)

@@ -25,7 +25,7 @@ export type WorkmailMap = {
   emailMap: EmailMap
 }
 
-function workmailMapFromEntities(entities: [WorkmailEntity, [EmailAddr]][]): WorkmailMap {
+export function workmailMapFromEntities(entities: [WorkmailEntity, [EmailAddr]][]): WorkmailMap {
   let byId = R.zipObj(entities.map(entity => entity[0].entityId), entities.map(p => p[0]))
   let entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
     let [entity, aliases] = entityPair
