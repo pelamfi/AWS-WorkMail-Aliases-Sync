@@ -1,11 +1,11 @@
-import {WorkmailEmailmap} from './WorkmailMap';
-import {AwsEmailOperation} from './AwsEmailOperation';
+import {EmailOperation} from './EmailOperation';
 import * as R from 'ramda';
 import {filterUndef} from './UndefUtil'
+import { EmailMap } from './EmailMap';
 
-export function awsMapSync(currentMap: WorkmailEmailmap, targetMap: WorkmailEmailmap): AwsEmailOperation[] {
+export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOperation[] {
 
-  let removals = R.keys(currentMap).map((email): AwsEmailOperation|undefined => {
+  let removals = R.keys(currentMap).map((email): EmailOperation|undefined => {
     let current = currentMap[email]
     let target = targetMap[email]
 
@@ -13,34 +13,34 @@ export function awsMapSync(currentMap: WorkmailEmailmap, targetMap: WorkmailEmai
       return undefined
     }
 
-    if (current.kind == "WorkmailGroupAlias" && ((target?.kind == "WorkmailGroupAlias" && target?.groupEntityId != current.groupEntityId) || current.kind != target?.kind)) {
-      return {kind: "RemoveGroupAlias", groupEntityId: current.groupEntityId, aliasEmail: current.email}
+    if (current.kind == "EmailGroupAlias" && ((target?.kind == "EmailGroupAlias" && target?.group.email.email != current.group.email.email) || current.kind != target?.kind)) {
+      return {kind: "RemoveGroupAlias", alias: current}
     }
-    else if (current.kind == "WorkmailGroupDefault" && target !== undefined && ((target.kind == "WorkmailGroupDefault" && target.groupEntityId != current.groupEntityId) || current.kind != target.kind)) {
+    else if (current.kind == "EmailGroup" && target !== undefined && current.kind != target.kind) {
       throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the group is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
     }
-    else if (current.kind == "WorkmailUserAlias" && ((target?.kind == "WorkmailUserAlias" && target?.userEntityId != current.userEntityId) || current.kind != target?.kind)) {
-      return {kind: "RemoveUserAlias", userEntityId: current.userEntityId, aliasEmail: current.email}
+    else if (current.kind == "EmailUserAlias" && ((target?.kind == "EmailUserAlias" && target?.user.email.email != current.user.email.email) || current.kind != target?.kind)) {
+      return {kind: "RemoveUserAlias", alias: current}
     }
-    else if (current.kind == "WorkmailUserDefault" && target !== undefined && ((target.kind == "WorkmailUserDefault" && target.userEntityId != current.userEntityId) || current.kind != target.kind)) {
+    else if (current.kind == "EmailUser" && target !== undefined && ((target.kind == "EmailUser" && target.email.email != current.email.email) || current.kind != target.kind)) {
       throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the user is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}` // can this happen?
     }
 
     return undefined
   })
 
-  let additions = R.keys(targetMap).map((email): AwsEmailOperation | undefined => {
+  let additions = R.keys(targetMap).map((email): EmailOperation | undefined => {
     let target = targetMap[email]
     let current = currentMap[email]
     switch (target.kind) {
-      case "WorkmailGroupAlias":
-      if (current == undefined || (current.kind == "WorkmailGroupAlias" && current.groupEntityId != target.groupEntityId)) {
-        return {kind: "AddGroupAlias", groupEntityId: target.groupEntityId, aliasEmail: target.email}
+      case "EmailGroupAlias":
+      if (current == undefined || (current.kind == "EmailGroupAlias" && current.group.email.email != target.group.email.email)) {
+        return {kind: "AddGroupAlias", alias: target}
       }
       break;
-      case "WorkmailUserAlias": 
-      if (current == undefined || (current.kind == "WorkmailUserAlias" && current.userEntityId != target.userEntityId)) {
-        return {kind: "AddUserAlias", userEntityId: target.userEntityId, aliasEmail: target.email}
+      case "EmailUserAlias": 
+      if (current == undefined || (current.kind == "EmailUserAlias" && current.user.email.email != target.user.email.email)) {
+        return {kind: "AddUserAlias", alias: target}
       }
       break;
       default:
