@@ -9,7 +9,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliase
 
   function localUserToEmails(localUser: AliasesFileUser): [EmailUser, EmailUserAlias[]]|undefined {
     let localUserEmail = localUserToEmail(localUser.localEmail)
-    if (localUserEmail === undefined) {
+    if (localUserEmail?.email === undefined) {
       console.log(`Local email user '${localUser.localEmail}' is not in the configuration file localEmailUserToEmail map. Ignored.`)
       return undefined
     }

@@ -1,8 +1,8 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
-import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityMap, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails} from './WorkmailMap';
-import { serialPromisesFlatten, serialPromises } from './PromiseUtil';
+import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails} from './WorkmailMap';
+import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 import { EmailAddr } from './EmailMap';
 
@@ -10,7 +10,9 @@ async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(w
   return workmail.service
     .listAliases({ EntityId: entity.entityId, OrganizationId: workmail.organizationId}).promise()
     .then( response => {
-      let aliases: EmailAddr[] = response.Aliases?.map(alias => new EmailAddr(alias)) ?? []
+      let aliases: EmailAddr[] = response.Aliases
+        ?.filter(alias => alias != entity.email?.email) // also the primary email is ereturned as an alias
+        .map(alias => new EmailAddr(alias)) ?? []
       return [entity, aliases]
     })
 }

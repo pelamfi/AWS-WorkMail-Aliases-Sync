@@ -44,7 +44,9 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
       }
       break;
       default:
-        throw `unsupported, can't currently add ${target.kind}`
+        if (current == undefined || current.kind !== target.kind) {
+          throw `unsupported, can't currently add ${target.kind}`
+      }
     }
     return undefined
   })
