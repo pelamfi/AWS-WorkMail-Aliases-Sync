@@ -10,6 +10,7 @@ import { executeAwsEmailOperation } from './AwsEmailExecute';
 import { serialPromises } from './PromiseUtil';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { EmailAddr } from './EmailMap';
+import { aliasLimitWorkaround } from './AliasLimitWorkaround';
 
 console.log("Script starting, configuring AWS");
 
@@ -44,12 +45,17 @@ async function main() {
   let aliasesFileUsers = aliasesPerUser(aliasesFile.aliases)
 
   function localUserToEmail(localUser: string): EmailAddr | undefined {
-    return new EmailAddr(scriptConfig.localEmailUserToEmail[localUser])
+    let localEmail = scriptConfig.localEmailUserToEmail[localUser]
+    if (localEmail === undefined) {
+      return undefined
+    }
+    return new EmailAddr(localEmail)
   }
 
-  let targetAwsEmailMap = aliasesFileToEmailMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEmail)
+  let targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEmail)
+  let targetAwsEmailMap = aliasLimitWorkaround(targetAwsEmailMapIdeal)
 
-  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.emailMap.byEmail).length} aliases`)
+  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.emailMap).length} aliases`)
 
   let syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
 
