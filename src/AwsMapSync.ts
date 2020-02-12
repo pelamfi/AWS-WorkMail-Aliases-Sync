@@ -51,5 +51,5 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
     return undefined
   })
 
-  return R.concat(filterUndef(removals), filterUndef(additions))
+  return [...filterUndef(removals), ...filterUndef(additions)]
 }
