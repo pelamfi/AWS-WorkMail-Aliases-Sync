@@ -30,7 +30,7 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, [EmailAddr]][
   let entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
     let [entity, aliases] = entityPair
     let mainEmail = entity.email
-    let emails: EmailAddr[] = R.concat(mainEmail === undefined ? [] : [mainEmail], aliases)
+    let emails: EmailAddr[] = [...(mainEmail === undefined ? [] : [mainEmail]), ...aliases]
     let pairs: [EmailAddr, WorkmailEntity][] = emails.map(email => [email, entity])
     return R.zipObj(pairs.map(p => p[0].email), pairs.map(p => p[1]))
   })

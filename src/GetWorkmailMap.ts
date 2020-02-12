@@ -60,7 +60,7 @@ export async function getWorkmailMap(workmail: Workmail): Promise<WorkmailMap> {
   let groupsPromise: Promise<WorkmailEntity[]> = currentGroupsResponse.then(response => filterUndef(response.Groups?.map(convertGroup) ?? []))
   let usersPromise: Promise<WorkmailEntity[]> = currentUsersResponse.then(response => filterUndef(response.Users?.map(convertUser) ?? []))
   
-  let entitiesPromise: Promise<WorkmailEntity[]> = groupsPromise.then(groups => usersPromise.then(users => R.concat(groups, users)))
+  let entitiesPromise: Promise<WorkmailEntity[]> = groupsPromise.then(groups => usersPromise.then(users => [...groups, ...users]))
   
   return entitiesPromise
     .then(R.curry(workmailEntitiesWithAliases)(workmail))
