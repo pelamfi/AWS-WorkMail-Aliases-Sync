@@ -16,13 +16,13 @@ export type WorkmailEntity = WorkmailUser | WorkmailGroup
 export type WorkmailEntityMap = {[index: string]: WorkmailEntity}
 
 export type EntityMap = {
-  byId: WorkmailEntityMap
-  byEmail: WorkmailEntityMap
+  readonly byId: WorkmailEntityMap
+  readonly byEmail: WorkmailEntityMap
 }
 
 export type WorkmailMap = {
-  entityMap: EntityMap,
-  emailMap: EmailMap
+  readonly entityMap: EntityMap,
+  readonly emailMap: EmailMap
 }
 
 export function workmailMapFromEntities(entities: [WorkmailEntity, [EmailAddr]][]): WorkmailMap {
