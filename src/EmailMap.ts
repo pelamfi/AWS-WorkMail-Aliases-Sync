@@ -35,4 +35,4 @@ export interface EmailGroupAlias {
 
 export type Email = EmailUser | EmailUserAlias | EmailGroup | EmailGroupAlias
 
-export type EmailMap = {[index: string]: Email}
+export type EmailMap = {readonly [index: string]: Email}
