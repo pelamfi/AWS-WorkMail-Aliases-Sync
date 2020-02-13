@@ -15,6 +15,19 @@ export function executeAwsEmailOperation(workmail: Workmail, entityMap: EntityMa
   }
 
   switch (op.kind) {
+    case "AddGroup": {
+      let request: AWS.WorkMail.Types.CreateGroupRequest = {OrganizationId: workmail.organizationId, Name: op.group.email.email}
+      entityMap['foo'] = {kind: "WorkmailUser"}
+      console.log(`add group ${op.group.email.email}`)
+      return workmail.service.createGroup(request)
+    }
+    case "AddGroupMember": {
+      let groupEntity = resolveEntityId(op.group.email)
+      let userEntity = resolveEntityId(op.member.email)
+      let request: AWS.WorkMail.Types.AssociateMemberToGroupRequest = {OrganizationId: workmail.organizationId, GroupId: groupEntity.entityId, MemberId: userEntity.entityId}
+      console.log(`add group member ${op.group.email.email} ${op.member.email.email}`)
+      return workmail.service.associateMemberToGroup(request)
+    }
     case "AddGroupAlias": {
       let groupEntity = resolveEntityId(op.alias.group.email)
       let aliasEmail = op.alias.email.email
