@@ -1,4 +1,4 @@
-import { EmailUserAlias, EmailGroupAlias } from './EmailMap';
+import { EmailUserAlias, EmailGroupAlias, EmailGroup, EmailUser } from './EmailMap';
 
 export interface AddUserAlias {
   kind: "AddUserAlias",
@@ -20,4 +20,15 @@ export interface AddGroupAlias {
   alias: EmailGroupAlias
 }
 
-export type EmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias
+export interface AddGroup {
+  kind: "AddGroup",
+  group: EmailGroup
+}
+
+export interface AddGroupMember {
+  kind: "AddGroupMember",
+  group: EmailGroup,
+  member: EmailUser
+}
+
+export type EmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias | AddGroup | AddGroupMember
