@@ -25,6 +25,7 @@ export interface EmailUserAlias {
 export interface EmailGroup {
   readonly kind: "EmailGroup",
   readonly email: EmailAddr
+  readonly members: EmailUser[]
 }
 
 export interface EmailGroupAlias {
