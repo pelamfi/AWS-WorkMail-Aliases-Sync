@@ -3,7 +3,7 @@ import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {emailAddDomain} from './EmailUtil'
 import {filterUndef} from './UndefUtil'
-import { EmailUserAlias, EmailAddr, EmailUser, EmailMap } from './EmailMap';
+import { EmailUserAlias, EmailAddr, EmailUser, EmailMap, Email, EmailGroup } from './EmailMap';
 
 export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEmail: ((localUser: string) => EmailAddr|undefined)): EmailMap {
 
@@ -21,13 +21,29 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliase
     return [user, aliases]
   }
 
-  let allAliases = filterUndef(R.flatten(aliasesFileUsers.users.map(localUserToEmails)))
+  let emails = filterUndef(aliasesFileUsers.users.map(localUserToEmails))
 
-  let allAliasesByEmail = R.groupBy((alias) => alias.email.email, allAliases)
+  let users = emails.map(x => x[0])
+  let aliases = R.flatten(emails.map(x => x[1]))
 
-  let [groups, regularAliases] = R.partition(alias => allAliasesByEmail[alias.email.email].length > 1, allAliases)
+  // To check if there are multiple aliases but for different users
+  let allAliasesByEmail = R.groupBy((alias) => alias.email.email, aliases)
 
-  console.log("TODO, handle groups", groups.length) // TODO: Handle cases where multiple users have same alias, create groups
+  // Aliases that target multiple users are "groups"
+  let [groups, regularAliases] = R.partition(alias => allAliasesByEmail[alias.email.email].length > 1, aliases)
 
-  return R.zipObj(regularAliases.map(a => a.email.email), regularAliases)
+  // Email aliases that target multiple users
+  let groupEmails = R.uniq(groups.map(x => x.email.email))
+
+  let convertedGroups: Email[] = R.flatten(groupEmails.map( groupEmail => {
+      let aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail]
+      let group: EmailGroup = {kind: "EmailGroup", email: new EmailAddr(groupEmail), members: aliasesOfGroup.map(x => x.user)}
+      // NOTE: his code does not generate aliases now. It could match groups targeting same set of users and generate aliases
+      //let groupAliases: EmailGroupAlias[] = aliasesOfGroup.map(alias => ({kind: "EmailGroupAlias", group, email: alias.email}))
+      return [group] // ...groupAliases, 
+    }))
+
+  let results: Email[] = [...convertedGroups, ...users, ...regularAliases]
+
+  return R.zipObj(results.map(a => a.email.email), results)
 }
