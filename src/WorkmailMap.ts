@@ -66,6 +66,3 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][
 
   return {entityMap, emailMap}
 }
-
-//function mergeEntityMaps(a: WorkmailMap, b: WorkmailMap) {
-//}
