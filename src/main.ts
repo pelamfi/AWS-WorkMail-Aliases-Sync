@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToAwsMap';
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
-import { executeAwsEmailOperation } from './AwsEmailExecute';
+import { createAwsWorkmailRequest } from './AwsEmailExecute';
 import { serialPromises } from './PromiseUtil';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { EmailAddr } from './EmailMap';
@@ -59,7 +59,7 @@ async function main() {
 
   const syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
 
-  const syncOperationPromises = syncOperations.map(op => () => executeAwsEmailOperation(workmail, currentWorkmailMap.entityMap, op).promise())
+  const syncOperationPromises = syncOperations.map(op => () => createAwsWorkmailRequest(workmail, currentWorkmailMap.entityMap, op).promise())
   const results: any[] = await serialPromises(syncOperationPromises)
 
   console.log(`${results.length} operations completed`)

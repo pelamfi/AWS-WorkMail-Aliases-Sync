@@ -4,7 +4,7 @@ import {EmailOperation} from './EmailOperation';
 import {EntityMap, WorkmailEntityCommon} from './WorkmailMap';
 import { EmailAddr } from './EmailMap';
 
-export function executeAwsEmailOperation(workmail: Workmail, entityMap: EntityMap, op: EmailOperation): AWS.Request<any, AWS.AWSError> {
+export function createAwsWorkmailRequest(workmail: Workmail, entityMap: EntityMap, op: EmailOperation): AWS.Request<any, AWS.AWSError> {
 
   function resolveEntityId(email: EmailAddr): WorkmailEntityCommon {
     const entity = entityMap.byEmail[email.email]
