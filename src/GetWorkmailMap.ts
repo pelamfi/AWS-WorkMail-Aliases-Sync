@@ -1,10 +1,10 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
-import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails} from './WorkmailMap';
+import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails, EntityMap} from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
-import { isGeneratedGroupName } from './EmailMap';
+import { isGeneratedGroupName, EmailGroup } from './EmailMap';
 import { EmailAddr } from "./EmailAddr";
 
 async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, EmailAddr[]]> {
@@ -102,4 +102,11 @@ export async function getWorkmailMap(workmail: Workmail): Promise<WorkmailMap> {
     )
     .then(R.curry(workmailEntitiesWithAliases)(workmail))
     .then(workmailMapFromEntitiesAndEmails)
+}
+
+export function addGroupToEntityMap(entityMap: EntityMap, group: EmailGroup, entityId: AWS.WorkMail.WorkMailIdentifier): EntityMap {
+  let workmailGroup: WorkmailGroup = {kind: "WorkmailGroup", name: group.name, email: group.email, entityId}
+  let byId = R.assoc(entityId, workmailGroup, entityMap.byEmail)
+  let byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail)
+  return {byId, byEmail}
 }
