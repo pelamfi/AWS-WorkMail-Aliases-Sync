@@ -49,7 +49,7 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][
     }
     switch (entity.kind) {
       case "WorkmailGroup": {
-          let group: EmailGroup = {kind: "EmailGroup", email: mainEmail, members: []} // members are fetched later
+          let group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members: []} // members are fetched later
           let aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
           return [group, ...aliasesObjs]
       }

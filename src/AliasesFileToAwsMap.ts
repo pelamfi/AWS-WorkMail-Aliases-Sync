@@ -3,7 +3,7 @@ import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {emailAddDomain} from './EmailUtil'
 import {filterUndef} from './UndefUtil'
-import { EmailUserAlias, EmailAddr, EmailUser, EmailMap, Email, EmailGroup } from './EmailMap';
+import { EmailUserAlias, EmailAddr, EmailUser, EmailMap, Email, EmailGroup, generatedGroupName } from './EmailMap';
 
 export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEmail: ((localUser: string) => EmailAddr|undefined)): EmailMap {
 
@@ -37,7 +37,10 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliase
 
   let convertedGroups: Email[] = R.flatten(groupEmails.map( groupEmail => {
       let aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail]
-      let group: EmailGroup = {kind: "EmailGroup", email: new EmailAddr(groupEmail), members: aliasesOfGroup.map(x => x.user)}
+      let email = new EmailAddr(groupEmail)
+      let members = aliasesOfGroup.map(x => x.user)
+      let name = generatedGroupName(email)
+      let group: EmailGroup = {kind: "EmailGroup", email, name, members: members}
       // NOTE: his code does not generate aliases now. It could match groups targeting same set of users and generate aliases
       //let groupAliases: EmailGroupAlias[] = aliasesOfGroup.map(alias => ({kind: "EmailGroupAlias", group, email: alias.email}))
       return [group] // ...groupAliases, 
