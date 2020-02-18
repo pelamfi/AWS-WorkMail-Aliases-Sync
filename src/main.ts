@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToAwsMap';
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
-import { createAwsWorkmailRequest } from './AwsEmailExecute';
+import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { serialPromises } from './PromiseUtil';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { EmailAddr } from "./EmailAddr";
