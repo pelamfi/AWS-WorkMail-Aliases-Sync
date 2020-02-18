@@ -5,13 +5,13 @@ function localUserToEmail(localEmail: string): EmailAddr {
   return new EmailAddr(`${localEmail}-localEmail@foo`)
 }
 
-let userEmail1 = new EmailAddr("localemail-localEmail@foo")
-let userEmail2 = new EmailAddr("localemail2-localEmail@foo")
-let user1: EmailUser = { kind: "EmailUser", email: userEmail1 }
-let user2: EmailUser = { kind: "EmailUser", email: userEmail2 }
-let alias1 = new EmailAddr("fooalias@domain")
-let alias2 = new EmailAddr("fooalias2@domain")
-let alias3 = new EmailAddr("fooalias3@domain")
+const userEmail1 = new EmailAddr("localemail-localEmail@foo")
+const userEmail2 = new EmailAddr("localemail2-localEmail@foo")
+const user1: EmailUser = { kind: "EmailUser", email: userEmail1 }
+const user2: EmailUser = { kind: "EmailUser", email: userEmail2 }
+const alias1 = new EmailAddr("fooalias@domain")
+const alias2 = new EmailAddr("fooalias2@domain")
+const alias3 = new EmailAddr("fooalias3@domain")
 
 describe('Creating EmailMap from aliases file´', () => {
   it('accepts empty data', () => {
@@ -19,7 +19,7 @@ describe('Creating EmailMap from aliases file´', () => {
   });
 
   it('creates a single alias', () => {
-    let expected: EmailMap = {
+    const expected: EmailMap = {
       "fooalias@domain": { kind: "EmailUserAlias", user: user1, email: alias1 },
       "localemail-localEmail@foo": user1
     }
@@ -28,7 +28,7 @@ describe('Creating EmailMap from aliases file´', () => {
   });
 
   it('creates 2 aliases for a single user', () => {
-    let expected: EmailMap = {
+    const expected: EmailMap = {
       "fooalias@domain": { kind: "EmailUserAlias", user: user1, email: alias1 },
       "fooalias2@domain": { kind: "EmailUserAlias", user: user1, email: alias2 },
       "localemail-localEmail@foo": user1
@@ -39,7 +39,7 @@ describe('Creating EmailMap from aliases file´', () => {
 
   it('creates aliases for a 2 users', () => {
 
-    let expected: EmailMap = {
+    const expected: EmailMap = {
       "fooalias@domain": { kind: "EmailUserAlias", user: user1, email: alias1 },
       "fooalias2@domain": { kind: "EmailUserAlias", user: user2, email: alias2 },
       "fooalias3@domain": { kind: "EmailUserAlias", user: user2, email: alias3 },

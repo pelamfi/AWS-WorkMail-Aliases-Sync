@@ -23,8 +23,8 @@ describe('Promise utilities', () => {
   });
 
   it('flattenRight accepts a large tree', () => {
-    let array: number[] = Array(100000).map((_, i) => i)
-    let tree = R.reduce((prev, x) => [x, prev], [], array) as any[]
+    const array: number[] = Array(100000).map((_, i) => i)
+    const tree = R.reduce((prev, x) => [x, prev], [], array) as any[]
     return expect(flattenRight(tree).length).toStrictEqual(array.length)
   });
 

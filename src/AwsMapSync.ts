@@ -5,9 +5,9 @@ import { EmailMap, EmailGroup } from './EmailMap';
 
 export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOperation[] {
 
-  let removals = R.keys(currentMap).map((email): EmailOperation|undefined => {
-    let current = currentMap[email]
-    let target = targetMap[email]
+  const removals = R.keys(currentMap).map((email): EmailOperation|undefined => {
+    const current = currentMap[email]
+    const target = targetMap[email]
 
     if (current === undefined) {
       return undefined
@@ -29,9 +29,9 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
     return undefined
   })
 
-  let additions = R.flatten(R.keys(targetMap).map((email): EmailOperation[] | undefined => {
-    let target = targetMap[email]
-    let current = currentMap[email]
+  const additions = R.flatten(R.keys(targetMap).map((email): EmailOperation[] | undefined => {
+    const target = targetMap[email]
+    const current = currentMap[email]
     switch (target.kind) {
       case "EmailGroupAlias":
       if (current == undefined || (current.kind == "EmailGroupAlias" && current.group.email.email != target.group.email.email)) {
@@ -45,8 +45,8 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
       break;
       case "EmailGroup": 
       if (current == undefined) {
-        let group: EmailGroup = target
-        let members: AddGroupMember[] = target.members.map(member => ({kind: "AddGroupMember", group, member}))
+        const group: EmailGroup = target
+        const members: AddGroupMember[] = target.members.map(member => ({kind: "AddGroupMember", group, member}))
         return [{kind: "AddGroup", group}, ...members]
       }
       break;
