@@ -9,7 +9,7 @@ import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './AwsEmailExecute';
 import { serialPromises } from './PromiseUtil';
 import { getWorkmailMap } from './GetWorkmailMap';
-import { EmailAddr } from './EmailMap';
+import { EmailAddr } from "./EmailAddr";
 import { aliasLimitWorkaround } from './AliasLimitWorkaround';
 
 console.log("Script starting, configuring AWS");

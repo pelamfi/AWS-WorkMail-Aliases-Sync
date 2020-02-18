@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk'
 import {Workmail} from './AwsWorkMailUtil';
 import {EmailOperation} from './EmailOperation';
 import {EntityMap, WorkmailEntityCommon} from './WorkmailMap';
-import { EmailAddr } from './EmailMap';
+import { EmailAddr } from "./EmailAddr";
 
 export function createAwsWorkmailRequest(workmail: Workmail, entityMap: EntityMap, op: EmailOperation): AWS.Request<any, AWS.AWSError> {
 
