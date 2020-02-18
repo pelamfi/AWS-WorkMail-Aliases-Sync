@@ -17,7 +17,7 @@ export function createAwsWorkmailRequest(workmail: Workmail, entityMap: EntityMa
 
   switch (op.kind) {
     case "AddGroup": {
-      const request: AWS.WorkMail.Types.CreateGroupRequest = {OrganizationId: workmail.organizationId, Name: "group-" + op.group.email.email}
+      const request: AWS.WorkMail.Types.CreateGroupRequest = {OrganizationId: workmail.organizationId, Name: op.group.name}
       console.log(`add group ${op.group.name} (${op.group.email.email})`)
       return workmail.service.createGroup(request)
     }
