@@ -18,21 +18,21 @@ export function executeAwsEmailOperation(workmail: Workmail, entityMap: EntityMa
   switch (op.kind) {
     case "AddGroup": {
       const request: AWS.WorkMail.Types.CreateGroupRequest = {OrganizationId: workmail.organizationId, Name: "group-" + op.group.email.email}
-      console.log(`add group ${op.group.email.email}`)
+      console.log(`add group ${op.group.name} (${op.group.email.email})`)
       return workmail.service.createGroup(request)
     }
     case "AddGroupMember": {
       const groupEntity = resolveEntityId(op.group.email)
       const userEntity = resolveEntityId(op.member.email)
       const request: AWS.WorkMail.Types.AssociateMemberToGroupRequest = {OrganizationId: workmail.organizationId, GroupId: groupEntity.entityId, MemberId: userEntity.entityId}
-      console.log(`add group member ${op.group.email.email} ${op.member.email.email}`)
+      console.log(`add group member ${op.member.email.email} to ${op.group.name}`)
       return workmail.service.associateMemberToGroup(request)
     }
     case "AddGroupAlias": {
       const groupEntity = resolveEntityId(op.alias.group.email)
       const aliasEmail = op.alias.email.email
       const request = {OrganizationId: workmail.organizationId, EntityId: groupEntity.entityId, Alias: aliasEmail}
-      console.log(`add alias ${aliasEmail} to group ${groupEntity.name}`)
+      console.log(`add alias ${aliasEmail} to group to ${op.alias.group.name}`)
       return workmail.service.createAlias(request)
     }
     case "AddUserAlias": {
