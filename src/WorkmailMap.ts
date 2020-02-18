@@ -27,42 +27,42 @@ export type WorkmailMap = {
 
 export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][]): WorkmailMap {
 
-  let byId = R.zipObj(entities.map(entity => entity[0].entityId), entities.map(p => p[0]))
+  const byId = R.zipObj(entities.map(entity => entity[0].entityId), entities.map(p => p[0]))
 
-  let entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
-    let [entity, aliases] = entityPair
-    let mainEmail = entity.email
-    let emails: EmailAddr[] = [...(mainEmail === undefined ? [] : [mainEmail]), ...aliases]
-    let pairs: [EmailAddr, WorkmailEntity][] = emails.map(email => [email, entity])
+  const entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
+    const [entity, aliases] = entityPair
+    const mainEmail = entity.email
+    const emails: EmailAddr[] = [...(mainEmail === undefined ? [] : [mainEmail]), ...aliases]
+    const pairs: [EmailAddr, WorkmailEntity][] = emails.map(email => [email, entity])
     return R.zipObj(pairs.map(p => p[0].email), pairs.map(p => p[1]))
   })
 
-  let byEmail = R.mergeAll(entitiesByEmails)
+  const byEmail = R.mergeAll(entitiesByEmails)
 
-  let entityMap: EntityMap = {byId, byEmail}
+  const entityMap: EntityMap = {byId, byEmail}
 
-  let emailMapParts = entities.map((entityPair): Email[]|undefined => {
-    let [entity, aliases] = entityPair
-    let mainEmail = entity.email
+  const emailMapParts = entities.map((entityPair): Email[]|undefined => {
+    const [entity, aliases] = entityPair
+    const mainEmail = entity.email
     if (mainEmail === undefined) {
       return undefined
     }
     switch (entity.kind) {
       case "WorkmailGroup": {
-          let group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members: []} // members are fetched later
-          let aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
+          const group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members: []} // members are fetched later
+          const aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
           return [group, ...aliasesObjs]
       }
       case "WorkmailUser": {
-          let user: EmailUser = {kind: "EmailUser", email: mainEmail}
-          let aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailUserAlias", email, user}))
+          const user: EmailUser = {kind: "EmailUser", email: mainEmail}
+          const aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailUserAlias", email, user}))
           return [user, ...aliasesObjs]
         }
       }
   })
 
-  let emailMapItems = R.flatten(filterUndef(emailMapParts))
-  let emailMap: EmailMap = R.zipObj(emailMapItems.map(i => i.email.email), emailMapItems)
+  const emailMapItems = R.flatten(filterUndef(emailMapParts))
+  const emailMap: EmailMap = R.zipObj(emailMapItems.map(i => i.email.email), emailMapItems)
 
   return {entityMap, emailMap}
 }

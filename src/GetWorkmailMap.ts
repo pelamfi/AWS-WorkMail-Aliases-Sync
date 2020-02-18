@@ -10,7 +10,7 @@ async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(w
   return workmail.service
     .listAliases({ EntityId: entity.entityId, OrganizationId: workmail.organizationId}).promise()
     .then( response => {
-      let aliases: EmailAddr[] = response.Aliases
+      const aliases: EmailAddr[] = response.Aliases
         ?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
         .map(alias => new EmailAddr(alias)) ?? []
       return [entity, aliases]
@@ -23,8 +23,8 @@ async function workmailGroupWithMembers(workmail: Workmail, userMap: WorkmailUse
   return workmail.service
     .listGroupMembers({ GroupId: group.entityId, OrganizationId: workmail.organizationId}).promise()
     .then( response => {
-      let memberIds = filterUndef(response.Members?.map(member => member?.Id) ?? [])
-      let members: WorkmailUser[] = filterUndef(memberIds.map(memberId => userMap[memberId]))
+      const memberIds = filterUndef(response.Members?.map(member => member?.Id) ?? [])
+      const members: WorkmailUser[] = filterUndef(memberIds.map(memberId => userMap[memberId]))
       return {...group, members}
     })
 }
@@ -49,25 +49,25 @@ function convertEntityCommon(kind: string, entity: AWS.WorkMail.User|AWS.WorkMai
 }
 
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup|undefined {
-  let kind: "WorkmailGroup" = "WorkmailGroup"
-  let common = convertEntityCommon(kind, group)
+  const kind: "WorkmailGroup" = "WorkmailGroup"
+  const common = convertEntityCommon(kind, group)
   return mapUndef(common => ({...common, kind}), common)
 }
 
 function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
-  let kind: "WorkmailUser" = "WorkmailUser"
-  let common = convertEntityCommon(kind, user)
+  const kind: "WorkmailUser" = "WorkmailUser"
+  const common = convertEntityCommon(kind, user)
   return mapUndef(common => ({...common, kind}), common)
 }
 
 function workmailEntitiesWithAliases(workmail, entities: WorkmailEntity[]): Promise<[WorkmailEntity, EmailAddr[]][]> {
-  let promises: (() => Promise<[WorkmailEntity, EmailAddr[]]>)[] = entities
+  const promises: (() => Promise<[WorkmailEntity, EmailAddr[]]>)[] = entities
     .map(entity => (() => workmailEntityWithAliases(workmail, entity)))
   return serialPromises(promises)
 }
 
 async function groupsWithMembers(workmail: Workmail, userMap: WorkmailUserMap, groups: WorkmailGroup[]): Promise<WorkmailGroup[]> {
-  let promises: (() => Promise<WorkmailGroup>)[] = 
+  const promises: (() => Promise<WorkmailGroup>)[] = 
     groups.map(group => (() => workmailGroupWithMembers(workmail, userMap, group)))
   return serialPromises(promises)
 }
@@ -80,7 +80,7 @@ async function getWorkmailUsers(workmail: Workmail): Promise<WorkmailUser[]> {
 }
 
 async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[]): Promise<WorkmailGroup[]> {
-  let userMap: WorkmailUserMap = R.zipObj(users.map(x => x.entityId), users)
+  const userMap: WorkmailUserMap = R.zipObj(users.map(x => x.entityId), users)
 
   return workmail.service
     .listGroups({ OrganizationId: workmail.organizationId })

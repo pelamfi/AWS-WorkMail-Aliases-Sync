@@ -23,14 +23,14 @@ function toAliasesPerUser(alias: AliasesFileAlias): AliasesFileUser[] {
 }
 
 export function aliasesPerUser(aliasesFile: AliasesFileAlias[]): AliasesFileUsers {
-  let asAliasesPerUser: AliasesFileUser[] = R.chain(toAliasesPerUser, aliasesFile)
-  let grouped: { [index: string]: AliasesFileUser[] } = R.groupBy(aliasesPerUser => aliasesPerUser.localEmail, asAliasesPerUser)
+  const asAliasesPerUser: AliasesFileUser[] = R.chain(toAliasesPerUser, aliasesFile)
+  const grouped: { [index: string]: AliasesFileUser[] } = R.groupBy(aliasesPerUser => aliasesPerUser.localEmail, asAliasesPerUser)
   
-  let users = Object
+  const users = Object
     .keys(grouped)
     .sort()
     .map(localEmail => {
-      let combinedAliases = R.chain(user => user.aliases, grouped[localEmail]).sort()
+      const combinedAliases = R.chain(user => user.aliases, grouped[localEmail]).sort()
       return ({ localEmail: localEmail, aliases: combinedAliases })}
     ) 
 

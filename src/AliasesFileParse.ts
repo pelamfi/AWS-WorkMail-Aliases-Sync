@@ -17,11 +17,11 @@ const targetsSplitRegex = /\s*,\s*/
 
 export function parse(input: string): AliasesFile | ParseError {
   
-  let aliasesOrUndefs = filterUndef(input
+  const aliasesOrUndefs = filterUndef(input
   .split(lineSplitRegex)
   .filter(line => line !== "")
   .map((line: string): AliasesFileAlias|ParseError|undefined => {
-    let match = line.match(aliasRegex)
+    const match = line.match(aliasRegex)
     if (match == null) {
       if (line.match(commentRegex)) {
         return undefined

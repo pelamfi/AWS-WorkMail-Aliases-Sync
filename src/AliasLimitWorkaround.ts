@@ -4,20 +4,20 @@ import { EmailMap, EmailUserAlias } from './EmailMap';
 
 export function aliasLimitWorkaround(emailMap: EmailMap): EmailMap {
 
-  let userAliases = Object.values(emailMap).filter( x => x.kind == "EmailUserAlias" ) as EmailUserAlias[]
+  const userAliases = Object.values(emailMap).filter( x => x.kind == "EmailUserAlias" ) as EmailUserAlias[]
 
-  let groupByUserEmail = R.groupBy((email: EmailUserAlias): string => email.user.email.email)
+  const groupByUserEmail = R.groupBy((email: EmailUserAlias): string => email.user.email.email)
 
-  let grouped: {[index: string]: EmailUserAlias[]} = groupByUserEmail(userAliases)
+  const grouped: {[index: string]: EmailUserAlias[]} = groupByUserEmail(userAliases)
 
-  let aliasLimit = 80 // 100 really
+  const aliasLimit = 80 // 100 really
 
   type EmailAddrMap = {[index: string]: EmailUserAlias}
 
-  let excessAliases: EmailAddrMap = R.mergeAll(Object
+  const excessAliases: EmailAddrMap = R.mergeAll(Object
     .values(grouped)
     .map((aliasesForUser: EmailUserAlias[]): EmailAddrMap => {
-      let excess = R.drop(aliasLimit, aliasesForUser)
+      const excess = R.drop(aliasLimit, aliasesForUser)
       return R.zipObj(excess.map(x => x.email.email), excess)
       }
     ))
@@ -26,6 +26,6 @@ export function aliasLimitWorkaround(emailMap: EmailMap): EmailMap {
     return excessAliases[email.email.email] === undefined
   }
 
-  let filtered = Object.values(emailMap).filter(isNotExcess)
+  const filtered = Object.values(emailMap).filter(isNotExcess)
   return R.zipObj(filtered.map(x => x.email.email), filtered)
 }
