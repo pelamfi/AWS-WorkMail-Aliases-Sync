@@ -1,6 +1,7 @@
 import { awsMapSync } from '../src/AwsMapSync';
-import { EmailMap, EmailAddr, EmailUser } from '../src/EmailMap';
+import { EmailMap, EmailUser } from '../src/EmailMap';
 import { EmailOperation } from '../src/EmailOperation';
+import { EmailAddr } from '../src/EmailAddr';
 
 const userEmail1 = new EmailAddr("user1@bar")
 const userEmail2 = new EmailAddr("user2@bar")

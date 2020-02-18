@@ -3,7 +3,8 @@ import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {emailAddDomain} from './EmailUtil'
 import {filterUndef} from './UndefUtil'
-import { EmailUserAlias, EmailAddr, EmailUser, EmailMap, Email, EmailGroup, generatedGroupName } from './EmailMap';
+import { EmailUserAlias, EmailUser, EmailMap, Email, EmailGroup, generatedGroupName } from './EmailMap';
+import { EmailAddr } from "./EmailAddr";
 
 export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliasesFileDomain: string, localUserToEmail: ((localUser: string) => EmailAddr|undefined)): EmailMap {
 
