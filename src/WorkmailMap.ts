@@ -4,9 +4,9 @@ import { EmailMap, EmailAddr, EmailGroup, Email, EmailUser } from './EmailMap'
 import { filterUndef } from './UndefUtil';
 
 export interface WorkmailEntityCommon {
-  entityId: AWS.WorkMail.WorkMailIdentifier,
-  name: string,
-  email?: EmailAddr
+  readonly entityId: AWS.WorkMail.WorkMailIdentifier,
+  readonly name: string,
+  readonly email?: EmailAddr
 }
 
 export type WorkmailUser = {kind: "WorkmailUser"} & WorkmailEntityCommon

@@ -3,7 +3,7 @@ import { emailLocal } from './EmailUtil'
 export type PlainEmailAddress = string
 
 export class EmailAddr {
-  private _email: PlainEmailAddress // using private disables structural
+  private readonly _email: PlainEmailAddress // using private disables structural typing
   constructor(email: PlainEmailAddress) {
     this._email = email
   }
