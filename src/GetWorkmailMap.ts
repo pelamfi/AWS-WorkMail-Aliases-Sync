@@ -85,8 +85,11 @@ async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[]): Pro
   return workmail.service
     .listGroups({ OrganizationId: workmail.organizationId })
     .promise()
-    .then(response => filterUndef(response.Groups?.map(convertGroup) ?? []))
-    .then(groups => groups.filter(x => isGeneratedGroupName(x.name)))
+    .then(response => response.Groups ?? [])
+    .then(filterUndef)
+    .then(groups => groups.filter(x => isGeneratedGroupName(x.Name ?? "")))
+    .then(R.map(convertGroup))
+    .then(filterUndef)
     .then(groups => groupsWithMembers(workmail, userMap, groups))
 }
 
