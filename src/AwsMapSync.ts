@@ -1,7 +1,7 @@
-import {EmailOperation} from './EmailOperation';
+import {EmailOperation, AddGroupMember} from './EmailOperation';
 import * as R from 'ramda';
 import {filterUndef} from './UndefUtil'
-import { EmailMap } from './EmailMap';
+import { EmailMap, EmailGroup } from './EmailMap';
 
 export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOperation[] {
 
@@ -29,18 +29,25 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
     return undefined
   })
 
-  let additions = R.keys(targetMap).map((email): EmailOperation | undefined => {
+  let additions = R.flatten(R.keys(targetMap).map((email): EmailOperation[] | undefined => {
     let target = targetMap[email]
     let current = currentMap[email]
     switch (target.kind) {
       case "EmailGroupAlias":
       if (current == undefined || (current.kind == "EmailGroupAlias" && current.group.email.email != target.group.email.email)) {
-        return {kind: "AddGroupAlias", alias: target}
+        return [{kind: "AddGroupAlias", alias: target}]
       }
       break;
       case "EmailUserAlias": 
       if (current == undefined || (current.kind == "EmailUserAlias" && current.user.email.email != target.user.email.email)) {
-        return {kind: "AddUserAlias", alias: target}
+        return [{kind: "AddUserAlias", alias: target}]
+      }
+      break;
+      case "EmailGroup": 
+      if (current == undefined) {
+        let group: EmailGroup = target
+        let members: AddGroupMember[] = target.members.map(member => ({kind: "AddGroupMember", group, member}))
+        return [{kind: "AddGroup", group}, ...members]
       }
       break;
       default:
@@ -49,7 +56,7 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
       }
     }
     return undefined
-  })
+  }))
 
   return [...filterUndef(removals), ...filterUndef(additions)]
 }
