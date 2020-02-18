@@ -4,7 +4,7 @@ import {Workmail} from './AwsWorkMailUtil';
 import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails} from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
-import { EmailAddr } from './EmailMap';
+import { EmailAddr, isGeneratedGroupName } from './EmailMap';
 
 async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, EmailAddr[]]> {
   return workmail.service
@@ -86,6 +86,7 @@ async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[]): Pro
     .listGroups({ OrganizationId: workmail.organizationId })
     .promise()
     .then(response => filterUndef(response.Groups?.map(convertGroup) ?? []))
+    .then(groups => groups.filter(x => isGeneratedGroupName(x.name)))
     .then(groups => groupsWithMembers(workmail, userMap, groups))
 }
 
