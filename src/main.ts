@@ -7,10 +7,11 @@ import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToA
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
-import { serialPromises } from './PromiseUtil';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { EmailAddr } from "./EmailAddr";
 import { aliasLimitWorkaround } from './AliasLimitWorkaround';
+import { EntityMap, WorkmailMap } from './WorkmailMap';
+import { EmailOperation } from './EmailOperation';
 
 console.log("Script starting, configuring AWS");
 
@@ -59,10 +60,22 @@ async function main() {
 
   const syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
 
-  const syncOperationPromises = syncOperations.map(op => () => createAwsWorkmailRequest(workmail, currentWorkmailMap.entityMap, op).promise())
-  const results: any[] = await serialPromises(syncOperationPromises)
+  const initialPromise: Promise<EntityMap> = Promise.resolve<EntityMap>(currentWorkmailMap.entityMap)
+  
+  function reductionStep(prev: Promise<EntityMap>, op: EmailOperation): Promise<EntityMap> {
+    return prev.then(entityMap => {
+      return createAwsWorkmailRequest(workmail, entityMap, op)
+        .then( entityMapUpdate => {
+          return entityMapUpdate(entityMap)
+        })
+    })
+  }
 
-  console.log(`${results.length} operations completed`)
+  let finalEntityMap = await syncOperations.reduce(reductionStep, initialPromise)
+
+  let finalMap: WorkmailMap = {entityMap: finalEntityMap, emailMap: targetAwsEmailMap}
+
+  console.log(`${syncOperations.length} operations completed, entityIds: ${Object.keys(finalMap.entityMap.byId).length}`)
 }
 
 main()
