@@ -1,21 +1,21 @@
 import * as R from 'ramda';
 
 export interface AliasesFileUser {
-  localEmail: string // the name of the the alias, no domain part
-  aliases: string[]
+  readonly localEmail: string // the name of the the alias, no domain part
+  readonly aliases: string[]
 }
 
 export interface AliasesFileAlias {
-  alias: string // the name of the the alias, no domain part
-  localEmails: string[] // name(s) of local users that this localEmail is alias of
+  readonly alias: string // the name of the the alias, no domain part
+  readonly localEmails: string[] // name(s) of local users that this localEmail is alias of
 }
 
 export interface AliasesFile {
-  aliases: AliasesFileAlias[]
+  readonly aliases: AliasesFileAlias[]
 }
 
 export interface AliasesFileUsers {
-  users: AliasesFileUser[]
+  readonly users: AliasesFileUser[]
 }
 
 function toAliasesPerUser(alias: AliasesFileAlias): AliasesFileUser[] {

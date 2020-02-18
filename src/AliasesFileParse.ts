@@ -2,7 +2,7 @@ import {AliasesFileAlias, AliasesFile} from './AliasesFile'
 import {filterUndef} from './UndefUtil'
 
 export class ParseError {
-  error: string
+  readonly error: string
 
   constructor(error: string) {
     this.error = error;

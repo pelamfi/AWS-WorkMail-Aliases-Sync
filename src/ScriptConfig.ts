@@ -1,10 +1,10 @@
 import { readFileSync } from 'fs';
 
 export interface Config {
-  workmailOrganizationId: string
-  aliasesFile: string
-  aliasesFileDomain: string
-  localEmailUserToEmail: { [index: string]: string }
+  readonly workmailOrganizationId: string
+  readonly aliasesFile: string
+  readonly aliasesFileDomain: string
+  readonly localEmailUserToEmail: { readonly [index: string]: string }
 }
 
 export const configFile = "./management-script-config.json"
