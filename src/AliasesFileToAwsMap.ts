@@ -1,7 +1,6 @@
 import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
-import {emailAddDomain} from './EmailUtil'
 import {filterUndef} from './UndefUtil'
 import { EmailUserAlias, EmailUser, EmailMap, Email, EmailGroup, generatedGroupName } from './EmailMap';
 import { EmailAddr } from "./EmailAddr";
@@ -16,8 +15,8 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, aliase
     }
     const user: EmailUser = {kind: "EmailUser", email: localUserEmail}
     const aliases = localUser.aliases.map( (alias): EmailUserAlias  => {
-      const email = emailAddDomain(alias, aliasesFileDomain)
-      return {kind: "EmailUserAlias", email: new EmailAddr(email), user}
+      const email = new EmailAddr(alias, aliasesFileDomain)
+      return {kind: "EmailUserAlias", email, user}
     })
     return [user, aliases]
   }

@@ -1,4 +1,3 @@
-import { emailLocal } from './EmailUtil'
 import { EmailAddr } from './EmailAddr'
 
 export interface EmailUser {
@@ -38,5 +37,5 @@ export function isGeneratedGroupName(groupName: string): boolean {
 
 // Default group name based on email address.
 export function generatedGroupName(email: EmailAddr) {
-  return groupNamePrefix + emailLocal(email.email)
+  return groupNamePrefix + email.local
 }
