@@ -25,10 +25,15 @@ export interface AddGroup {
   readonly group: EmailGroup
 }
 
+export interface RemoveGroup {
+  readonly kind: "RemoveGroup",
+  readonly group: EmailGroup
+}
+
 export interface AddGroupMember {
   readonly kind: "AddGroupMember",
   readonly group: EmailGroup,
   readonly member: EmailUser
 }
 
-export type EmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias | AddGroup | AddGroupMember
+export type EmailOperation = AddUserAlias | RemoveUserAlias | RemoveGroupAlias | AddGroupAlias | AddGroup | RemoveGroup | AddGroupMember
