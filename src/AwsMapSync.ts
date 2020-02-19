@@ -22,7 +22,7 @@ export function awsMapSync(currentMap: EmailMap, targetMap: EmailMap): EmailOper
     if (current.kind == "EmailGroupAlias" && ((target?.kind == "EmailGroupAlias" && target?.group.email.email != current.group.email.email) || current.kind != target?.kind)) {
       return {kind: "RemoveGroupAlias", alias: current}
     }
-    else if (current.kind == "EmailGroup" && target !== undefined && (target.kind !== "EmailGroup" || !groupsEqual(current, target))) {
+    else if (current.kind == "EmailGroup" && (target === undefined || (target.kind !== "EmailGroup" || !groupsEqual(current, target)))) {
       return {kind: "RemoveGroup", group: current}
     }
     else if (current.kind == "EmailUserAlias" && ((target?.kind == "EmailUserAlias" && target?.user.email.email != current.user.email.email) || current.kind != target?.kind)) {

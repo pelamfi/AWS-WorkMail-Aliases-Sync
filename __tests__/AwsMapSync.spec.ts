@@ -66,4 +66,12 @@ describe('Synchronizing 2 AwsMaps', () => {
     expect(awsMapSync(current, target)).toStrictEqual(expected)
   });
 
+  it('Removes a group if it does not exist anmyore', () => {
+    const group1: EmailGroup = {kind: "EmailGroup", email: email1, name: "foogroup", members: [user1]}
+    const current: EmailMap = {email1: group1}
+    const target: EmailMap = {}
+    const expected: EmailOperation[] = [{kind: "RemoveGroup", group: group1 }]
+    expect(awsMapSync(current, target)).toStrictEqual(expected)
+  });
+
 })
