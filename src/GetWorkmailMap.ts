@@ -56,7 +56,7 @@ function convertEntityCommon(kind: string, entity: AWS.WorkMail.User|AWS.WorkMai
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup|undefined {
   const kind: "WorkmailGroup" = "WorkmailGroup"
   const common = convertEntityCommon(kind, group)
-  return mapUndef(common => ({...common, kind}), common)
+  return mapUndef(common => ({...common, kind, members: []}), common) // members are fetched separately
 }
 
 function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
@@ -113,7 +113,8 @@ export async function getWorkmailMap(workmail: Workmail): Promise<WorkmailMap> {
 }
 
 export function addGroupToEntityMap(entityMap: EntityMap, group: EmailGroup, entityId: AWS.WorkMail.WorkMailIdentifier): EntityMap {
-  let workmailGroup: WorkmailGroup = {kind: "WorkmailGroup", name: group.name, email: group.email, entityId}
+  // TODO: members should be set to reflect updated state. Possibly add them with AddGroupMember operations
+  let workmailGroup: WorkmailGroup = {kind: "WorkmailGroup", name: group.name, email: group.email, entityId, members: []}
   let byId = R.assoc(entityId, workmailGroup, entityMap.byEmail)
   let byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail)
   return {byId, byEmail}
