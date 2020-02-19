@@ -3,7 +3,7 @@ import {Workmail} from './AwsWorkMailUtil';
 import {EmailOperation} from './EmailOperation';
 import {EntityMap, WorkmailEntityCommon} from './WorkmailMap';
 import { EmailAddr } from "./EmailAddr";
-import { addGroupToEntityMap } from './GetWorkmailMap';
+import { addGroupToEntityMap, removeGroupFromEntityMap } from './GetWorkmailMap';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap
 
@@ -74,6 +74,19 @@ export function createAwsWorkmailRequest(workmail: Workmail, entityMap: EntityMa
       const request = {OrganizationId: workmail.organizationId, EntityId: userEntity.entityId, Alias: aliasEmail}
       console.log(`remove alias ${aliasEmail} from user ${userEntity.name}`)
       return workmail.service.deleteAlias(request).promise().then(noEntityMapUpdate)
+    }
+    case "RemoveGroup": {
+      const groupEntity = resolveEntityId(op.group.email)
+      const unregisterRequest: AWS.WorkMail.Types.DeregisterFromWorkMailRequest = {OrganizationId: workmail.organizationId, EntityId: groupEntity.entityId}
+      const request: AWS.WorkMail.Types.DeleteGroupRequest = {OrganizationId: workmail.organizationId, GroupId: groupEntity.entityId}
+      console.log(`remove group ${op.group.name}`)
+      return workmail.service.deregisterFromWorkMail(unregisterRequest)
+        .promise()
+        .then(_ => workmail.service.deleteGroup(request)
+          .promise()
+          .then( () => 
+            (entityMap: EntityMap) => removeGroupFromEntityMap(entityMap, op.group, groupEntity.entityId))
+        )
     }
   }
 }

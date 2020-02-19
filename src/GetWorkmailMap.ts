@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import * as R from 'ramda';
 import {Workmail} from './AwsWorkMailUtil';
-import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails, EntityMap} from './WorkmailMap';
+import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails, EntityMap, WorkmailEntityMap} from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 import { isGeneratedGroupName, EmailGroup } from './EmailMap';
@@ -63,7 +63,7 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
   if (user.State == "DISABLED") {
     return undefined // filter out disabled users (includes default system users)
   }
-  
+
   const kind: "WorkmailUser" = "WorkmailUser"
   const common = convertEntityCommon(kind, user)
   return mapUndef(common => ({...common, kind}), common)
@@ -117,5 +117,11 @@ export function addGroupToEntityMap(entityMap: EntityMap, group: EmailGroup, ent
   let workmailGroup: WorkmailGroup = {kind: "WorkmailGroup", name: group.name, email: group.email, entityId, members: []}
   let byId = R.assoc(entityId, workmailGroup, entityMap.byEmail)
   let byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail)
+  return {byId, byEmail}
+}
+
+export function removeGroupFromEntityMap(entityMap: EntityMap, group: EmailGroup, entityId: AWS.WorkMail.WorkMailIdentifier): EntityMap {
+  let byId: WorkmailEntityMap = R.dissoc(entityId, entityMap.byEmail)
+  let byEmail: WorkmailEntityMap = R.dissoc(group.email.email, entityMap.byEmail)
   return {byId, byEmail}
 }
