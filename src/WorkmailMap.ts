@@ -11,7 +11,7 @@ export interface WorkmailEntityCommon {
 }
 
 export type WorkmailUser = {kind: "WorkmailUser"} & WorkmailEntityCommon
-export type WorkmailGroup = {kind: "WorkmailGroup"} & WorkmailEntityCommon
+export type WorkmailGroup = {kind: "WorkmailGroup", members: WorkmailUser[]} & WorkmailEntityCommon
 export type WorkmailEntity = WorkmailUser | WorkmailGroup
 
 export type WorkmailEntityMap = {readonly [index: string]: WorkmailEntity}
@@ -50,7 +50,12 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][
     }
     switch (entity.kind) {
       case "WorkmailGroup": {
-          const group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members: []} // members are fetched later
+          let members: EmailUser[] =
+            filterUndef(entity.members.map( entity => entity.email))
+            .map( (email): EmailUser => {
+              return {kind: "EmailUser", email}
+            })
+          const group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members}
           const aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
           return [group, ...aliasesObjs]
       }
