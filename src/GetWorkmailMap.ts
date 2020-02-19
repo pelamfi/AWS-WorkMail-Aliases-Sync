@@ -31,6 +31,10 @@ async function workmailGroupWithMembers(workmail: Workmail, userMap: WorkmailUse
 }
 
 function convertEntityCommon(kind: string, entity: AWS.WorkMail.User|AWS.WorkMail.Group): WorkmailEntityCommon|undefined {
+  if (entity.State === "DELETED") {
+    return undefined // filter out ghosts
+  }
+
   if (entity.Name === undefined) {
     console.log(`Warning: AWS ${kind} without name`)
     return undefined
@@ -56,6 +60,10 @@ function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup|undefined {
 }
 
 function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
+  if (user.State == "DISABLED") {
+    return undefined // filter out disabled users (includes default system users)
+  }
+  
   const kind: "WorkmailUser" = "WorkmailUser"
   const common = convertEntityCommon(kind, user)
   return mapUndef(common => ({...common, kind}), common)
