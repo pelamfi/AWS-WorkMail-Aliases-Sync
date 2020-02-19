@@ -29,8 +29,8 @@ export function aliasesPerUser(aliasesFile: AliasesFileAlias[]): AliasesFileUser
   const users = Object
     .keys(grouped)
     .sort()
-    .map(localEmail => {
-      const combinedAliases = R.chain(user => user.aliases, grouped[localEmail]).sort()
+    .map((localEmail): AliasesFileUser => {
+      const combinedAliases: string[] = R.uniq(R.chain(user => user.aliases, grouped[localEmail]).sort())
       return ({ localEmail: localEmail, aliases: combinedAliases })}
     ) 
 
