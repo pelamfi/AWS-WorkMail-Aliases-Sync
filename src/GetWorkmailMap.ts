@@ -42,7 +42,7 @@ function convertEntityCommon(kind: string, entity: AWS.WorkMail.User|AWS.WorkMai
   }
 
   if (entity.Email === undefined) {
-    console.log(`Warning: AWS ${kind} without email`)
+    console.log(`Warning: AWS ${kind} ${entity.Name} without email`)
     return undefined
   }
 
