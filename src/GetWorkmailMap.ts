@@ -23,7 +23,7 @@ type WorkmailUserMap = {readonly [index: string]: WorkmailUser}
 async function workmailGroupWithMembers(workmail: Workmail, userMap: WorkmailUserMap, group: WorkmailGroup): Promise<WorkmailGroup> {
   return workmail.service
     .listGroupMembers({ GroupId: group.entityId, OrganizationId: workmail.organizationId}).promise()
-    .then( response => {
+    .then( (response): WorkmailGroup => {
       const memberIds = filterUndef(response.Members?.map(member => member?.Id) ?? [])
       const members: WorkmailUser[] = filterUndef(memberIds.map(memberId => userMap[memberId]))
       return {...group, members}
