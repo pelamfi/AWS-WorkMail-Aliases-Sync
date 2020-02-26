@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 
 export interface Config {
   readonly workmailOrganizationId: string
+  readonly groupPrefix: string,
   readonly aliasesFile: string
   readonly aliasesFileDomain: string
   readonly localEmailUserToEmail: { readonly [index: string]: string }
