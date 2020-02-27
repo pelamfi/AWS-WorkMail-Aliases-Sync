@@ -37,7 +37,7 @@ export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: Work
     .map((userEmail: string): [string, EmailUserAlias[][]] => {
       const aliasesForUser = groupedByUser[userEmail]
       const groupsNeeded = Math.ceil(aliasesForUser.length / aliasLimit)
-      const sliceIndices = R.range(0, groupsNeeded + 1)
+      const sliceIndices = R.range(0, groupsNeeded)
       const aliasesSliced = sliceIndices.map(groupIndex => aliasesForUser.slice(groupIndex * aliasLimit, (groupIndex + 1) * aliasLimit))
       return [userEmail, aliasesSliced]
       })
@@ -50,10 +50,10 @@ export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: Work
     const groupIndices = R.range(0, overflowing.length)
     const groups: EmailGroup[] = groupIndices.map((groupIndex): EmailGroup => {
       const name = `${config.groupPrefix}-alias-${groupIndex}`
-      const email = new EmailAddr(`${name}@${config.aliasesFileDomain})`)
+      const email = new EmailAddr(`${name}@${config.aliasesFileDomain}`)
       return {kind: "EmailGroup", email, members: [user], name}
     })
-    const groupAliases: EmailGroupAlias[] = R.flatten(R.tail(groups).map((group, groupIndex): EmailGroupAlias[] => {
+    const groupAliases: EmailGroupAlias[] = R.flatten(groups.map((group, groupIndex): EmailGroupAlias[] => {
       const aliases = overflowing[groupIndex]
       return aliases.map((alias): EmailGroupAlias => ({kind: 'EmailGroupAlias', group, email: alias.email}))
     }))
