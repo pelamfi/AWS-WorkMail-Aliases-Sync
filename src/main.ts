@@ -9,7 +9,7 @@ import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { EmailAddr } from "./EmailAddr";
-import { aliasLimitWorkaround } from './AliasLimitWorkaround';
+import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
 
@@ -54,14 +54,14 @@ async function main() {
   }
 
   const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEmail)
-  const targetAwsEmailMap = aliasLimitWorkaround(targetAwsEmailMapIdeal)
+  const targetAwsEmailMap = emailMapAliasLimitWorkaround(targetAwsEmailMapIdeal, scriptConfig)
 
   console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.emailMap).length} aliases`)
 
   const syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
 
   const initialPromise: Promise<EntityMap> = Promise.resolve<EntityMap>(currentWorkmailMap.entityMap)
-  
+
   function reductionStep(prev: Promise<EntityMap>, op: EmailOperation): Promise<EntityMap> {
     return prev.then(entityMap => {
       return createAwsWorkmailRequest(workmail, entityMap, op)
