@@ -49,7 +49,8 @@ export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: Work
     const overflowing = R.drop(1, aliasesGroups)
     const groupIndices = R.range(0, overflowing.length)
     const groups: EmailGroup[] = groupIndices.map((groupIndex): EmailGroup => {
-      const name = `${config.groupPrefix}-alias-${groupIndex}`
+      
+      const name = `${config.groupPrefix}-alias-${user.email.local}-${groupIndex}`
       const email = new EmailAddr(`${name}@${config.aliasesFileDomain}`)
       return {kind: "EmailGroup", email, members: [user], name}
     })

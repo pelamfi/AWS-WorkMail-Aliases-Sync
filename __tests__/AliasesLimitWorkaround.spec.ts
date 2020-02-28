@@ -18,11 +18,11 @@ const alias2: EmailUserAlias = { kind: "EmailUserAlias", email: alias2Email, use
 const user2: EmailUser = { kind: "EmailUser", email: userEmail2 }
 const alias3: EmailUserAlias = { kind: "EmailUserAlias", email: alias3Email, user: user2 }
 const alias4: EmailUserAlias = { kind: "EmailUserAlias", email: alias4Email, user: user2 }
-const aliasGroup1Email = new EmailAddr("prefix-alias-0@domain")
-const aliasGroup1: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-0", email: aliasGroup1Email, members: [user1]}
+const aliasGroup1Email = new EmailAddr("prefix-alias-user1-0@domain")
+const aliasGroup1: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-user1-0", email: aliasGroup1Email, members: [user1]}
 const alias2OnGroup1: EmailGroupAlias = {kind: "EmailGroupAlias", email: alias2Email, group: aliasGroup1}
-const aliasGroup2Email = new EmailAddr("prefix-alias-1@domain")
-const aliasGroup2: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-1", email: aliasGroup2Email, members: [user2]}
+const aliasGroup2Email = new EmailAddr("prefix-alias-user2-0@domain")
+const aliasGroup2: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-user2-0", email: aliasGroup2Email, members: [user2]}
 const alias4OnGroup2: EmailGroupAlias = {kind: "EmailGroupAlias", email: alias4Email, group: aliasGroup2}
 
 describe('Workaround for limit on aliases per entity', () => {
@@ -48,7 +48,7 @@ describe('Workaround for limit on aliases per entity', () => {
     const expected = {
       "user1@bar": user1,
       "alias1@bar": alias1,
-      "prefix-alias-0@domain": aliasGroup1,
+      "prefix-alias-user1-0@domain": aliasGroup1,
       "alias2@bar": alias2OnGroup1
     }
     expect(emailMapAliasLimitWorkaround(input, config)).toStrictEqual(expected);
