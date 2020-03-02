@@ -4,7 +4,7 @@ import {Workmail} from './AwsWorkMailUtil';
 import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails, EntityMap, WorkmailEntityMap} from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
-import { isGeneratedGroupName, EmailGroup } from './EmailMap';
+import { isGeneratedGroupName, EmailGroup, Config } from './EmailMap';
 import { EmailAddr } from "./EmailAddr";
 
 async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, EmailAddr[]]> {
@@ -88,7 +88,7 @@ async function getWorkmailUsers(workmail: Workmail): Promise<WorkmailUser[]> {
     .then(response => filterUndef(response.Users?.map(convertUser) ?? []))
 }
 
-async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[]): Promise<WorkmailGroup[]> {
+async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[], config: Config): Promise<WorkmailGroup[]> {
   const userMap: WorkmailUserMap = R.zipObj(users.map(x => x.entityId), users)
 
   return workmail.service
@@ -96,16 +96,16 @@ async function getWorkmailGroups(workmail: Workmail, users: WorkmailUser[]): Pro
     .promise()
     .then(response => response.Groups ?? [])
     .then(filterUndef)
-    .then(groups => groups.filter(x => isGeneratedGroupName(x.Name ?? "")))
+    .then(groups => groups.filter(x => isGeneratedGroupName(x.Name ?? "", config)))
     .then(R.map(convertGroup))
     .then(filterUndef)
     .then(groups => groupsWithMembers(workmail, userMap, groups))
 }
 
-export async function getWorkmailMap(workmail: Workmail): Promise<WorkmailMap> {
+export async function getWorkmailMap(workmail: Workmail, config: Config): Promise<WorkmailMap> {
   return getWorkmailUsers(workmail)
     .then(users => 
-      getWorkmailGroups(workmail, users)
+      getWorkmailGroups(workmail, users, config)
       .then(groups => [...users, ...groups])
     )
     .then(R.curry(workmailEntitiesWithAliases)(workmail))
