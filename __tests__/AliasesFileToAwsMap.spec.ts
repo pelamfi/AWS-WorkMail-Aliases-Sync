@@ -1,4 +1,4 @@
-import { aliasesFileToEmailMap } from '../src/AliasesFileToAwsMap';
+import { aliasesFileToEmailMap, Config } from '../src/AliasesFileToAwsMap';
 import { EmailMap, EmailUser } from '../src/EmailMap';
 import { EmailAddr } from '../src/EmailAddr';
 
@@ -14,9 +14,13 @@ const alias1 = new EmailAddr("fooalias@domain")
 const alias2 = new EmailAddr("fooalias2@domain")
 const alias3 = new EmailAddr("fooalias3@domain")
 
+function config(localUserToEmail: ((localUser: string) => EmailAddr|undefined)): Config {
+  return {aliasesFileDomain: "domain", localUserToEmail, groupPrefix: "groupPrefix"}
+}
+
 describe('Creating EmailMap from aliases file´', () => {
   it('accepts empty data', () => {
-    expect(aliasesFileToEmailMap({ users: [] }, "domain", () => undefined)).toStrictEqual({});
+    expect(aliasesFileToEmailMap({ users: [] }, config(() => undefined))).toStrictEqual({})
   });
 
   it('creates a single alias', () => {
@@ -24,8 +28,8 @@ describe('Creating EmailMap from aliases file´', () => {
       "fooalias@domain": { kind: "EmailUserAlias", user: user1, email: alias1 },
       "localemail-localEmail@foo": user1
     }
-    expect(aliasesFileToEmailMap({ users: [{ localEmail: "localemail", aliases: ["fooalias"] }] }, "domain", localUserToEmail))
-      .toStrictEqual(expected);
+    expect(aliasesFileToEmailMap({ users: [{ localEmail: "localemail", aliases: ["fooalias"] }] }, config(localUserToEmail)))
+      .toStrictEqual(expected)
   });
 
   it('creates 2 aliases for a single user', () => {
@@ -34,8 +38,8 @@ describe('Creating EmailMap from aliases file´', () => {
       "fooalias2@domain": { kind: "EmailUserAlias", user: user1, email: alias2 },
       "localemail-localEmail@foo": user1
     }
-    expect(aliasesFileToEmailMap({ users: [{ localEmail: "localemail", aliases: ["fooalias", "fooalias2"] }] }, "domain", localUserToEmail))
-      .toStrictEqual(expected);
+    expect(aliasesFileToEmailMap({ users: [{ localEmail: "localemail", aliases: ["fooalias", "fooalias2"] }] }, config(localUserToEmail)))
+      .toStrictEqual(expected)
   });
 
   it('creates aliases for a 2 users', () => {
@@ -53,8 +57,8 @@ describe('Creating EmailMap from aliases file´', () => {
         { localEmail: "localemail", aliases: ["fooalias"] },
         { localEmail: "localemail2", aliases: ["fooalias2", "fooalias3"] },
       ]
-    }, "domain", localUserToEmail))
-      .toStrictEqual(expected);
+    }, config(localUserToEmail)))
+      .toStrictEqual(expected)
   });
 
 })

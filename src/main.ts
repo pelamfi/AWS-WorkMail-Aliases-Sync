@@ -39,7 +39,7 @@ async function main() {
 
   const workmail = {service: workmailService, organizationId: scriptConfig.workmailOrganizationId}
   console.log('Fetching the current users, groups and aliases from AWS')
-  const currentWorkmailMap = await getWorkmailMap(workmail)
+  const currentWorkmailMap = await getWorkmailMap(workmail, scriptConfig)
 
   console.log('Reading the aliases file')
   const aliasesFile = aliasesFromFile()
@@ -53,7 +53,7 @@ async function main() {
     return new EmailAddr(localEmail)
   }
 
-  const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, scriptConfig.aliasesFileDomain, localUserToEmail)
+  const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {...scriptConfig, localUserToEmail})
   const targetAwsEmailMap = emailMapAliasLimitWorkaround(targetAwsEmailMapIdeal, scriptConfig)
 
   console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.emailMap).length} aliases`)

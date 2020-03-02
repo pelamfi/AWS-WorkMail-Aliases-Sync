@@ -1,5 +1,9 @@
 import { EmailAddr } from './EmailAddr'
 
+export interface Config {
+  groupPrefix: string
+}
+
 export interface EmailUser {
   readonly kind: "EmailUser",
   readonly email: EmailAddr
@@ -28,14 +32,12 @@ export type Email = EmailUser | EmailUserAlias | EmailGroup | EmailGroupAlias
 
 export type EmailMap = {readonly [index: string]: Email}
 
-const groupNamePrefix = "generated-"
-
 // Looks like a name made with the generatedGroupName function below.
-export function isGeneratedGroupName(groupName: string): boolean {
-  return groupName.startsWith(groupNamePrefix)
+export function isGeneratedGroupName(groupName: string, config: Config): boolean {
+  return groupName.startsWith(config.groupPrefix + "-")
 }
 
 // Default group name based on email address.
-export function generatedGroupName(email: EmailAddr) {
-  return groupNamePrefix + email.local
+export function generatedGroupName(email: EmailAddr, config: Config) {
+  return config.groupPrefix + "-" + email.local
 }
