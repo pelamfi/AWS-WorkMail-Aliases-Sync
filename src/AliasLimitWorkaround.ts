@@ -1,6 +1,6 @@
 
 import * as R from 'ramda';
-import { EmailMap, EmailUserAlias, EmailGroup, Email, EmailGroupAlias } from './EmailMap';
+import { EmailMap, EmailUserAlias, EmailGroup, EmailItem, EmailGroupAlias } from './EmailMap';
 import { EmailAddr } from './EmailAddr';
 
 // Information needed to create the groups for the workaround
@@ -24,7 +24,7 @@ export function emailMapAliasLimitWorkaround(emails: EmailMap, config: Workaroun
 }
 
 // Convert excessive user aliases into groups with just that user and group aliases
-export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: WorkaroundConfig): Email[] {
+export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: WorkaroundConfig): EmailItem[] {
 
   const groupByUserEmail = R.groupBy((email: EmailUserAlias): string => email.user.email.email)
 
@@ -42,7 +42,7 @@ export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: Work
       return [userEmail, aliasesSliced]
       })
 
-  const aliasesWithGroupOverflow = R.flatten(aliasesByUserAndSlicedByLimit.map((record): Email[] => {
+  const aliasesWithGroupOverflow = R.flatten(aliasesByUserAndSlicedByLimit.map((record): EmailItem[] => {
     const [, aliasesGroups] = record
     const notOverflow = aliasesGroups[0]
     const user =  notOverflow[0].user

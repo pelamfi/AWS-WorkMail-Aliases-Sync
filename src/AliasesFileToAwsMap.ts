@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {filterUndef} from './UndefUtil'
-import { EmailUserAlias, EmailUser, EmailMap, Email, EmailGroup, generatedGroupName } from './EmailMap';
+import { EmailUserAlias, EmailUser, EmailMap, EmailItem, EmailGroup, generatedGroupName } from './EmailMap';
 import { EmailAddr } from "./EmailAddr";
 
 export interface Config {
@@ -41,7 +41,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, config
   // Email aliases that target multiple users
   const groupEmails = R.uniq(groups.map(x => x.email.email))
 
-  const convertedGroups: Email[] = R.flatten(groupEmails.map( groupEmail => {
+  const convertedGroups: EmailItem[] = R.flatten(groupEmails.map( groupEmail => {
       const aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail]
       const email = new EmailAddr(groupEmail)
       const members = aliasesOfGroup.map(x => x.user)
@@ -52,7 +52,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, config
       return [group] // ...groupAliases, 
     }))
 
-  const results: Email[] = [...convertedGroups, ...users, ...regularAliases]
+  const results: EmailItem[] = [...convertedGroups, ...users, ...regularAliases]
 
   return R.zipObj(results.map(a => a.email.email), results)
 }

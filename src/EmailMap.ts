@@ -1,5 +1,7 @@
 import { EmailAddr } from './EmailAddr'
 
+// This file contains types modeling email aliases and users.
+
 export interface Config {
   groupPrefix: string
 }
@@ -22,15 +24,15 @@ export interface EmailGroup {
   readonly members: EmailUser[]
 }
 
-export interface EmailGroupAlias {
+export interface EmailGroupAlias {d
   readonly kind: "EmailGroupAlias",
   readonly group: EmailGroup,
   readonly email: EmailAddr
 }
 
-export type Email = EmailUser | EmailUserAlias | EmailGroup | EmailGroupAlias
+export type EmailItem = EmailUser | EmailUserAlias | EmailGroup | EmailGroupAlias
 
-export type EmailMap = {readonly [index: string]: Email}
+export type EmailMap = {readonly [index: string]: EmailItem}
 
 // Looks like a name made with the generatedGroupName function below.
 export function isGeneratedGroupName(groupName: string, config: Config): boolean {
