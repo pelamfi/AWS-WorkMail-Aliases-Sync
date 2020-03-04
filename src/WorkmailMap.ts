@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import * as AWS from 'aws-sdk'
-import { EmailMap, EmailGroup, Email, EmailUser } from './EmailMap'
+import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap'
 import { EmailAddr } from "./EmailAddr";
 import { filterUndef } from './UndefUtil';
 
@@ -42,7 +42,7 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][
 
   const entityMap: EntityMap = {byId, byEmail}
 
-  const emailMapParts = entities.map((entityPair): Email[]|undefined => {
+  const emailMapParts = entities.map((entityPair): EmailItem[]|undefined => {
     const [entity, aliases] = entityPair
     const mainEmail = entity.email
     if (mainEmail === undefined) {
@@ -56,12 +56,12 @@ export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][
               return {kind: "EmailUser", email}
             })
           const group: EmailGroup = {kind: "EmailGroup", email: mainEmail, name: entity.name, members}
-          const aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
+          const aliasesObjs: EmailItem[] = aliases.map(email => ({kind: "EmailGroupAlias", email, group}))
           return [group, ...aliasesObjs]
       }
       case "WorkmailUser": {
           const user: EmailUser = {kind: "EmailUser", email: mainEmail}
-          const aliasesObjs: Email[] = aliases.map(email => ({kind: "EmailUserAlias", email, user}))
+          const aliasesObjs: EmailItem[] = aliases.map(email => ({kind: "EmailUserAlias", email, user}))
           return [user, ...aliasesObjs]
         }
       }
