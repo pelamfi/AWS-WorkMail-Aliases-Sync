@@ -8,7 +8,7 @@ import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailMap } from './GetWorkmailMap';
-import { Email } from "./EmailAddr";
+import { Email } from "./Email";
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';

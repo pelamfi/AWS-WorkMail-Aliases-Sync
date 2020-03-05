@@ -3,7 +3,7 @@ import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {filterUndef} from './UndefUtil'
 import { EmailUserAlias, EmailUser, EmailMap, EmailItem, EmailGroup, generatedGroupName } from './EmailMap';
-import { Email } from "./EmailAddr";
+import { Email } from "./Email";
 
 export interface Config {
   aliasesFileDomain: string, 

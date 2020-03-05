@@ -1,6 +1,6 @@
 import { aliasLimitWorkaround, emailMapAliasLimitWorkaround } from '../src/AliasLimitWorkaround';
 import { EmailMap, EmailUser, EmailUserAlias, EmailGroup, EmailGroupAlias } from '../src/EmailMap';
-import { Email } from '../src/EmailAddr';
+import { Email } from '../src/Email';
 
 const config = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 1}
 // const config2 = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 2}

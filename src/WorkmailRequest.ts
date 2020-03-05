@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk'
 import {Workmail} from './AwsWorkMailUtil';
 import {EmailOperation} from './EmailOperation';
 import {EntityMap, WorkmailEntityCommon} from './WorkmailMap';
-import { Email } from "./EmailAddr";
+import { Email } from "./Email";
 import { addGroupToEntityMap, removeGroupFromEntityMap } from './GetWorkmailMap';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap

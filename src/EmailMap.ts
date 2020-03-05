@@ -1,4 +1,4 @@
-import { Email } from './EmailAddr'
+import { Email } from './Email'
 
 // This file contains types modeling email aliases and users.
 

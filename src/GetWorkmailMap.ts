@@ -5,7 +5,7 @@ import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, Workmail
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 import { isGeneratedGroupName, EmailGroup, Config } from './EmailMap';
-import { Email } from "./EmailAddr";
+import { Email } from "./Email";
 
 async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, Email[]]> {
   return workmail.service
