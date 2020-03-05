@@ -36,6 +36,7 @@ The code is in the `src` and tests are in the `__tests__` directory.
 + `lint` - lint source files and tests,
 + `test` - run tests,
 + `test:watch` - interactive watch mode to automatically re-run tests
++ `prettier` - run prettier on source files
 
 ## About the original boilerplate, copyright and the license
 
