@@ -2,7 +2,8 @@ import * as R from 'ramda';
 import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {filterUndef} from './UndefUtil'
-import { EmailUserAlias, EmailUser, EmailMap, EmailItem, EmailGroup, generatedGroupName } from './EmailMap';
+import { EmailUserAlias, EmailUser, EmailMap, EmailItem, EmailGroup } from './EmailMap';
+import { generateGroupName } from './GroupNameUtil';
 import { Email } from "./Email";
 
 export interface Config {
@@ -45,7 +46,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, config
       const aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail]
       const email = new Email(groupEmail)
       const members = aliasesOfGroup.map(x => x.user)
-      const name = generatedGroupName(email, config)
+      const name = generateGroupName(email, config)
       const group: EmailGroup = {kind: "EmailGroup", email, name, members: members}
       // NOTE: his code does not generate aliases now. It could match groups targeting same set of users and generate aliases
       //const groupAliases: EmailGroupAlias[] = aliasesOfGroup.map(alias => ({kind: "EmailGroupAlias", group, email: alias.email}))

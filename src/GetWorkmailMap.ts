@@ -4,7 +4,8 @@ import {Workmail} from './AwsWorkMailUtil';
 import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, WorkmailEntity, workmailMapFromEntities as workmailMapFromEntitiesAndEmails, EntityMap, WorkmailEntityMap} from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
-import { isGeneratedGroupName, EmailGroup, Config } from './EmailMap';
+import { EmailGroup } from './EmailMap';
+import { isGeneratedGroupName, Config } from './GroupNameUtil';
 import { Email } from "./Email";
 
 async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, Email[]]> {
