@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk'
 import {Workmail} from './AwsWorkMailUtil';
 import {EmailOperation} from './EmailOperation';
 import {EntityMap, WorkmailEntityCommon} from './WorkmailMap';
-import { EmailAddr } from "./EmailAddr";
+import { Email } from "./EmailAddr";
 import { addGroupToEntityMap, removeGroupFromEntityMap } from './GetWorkmailMap';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap
@@ -11,7 +11,7 @@ const noEntityMapUpdate: (_: any) => EntityMapUpdate = _ => entityMap => entityM
 
 export function createAwsWorkmailRequest(workmail: Workmail, entityMap: EntityMap, op: EmailOperation): Promise<EntityMapUpdate> {
 
-  function resolveEntityId(email: EmailAddr): WorkmailEntityCommon {
+  function resolveEntityId(email: Email): WorkmailEntityCommon {
     const entity = entityMap.byEmail[email.email]
     if (entity !== undefined) {
       return entity

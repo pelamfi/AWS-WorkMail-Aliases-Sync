@@ -1,16 +1,16 @@
 import { aliasLimitWorkaround, emailMapAliasLimitWorkaround } from '../src/AliasLimitWorkaround';
 import { EmailMap, EmailUser, EmailUserAlias, EmailGroup, EmailGroupAlias } from '../src/EmailMap';
-import { EmailAddr } from '../src/EmailAddr';
+import { Email } from '../src/EmailAddr';
 
 const config = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 1}
 // const config2 = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 2}
 
-const userEmail1 = new EmailAddr("user1@bar")
-const alias1Email = new EmailAddr("alias1@bar")
-const alias2Email = new EmailAddr("alias2@bar")
-const alias3Email = new EmailAddr("alias1@bar")
-const alias4Email = new EmailAddr("alias2@bar")
-const userEmail2 = new EmailAddr("user2@bar")
+const userEmail1 = new Email("user1@bar")
+const alias1Email = new Email("alias1@bar")
+const alias2Email = new Email("alias2@bar")
+const alias3Email = new Email("alias1@bar")
+const alias4Email = new Email("alias2@bar")
+const userEmail2 = new Email("user2@bar")
 //const email1 = new EmailAddr("foo@bar")
 const user1: EmailUser = { kind: "EmailUser", email: userEmail1 }
 const alias1: EmailUserAlias = { kind: "EmailUserAlias", email: alias1Email, user: user1 }
@@ -18,10 +18,10 @@ const alias2: EmailUserAlias = { kind: "EmailUserAlias", email: alias2Email, use
 const user2: EmailUser = { kind: "EmailUser", email: userEmail2 }
 const alias3: EmailUserAlias = { kind: "EmailUserAlias", email: alias3Email, user: user2 }
 const alias4: EmailUserAlias = { kind: "EmailUserAlias", email: alias4Email, user: user2 }
-const aliasGroup1Email = new EmailAddr("prefix-alias-user1-0@domain")
+const aliasGroup1Email = new Email("prefix-alias-user1-0@domain")
 const aliasGroup1: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-user1-0", email: aliasGroup1Email, members: [user1]}
 const alias2OnGroup1: EmailGroupAlias = {kind: "EmailGroupAlias", email: alias2Email, group: aliasGroup1}
-const aliasGroup2Email = new EmailAddr("prefix-alias-user2-0@domain")
+const aliasGroup2Email = new Email("prefix-alias-user2-0@domain")
 const aliasGroup2: EmailGroup = {kind: "EmailGroup", name: "prefix-alias-user2-0", email: aliasGroup2Email, members: [user2]}
 const alias4OnGroup2: EmailGroupAlias = {kind: "EmailGroupAlias", email: alias4Email, group: aliasGroup2}
 

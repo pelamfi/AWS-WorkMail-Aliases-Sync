@@ -1,7 +1,7 @@
 
 import * as R from 'ramda';
 import { EmailMap, EmailUserAlias, EmailGroup, EmailItem, EmailGroupAlias } from './EmailMap';
-import { EmailAddr } from './EmailAddr';
+import { Email } from './EmailAddr';
 
 // Information needed to create the groups for the workaround
 export interface WorkaroundConfig {
@@ -51,7 +51,7 @@ export function aliasLimitWorkaround(userAliases: EmailUserAlias[], config: Work
     const groups: EmailGroup[] = groupIndices.map((groupIndex): EmailGroup => {
       
       const name = `${config.groupPrefix}-alias-${user.email.local}-${groupIndex}`
-      const email = new EmailAddr(`${name}@${config.aliasesFileDomain}`)
+      const email = new Email(`${name}@${config.aliasesFileDomain}`)
       return {kind: "EmailGroup", email, members: [user], name}
     })
     const groupAliases: EmailGroupAlias[] = R.flatten(groups.map((group, groupIndex): EmailGroupAlias[] => {

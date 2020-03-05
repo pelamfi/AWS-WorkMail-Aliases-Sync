@@ -1,6 +1,6 @@
 export type PlainEmailAddress = string
 
-export class EmailAddr {
+export class Email {
   private readonly _email: PlainEmailAddress // using private disables structural typing
 
   constructor(email: PlainEmailAddress)

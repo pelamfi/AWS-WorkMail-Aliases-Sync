@@ -1,13 +1,13 @@
 import * as R from 'ramda';
 import * as AWS from 'aws-sdk'
 import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap'
-import { EmailAddr } from "./EmailAddr";
+import { Email } from "./EmailAddr";
 import { filterUndef } from './UndefUtil';
 
 export interface WorkmailEntityCommon {
   readonly entityId: AWS.WorkMail.WorkMailIdentifier,
   readonly name: string,
-  readonly email?: EmailAddr
+  readonly email?: Email
 }
 
 export type WorkmailUser = {kind: "WorkmailUser"} & WorkmailEntityCommon
@@ -26,15 +26,15 @@ export type WorkmailMap = {
   readonly emailMap: EmailMap
 }
 
-export function workmailMapFromEntities(entities: [WorkmailEntity, EmailAddr[]][]): WorkmailMap {
+export function workmailMapFromEntities(entities: [WorkmailEntity, Email[]][]): WorkmailMap {
 
   const byId = R.zipObj(entities.map(entity => entity[0].entityId), entities.map(p => p[0]))
 
   const entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
     const [entity, aliases] = entityPair
     const mainEmail = entity.email
-    const emails: EmailAddr[] = [...(mainEmail === undefined ? [] : [mainEmail]), ...aliases]
-    const pairs: [EmailAddr, WorkmailEntity][] = emails.map(email => [email, entity])
+    const emails: Email[] = [...(mainEmail === undefined ? [] : [mainEmail]), ...aliases]
+    const pairs: [Email, WorkmailEntity][] = emails.map(email => [email, entity])
     return R.zipObj(pairs.map(p => p[0].email), pairs.map(p => p[1]))
   })
 
