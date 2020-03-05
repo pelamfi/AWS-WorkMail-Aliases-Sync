@@ -1,6 +1,6 @@
 import { aliasesFileToEmailMap, Config } from '../src/AliasesFileToAwsMap';
 import { EmailMap, EmailUser } from '../src/EmailMap';
-import { Email } from '../src/EmailAddr';
+import { Email } from '../src/Email';
 
 function localUserToEmail(localEmail: string): Email {
   return new Email(`${localEmail}-localEmail@foo`)

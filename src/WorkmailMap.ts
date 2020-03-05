@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import * as AWS from 'aws-sdk'
 import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap'
-import { Email } from "./EmailAddr";
+import { Email } from "./Email";
 import { filterUndef } from './UndefUtil';
 
 export interface WorkmailEntityCommon {

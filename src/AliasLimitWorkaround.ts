@@ -1,7 +1,7 @@
 
 import * as R from 'ramda';
 import { EmailMap, EmailUserAlias, EmailGroup, EmailItem, EmailGroupAlias } from './EmailMap';
-import { Email } from './EmailAddr';
+import { Email } from './Email';
 
 // Information needed to create the groups for the workaround
 export interface WorkaroundConfig {
