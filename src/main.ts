@@ -3,7 +3,7 @@ import * as ScriptConfig from './ScriptConfig'
 import * as AliasesFileParse from './AliasesFileParse';
 import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
-import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToAwsMap';
+import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';

@@ -1,4 +1,4 @@
-import { aliasesFileToEmailMap, Config } from '../src/AliasesFileToAwsMap';
+import { aliasesFileToEmailMap, Config } from '../src/AliasesFileToEmaiMap';
 import { EmailMap, EmailUser } from '../src/EmailMap';
 import { Email } from '../src/Email';
 
