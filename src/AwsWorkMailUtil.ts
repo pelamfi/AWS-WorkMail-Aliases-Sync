@@ -1,6 +1,6 @@
-import * as AWS from 'aws-sdk'
+import * as AWS from 'aws-sdk';
 
 export interface Workmail {
-  readonly service: AWS.WorkMail,
-  readonly organizationId: string,
+  readonly service: AWS.WorkMail;
+  readonly organizationId: string;
 }

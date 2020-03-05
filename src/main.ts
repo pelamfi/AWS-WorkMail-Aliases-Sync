@@ -1,81 +1,121 @@
-import * as AWS from 'aws-sdk'
-import * as ScriptConfig from './ScriptConfig'
+import * as AWS from 'aws-sdk';
+import * as ScriptConfig from './ScriptConfig';
 import * as AliasesFileParse from './AliasesFileParse';
 import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
-import { aliasesFileToEmailMap as aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
+import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailMap } from './GetWorkmailMap';
-import { Email } from "./Email";
+import { Email } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
 
-console.log("Script starting, configuring AWS");
+console.log('Script starting, configuring AWS');
 
 AWS.config.setPromisesDependency(null);
-AWS.config.loadFromPath("./aws-sdk-config.json")
-const workmailService = new AWS.WorkMail({ endpoint: "https://workmail.eu-west-1.amazonaws.com" });
+AWS.config.loadFromPath('./aws-sdk-config.json');
+const workmailService = new AWS.WorkMail({
+  endpoint: 'https://workmail.eu-west-1.amazonaws.com',
+});
 
-const scriptConfig = ScriptConfig.load()
+const scriptConfig = ScriptConfig.load();
 
 function aliasesFromFile(): Alias.AliasesFile {
-  const result = AliasesFileParse.parse(readFileSync(scriptConfig.aliasesFile).toString())
+  const result = AliasesFileParse.parse(
+    readFileSync(scriptConfig.aliasesFile).toString(),
+  );
   if (result instanceof AliasesFileParse.ParseError) {
-    throw `Error parsing ${scriptConfig.aliasesFile}: ${result.error}`
+    throw `Error parsing ${scriptConfig.aliasesFile}: ${result.error}`;
   } else {
-    return result
+    return result;
   }
 }
 
 async function main() {
-  console.log(`Syncing users and aliases from with AWS WorkMail:\n` + 
-    `  Using configuration file: ${ScriptConfig.configFile}\n` +
-    `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
-    `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
-    `  domain: ${scriptConfig.aliasesFileDomain}`)
+  console.log(
+    `Syncing users and aliases from with AWS WorkMail:\n` +
+      `  Using configuration file: ${ScriptConfig.configFile}\n` +
+      `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
+      `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
+      `  domain: ${scriptConfig.aliasesFileDomain}`,
+  );
 
-  const workmail = {service: workmailService, organizationId: scriptConfig.workmailOrganizationId}
-  console.log('Fetching the current users, groups and aliases from AWS')
-  const currentWorkmailMap = await getWorkmailMap(workmail, scriptConfig)
+  const workmail = {
+    service: workmailService,
+    organizationId: scriptConfig.workmailOrganizationId,
+  };
+  console.log('Fetching the current users, groups and aliases from AWS');
+  const currentWorkmailMap = await getWorkmailMap(workmail, scriptConfig);
 
-  console.log('Reading the aliases file')
-  const aliasesFile = aliasesFromFile()
-  const aliasesFileUsers = aliasesPerUser(aliasesFile.aliases)
+  console.log('Reading the aliases file');
+  const aliasesFile = aliasesFromFile();
+  const aliasesFileUsers = aliasesPerUser(aliasesFile.aliases);
 
   function localUserToEmail(localUser: string): Email | undefined {
-    const localEmail = scriptConfig.localEmailUserToEmail[localUser]
+    const localEmail = scriptConfig.localEmailUserToEmail[localUser];
     if (localEmail === undefined) {
-      return undefined
+      return undefined;
     }
-    return new Email(localEmail)
+    return new Email(localEmail);
   }
 
-  const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {...scriptConfig, localUserToEmail})
-  const targetAwsEmailMap = emailMapAliasLimitWorkaround(targetAwsEmailMapIdeal, scriptConfig)
+  const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {
+    ...scriptConfig,
+    localUserToEmail,
+  });
+  const targetAwsEmailMap = emailMapAliasLimitWorkaround(
+    targetAwsEmailMapIdeal,
+    scriptConfig,
+  );
 
-  console.log(`Computing operations to sync aliases file with ${Object.keys(targetAwsEmailMap).length} aliases to WorkMail with ${Object.keys(currentWorkmailMap.emailMap).length} aliases`)
+  console.log(
+    `Computing operations to sync aliases file with ${
+      Object.keys(targetAwsEmailMap).length
+    } aliases to WorkMail with ${
+      Object.keys(currentWorkmailMap.emailMap).length
+    } aliases`,
+  );
 
-  const syncOperations = emailMapSync(currentWorkmailMap.emailMap, targetAwsEmailMap)
+  const syncOperations = emailMapSync(
+    currentWorkmailMap.emailMap,
+    targetAwsEmailMap,
+  );
 
-  const initialPromise: Promise<EntityMap> = Promise.resolve<EntityMap>(currentWorkmailMap.entityMap)
+  const initialPromise: Promise<EntityMap> = Promise.resolve<EntityMap>(
+    currentWorkmailMap.entityMap,
+  );
 
-  function reductionStep(prev: Promise<EntityMap>, op: EmailOperation): Promise<EntityMap> {
+  function reductionStep(
+    prev: Promise<EntityMap>,
+    op: EmailOperation,
+  ): Promise<EntityMap> {
     return prev.then(entityMap => {
-      return createAwsWorkmailRequest(workmail, entityMap, op)
-        .then( entityMapUpdate => {
-          return entityMapUpdate(entityMap)
-        })
-    })
+      return createAwsWorkmailRequest(workmail, entityMap, op).then(
+        entityMapUpdate => {
+          return entityMapUpdate(entityMap);
+        },
+      );
+    });
   }
 
-  let finalEntityMap = await syncOperations.reduce(reductionStep, initialPromise)
+  let finalEntityMap = await syncOperations.reduce(
+    reductionStep,
+    initialPromise,
+  );
 
-  let finalMap: WorkmailMap = {entityMap: finalEntityMap, emailMap: targetAwsEmailMap}
+  let finalMap: WorkmailMap = {
+    entityMap: finalEntityMap,
+    emailMap: targetAwsEmailMap,
+  };
 
-  console.log(`${syncOperations.length} operations completed, entityIds: ${Object.keys(finalMap.entityMap.byId).length}`)
+  console.log(
+    `${syncOperations.length} operations completed, entityIds: ${
+      Object.keys(finalMap.entityMap.byId).length
+    }`,
+  );
 }
 
-main()
+main();
