@@ -1,10 +1,6 @@
 import { Email } from './Email'
 
-// This file contains types modeling email aliases and users.
-
-export interface Config {
-  groupPrefix: string
-}
+// This file contains EmailMap and its item types which model email aliases and users.
 
 export interface EmailUser {
   readonly kind: "EmailUser",
@@ -33,13 +29,3 @@ export interface EmailGroupAlias {
 export type EmailItem = EmailUser | EmailUserAlias | EmailGroup | EmailGroupAlias
 
 export type EmailMap = {readonly [index: string]: EmailItem}
-
-// Looks like a name made with the generatedGroupName function below.
-export function isGeneratedGroupName(groupName: string, config: Config): boolean {
-  return groupName.startsWith(config.groupPrefix + "-")
-}
-
-// Default group name based on email address.
-export function generatedGroupName(email: Email, config: Config) {
-  return config.groupPrefix + "-" + email.local
-}
