@@ -3,11 +3,11 @@ import {AliasesFileUsers} from './AliasesFile';
 import {AliasesFileUser} from './AliasesFile';
 import {filterUndef} from './UndefUtil'
 import { EmailUserAlias, EmailUser, EmailMap, EmailItem, EmailGroup, generatedGroupName } from './EmailMap';
-import { EmailAddr } from "./EmailAddr";
+import { Email } from "./EmailAddr";
 
 export interface Config {
   aliasesFileDomain: string, 
-  localUserToEmail: ((localUser: string) => EmailAddr|undefined)
+  localUserToEmail: ((localUser: string) => Email|undefined)
   groupPrefix: string
 }
 
@@ -21,7 +21,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, config
     }
     const user: EmailUser = {kind: "EmailUser", email: localUserEmail}
     const aliases = localUser.aliases.map( (alias): EmailUserAlias  => {
-      const email = new EmailAddr(alias, config.aliasesFileDomain)
+      const email = new Email(alias, config.aliasesFileDomain)
       return {kind: "EmailUserAlias", email, user}
     })
     return [user, aliases]
@@ -43,7 +43,7 @@ export function aliasesFileToEmailMap(aliasesFileUsers: AliasesFileUsers, config
 
   const convertedGroups: EmailItem[] = R.flatten(groupEmails.map( groupEmail => {
       const aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail]
-      const email = new EmailAddr(groupEmail)
+      const email = new Email(groupEmail)
       const members = aliasesOfGroup.map(x => x.user)
       const name = generatedGroupName(email, config)
       const group: EmailGroup = {kind: "EmailGroup", email, name, members: members}

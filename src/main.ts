@@ -8,7 +8,7 @@ import { aliasesPerUser } from './AliasesFile';
 import { awsMapSync as emailMapSync } from './AwsMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailMap } from './GetWorkmailMap';
-import { EmailAddr } from "./EmailAddr";
+import { Email } from "./EmailAddr";
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
@@ -45,12 +45,12 @@ async function main() {
   const aliasesFile = aliasesFromFile()
   const aliasesFileUsers = aliasesPerUser(aliasesFile.aliases)
 
-  function localUserToEmail(localUser: string): EmailAddr | undefined {
+  function localUserToEmail(localUser: string): Email | undefined {
     const localEmail = scriptConfig.localEmailUserToEmail[localUser]
     if (localEmail === undefined) {
       return undefined
     }
-    return new EmailAddr(localEmail)
+    return new Email(localEmail)
   }
 
   const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {...scriptConfig, localUserToEmail})

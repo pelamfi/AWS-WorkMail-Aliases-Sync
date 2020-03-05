@@ -1,20 +1,20 @@
 import { aliasesFileToEmailMap, Config } from '../src/AliasesFileToAwsMap';
 import { EmailMap, EmailUser } from '../src/EmailMap';
-import { EmailAddr } from '../src/EmailAddr';
+import { Email } from '../src/EmailAddr';
 
-function localUserToEmail(localEmail: string): EmailAddr {
-  return new EmailAddr(`${localEmail}-localEmail@foo`)
+function localUserToEmail(localEmail: string): Email {
+  return new Email(`${localEmail}-localEmail@foo`)
 }
 
-const userEmail1 = new EmailAddr("localemail-localEmail@foo")
-const userEmail2 = new EmailAddr("localemail2-localEmail@foo")
+const userEmail1 = new Email("localemail-localEmail@foo")
+const userEmail2 = new Email("localemail2-localEmail@foo")
 const user1: EmailUser = { kind: "EmailUser", email: userEmail1 }
 const user2: EmailUser = { kind: "EmailUser", email: userEmail2 }
-const alias1 = new EmailAddr("fooalias@domain")
-const alias2 = new EmailAddr("fooalias2@domain")
-const alias3 = new EmailAddr("fooalias3@domain")
+const alias1 = new Email("fooalias@domain")
+const alias2 = new Email("fooalias2@domain")
+const alias3 = new Email("fooalias3@domain")
 
-function config(localUserToEmail: ((localUser: string) => EmailAddr|undefined)): Config {
+function config(localUserToEmail: ((localUser: string) => Email|undefined)): Config {
   return {aliasesFileDomain: "domain", localUserToEmail, groupPrefix: "groupPrefix"}
 }
 

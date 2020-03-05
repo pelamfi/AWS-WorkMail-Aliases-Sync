@@ -5,15 +5,15 @@ import {WorkmailMap, WorkmailGroup, WorkmailUser, WorkmailEntityCommon, Workmail
 import { serialPromises } from './PromiseUtil';
 import {mapUndef, filterUndef} from './UndefUtil'
 import { isGeneratedGroupName, EmailGroup, Config } from './EmailMap';
-import { EmailAddr } from "./EmailAddr";
+import { Email } from "./EmailAddr";
 
-async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, EmailAddr[]]> {
+async function workmailEntityWithAliases<T extends WorkmailGroup|WorkmailUser>(workmail: Workmail, entity: T): Promise<[T, Email[]]> {
   return workmail.service
     .listAliases({ EntityId: entity.entityId, OrganizationId: workmail.organizationId}).promise()
     .then( response => {
-      const aliases: EmailAddr[] = response.Aliases
+      const aliases: Email[] = response.Aliases
         ?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
-        .map(alias => new EmailAddr(alias)) ?? []
+        .map(alias => new Email(alias)) ?? []
       return [entity, aliases]
     })
 }
@@ -50,7 +50,7 @@ function convertEntityCommon(kind: string, entity: AWS.WorkMail.User|AWS.WorkMai
     return undefined
   }
 
-  return {email: new EmailAddr(entity.Email), name: entity.Name, entityId: entity.Id}
+  return {email: new Email(entity.Email), name: entity.Name, entityId: entity.Id}
 }
 
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup|undefined {
@@ -69,8 +69,8 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser|undefined {
   return mapUndef(common => ({...common, kind}), common)
 }
 
-function workmailEntitiesWithAliases(workmail, entities: WorkmailEntity[]): Promise<[WorkmailEntity, EmailAddr[]][]> {
-  const promises: (() => Promise<[WorkmailEntity, EmailAddr[]]>)[] = entities
+function workmailEntitiesWithAliases(workmail, entities: WorkmailEntity[]): Promise<[WorkmailEntity, Email[]][]> {
+  const promises: (() => Promise<[WorkmailEntity, Email[]]>)[] = entities
     .map(entity => (() => workmailEntityWithAliases(workmail, entity)))
   return serialPromises(promises)
 }
