@@ -1,6 +1,13 @@
 import { Email } from './Email';
 
-// This file contains EmailMap and its item types which model email aliases and users.
+// EmailMap and its item types model email aliases and users.
+export type EmailMap = { readonly [index: string]: EmailItem };
+
+export type EmailItem =
+  | EmailUser
+  | EmailUserAlias
+  | EmailGroup
+  | EmailGroupAlias;
 
 export interface EmailUser {
   readonly kind: 'EmailUser';
@@ -25,11 +32,3 @@ export interface EmailGroupAlias {
   readonly group: EmailGroup;
   readonly email: Email;
 }
-
-export type EmailItem =
-  | EmailUser
-  | EmailUserAlias
-  | EmailGroup
-  | EmailGroupAlias;
-
-export type EmailMap = { readonly [index: string]: EmailItem };
