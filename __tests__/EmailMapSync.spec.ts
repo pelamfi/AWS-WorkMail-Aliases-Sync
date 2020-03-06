@@ -1,4 +1,4 @@
-import { awsMapSync } from '../src/AwsMapSync';
+import { emailMapSync } from '../src/EmailMapSync';
 import { EmailMap, EmailUser, EmailGroup } from '../src/EmailMap';
 import { EmailOperation } from '../src/EmailOperation';
 import { Email } from '../src/Email';
@@ -9,9 +9,9 @@ const email1 = new Email('foo@bar');
 const user1: EmailUser = { kind: 'EmailUser', email: userEmail1 };
 const user2: EmailUser = { kind: 'EmailUser', email: userEmail2 };
 
-describe('Synchronizing 2 AwsMaps', () => {
+describe('Generating operations to synchronize two EmailMaps', () => {
   it('accepts empty data', () => {
-    expect(awsMapSync({}, {})).toStrictEqual([]);
+    expect(emailMapSync({}, {})).toStrictEqual([]);
   });
 
   it('creates alias', () => {
@@ -25,7 +25,7 @@ describe('Synchronizing 2 AwsMaps', () => {
         alias: { kind: 'EmailUserAlias', user: user1, email: email1 },
       },
     ];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('removes alias', () => {
@@ -39,7 +39,7 @@ describe('Synchronizing 2 AwsMaps', () => {
         alias: { kind: 'EmailUserAlias', user: user1, email: email1 },
       },
     ];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
   it('creates alias', () => {
     const current: EmailMap = {};
@@ -52,7 +52,7 @@ describe('Synchronizing 2 AwsMaps', () => {
         alias: { kind: 'EmailUserAlias', user: user1, email: email1 },
       },
     ];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('removes and creates same alias for another user', () => {
@@ -72,7 +72,7 @@ describe('Synchronizing 2 AwsMaps', () => {
         alias: { kind: 'EmailUserAlias', user: user2, email: email1 },
       },
     ];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('Does not do anything if alias is already there for correct user', () => {
@@ -83,7 +83,7 @@ describe('Synchronizing 2 AwsMaps', () => {
       email1: { kind: 'EmailUserAlias', email: email1, user: user1 },
     };
     const expected: EmailOperation[] = [];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('Does not do anything if group is not changed', () => {
@@ -104,7 +104,7 @@ describe('Synchronizing 2 AwsMaps', () => {
       },
     };
     const expected: EmailOperation[] = [];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('Removes and recreates a group if members have changed', () => {
@@ -128,7 +128,7 @@ describe('Synchronizing 2 AwsMaps', () => {
       { kind: 'AddGroupMember', group: group1b, member: user1 },
       { kind: 'AddGroupMember', group: group1b, member: user2 },
     ];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 
   it('Removes a group if it does not exist anmyore', () => {
@@ -141,6 +141,6 @@ describe('Synchronizing 2 AwsMaps', () => {
     const current: EmailMap = { email1: group1 };
     const target: EmailMap = {};
     const expected: EmailOperation[] = [{ kind: 'RemoveGroup', group: group1 }];
-    expect(awsMapSync(current, target)).toStrictEqual(expected);
+    expect(emailMapSync(current, target)).toStrictEqual(expected);
   });
 });

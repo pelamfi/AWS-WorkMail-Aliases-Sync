@@ -13,7 +13,7 @@ function groupsEqual(a: EmailGroup, b: EmailGroup): boolean {
   );
 }
 
-export function awsMapSync(
+export function emailMapSync(
   currentMap: EmailMap,
   targetMap: EmailMap,
 ): EmailOperation[] {

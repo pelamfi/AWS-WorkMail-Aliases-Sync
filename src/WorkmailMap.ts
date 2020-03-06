@@ -4,6 +4,8 @@ import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import { Email } from './Email';
 import { filterUndef } from './UndefUtil';
 
+// WorkmailMap includes an EmailMap and adds information about Workmail entitites
+
 export interface WorkmailEntityCommon {
   readonly entityId: AWS.WorkMail.WorkMailIdentifier;
   readonly name: string;
@@ -11,10 +13,12 @@ export interface WorkmailEntityCommon {
 }
 
 export type WorkmailUser = { kind: 'WorkmailUser' } & WorkmailEntityCommon;
+
 export type WorkmailGroup = {
   kind: 'WorkmailGroup';
   members: WorkmailUser[];
 } & WorkmailEntityCommon;
+
 export type WorkmailEntity = WorkmailUser | WorkmailGroup;
 
 export type WorkmailEntityMap = { readonly [index: string]: WorkmailEntity };

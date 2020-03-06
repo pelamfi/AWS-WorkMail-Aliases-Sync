@@ -5,7 +5,7 @@ import * as Alias from './AliasesFile';
 import { readFileSync } from 'fs';
 import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser } from './AliasesFile';
-import { awsMapSync as emailMapSync } from './AwsMapSync';
+import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailMap } from './GetWorkmailMap';
 import { Email } from './Email';
