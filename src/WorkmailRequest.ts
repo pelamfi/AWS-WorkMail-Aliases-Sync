@@ -6,7 +6,7 @@ import { Email } from './Email';
 import {
   addGroupToEntityMap,
   removeGroupFromEntityMap,
-} from './GetWorkmailMap';
+} from './WorkmailMapUpdate';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
 
