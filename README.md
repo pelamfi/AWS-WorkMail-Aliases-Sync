@@ -36,7 +36,7 @@ The code is in the `src` and tests are in the `__tests__` directory.
 + `lint` - lint source files and tests,
 + `test` - run tests,
 + `test:watch` - interactive watch mode to automatically re-run tests
-+ `prettier` - run prettier on source files
++ `prettier` - run Prettier on the source files
 
 ## About the original boilerplate, copyright and the license
 
@@ -44,12 +44,11 @@ This project is copyrighted to Peter Lamberg (pgithub@pelam.fi)
 and can be used under the [GNU AFFERO GENERAL PUBLIC LICENSE, Version 3](GNU-AGPL-3-0-LICENSE).
 If this license is problematic for you, I'm open to changing it.
 
-
 Note that the [node-typescript-boilerplate](https://github.com/jsynowiec/node-typescript-boilerplate) served
 as a starting point for this project. The unmodified parts present in that boilerplate project
 remain under their original copyright and License APLv2. See the [APACHE-2-LICENSE](https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE) file for details.
 
-## Random links used as reference
+## Random links used as a reference
   * [AWS NodeJS Samples, basic configuration](https://github.com/aws-samples/aws-nodejs-sample#basic-configuration)
   * [AWS SDK for Javascript, Developer Guide, Loading Credentials from a file](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-json-file.html)
   * [AWS NodeJS Samples, S3 sample.js](https://github.com/aws-samples/aws-nodejs-sample/blob/master/sample.js)
