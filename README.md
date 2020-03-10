@@ -1,10 +1,44 @@
 # AWS-WorkMail-Aliases-Sync
 
-* /etc/aliases AWS WorkMail sync tool
+This project provides a way to sync a traditional UNIX `/etc/aliases` file
+to AWS WorkMail email service. I developed this to help with my own personal
+migration from Exim based Email system to AWS WorkMail.
 
-NOTE: This version is a work in progress and should not be used.
-The goal of this project is to synchronize a traditional /etc/aliases
-style file to AWS WorkMail Groups and Aliases. 
+This program can be used to upload a legacy `aliases`-file as a one
+shot operation or as I personally plan to use it, as a user interface
+to managing groups and aliases on the AWS WorkMail. Idea here is that
+I to change aliases or groups I first edit my `aliases`-file and then
+run the program to synchronize the changes to AWS WorkMail.
+
+## How it works
+
+The following steps describe the basic operation of this program:
+
+  1. reads its configuration files specifying an AWS WorkMail organization and other details
+  2. scans the WorkMail user, group and aliases data
+  3. parses an `/etc/aliases` style file
+  4. computes a sequence of operations to modify the AWS WorkMail to match the aliases file
+  5. executes the operations on the AWS WorkMail organization
+    * Removing groups
+    * Adding groups
+    * Removing aliases from users and groups
+    * Adding aliases to users and groups
+    * (Note that the program does not add/remove users)
+
+Note that this "synchronization behavior" of this program means that
+it will delete groups and aliases that are not in the input `aliases`
+file. Consider this when making WorkMail changes manually between
+runs of the script.
+
+### AWS WorkMail 100 alias limit
+
+WorkMail has a limit of maximum of 100 aliases per email user.
+This program has a workaround for this limit, in which it creates
+groups with just 1 user and adds the additional aliases to that group.
+The program acts as if the alias limit is 80 to allow manually adding
+aliases. (Note: that manually added aliases will be removed if the program
+is run again with the same input file.)
+>>>>>>> 2216ad7... Adding documentation to README.md
 
 ## Quick start
 
