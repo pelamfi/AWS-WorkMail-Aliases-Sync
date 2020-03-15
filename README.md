@@ -58,26 +58,12 @@ This is **optional**, but if you want to learn how to write JavaScript tests for
 + `test` - run tests,
 + `test:watch` - interactive watch mode to automatically re-run tests
 
-## License
-Licensed under the APLv2. See the [LICENSE](https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE) file for details.
+## About the original boilerplate, copyright and the license
 
-[ts-badge]: https://img.shields.io/badge/TypeScript-3.7-blue.svg
-[nodejs-badge]: https://img.shields.io/badge/Node.js->=%2012.13-blue.svg
-[nodejs]: https://nodejs.org/dist/latest-v12.x/docs/api/
-[travis-badge]: https://travis-ci.org/jsynowiec/node-typescript-boilerplate.svg?branch=master
-[travis-ci]: https://travis-ci.org/jsynowiec/node-typescript-boilerplate
-[typescript]: https://www.typescriptlang.org/
-[typescript-37]: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html
-[license-badge]: https://img.shields.io/badge/license-APLv2-blue.svg
-[license]: https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE
+This project is copyrighted to Peter Lamberg (pgithub@pelam.fi)
+and can be used under the [GNU AFFERO GENERAL PUBLIC LICENSE, Version 3](GNU-AGPL-3-0-LICENSE).
+If this license is problematic for you, I'm open to changing it.
 
-[donate-badge]: https://img.shields.io/badge/☕-buy%20me%20a%20coffee-46b798.svg
-[donate]: https://paypal.me/jaqb/5eur
-
-[jest]: https://facebook.github.io/jest/
-[tslint]: https://palantir.github.io/tslint/
-[tslint-microsoft-contrib]: https://github.com/Microsoft/tslint-microsoft-contrib
-[wiki-js-tests]: https://github.com/jsynowiec/node-typescript-boilerplate/wiki/Unit-tests-in-plain-JavaScript
-[prettier]: https://prettier.io
-
-[repo-template-action]: https://github.com/jsynowiec/node-typescript-boilerplate/generate
+Note that the [node-typescript-boilerplate](https://github.com/jsynowiec/node-typescript-boilerplate) served
+as a starting point for this project. The unmodified parts present in that boilerplate project
+remain under their original copyright and License APLv2. See the [APACHE-2-LICENSE](https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE) file for details.
