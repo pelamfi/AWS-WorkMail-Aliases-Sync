@@ -4,8 +4,8 @@ import { filterUndef } from './UndefUtil';
 import { EmailMap, EmailGroup } from './EmailMap';
 
 function groupsEqual(a: EmailGroup, b: EmailGroup): boolean {
-  let aMemberEmails = a.members.map(x => x.email.email).sort();
-  let bMemberEmails = b.members.map(x => x.email.email).sort();
+  let aMemberEmails = a.members.map((x) => x.email.email).sort();
+  let bMemberEmails = b.members.map((x) => x.email.email).sort();
   return (
     a.email.email == b.email.email &&
     a.name == b.name &&
@@ -91,7 +91,7 @@ export function emailMapSync(
             !groupsEqual(current, target)
           ) {
             const group: EmailGroup = target;
-            const members: AddGroupMember[] = target.members.map(member => ({
+            const members: AddGroupMember[] = target.members.map((member) => ({
               kind: 'AddGroupMember',
               group,
               member,

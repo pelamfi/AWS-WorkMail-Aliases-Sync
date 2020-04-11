@@ -22,8 +22,8 @@ export async function getWorkmailMap(
   config: Config,
 ): Promise<WorkmailMap> {
   return getWorkmailUsers(workmail)
-    .then(users =>
-      getWorkmailGroups(workmail, users, config).then(groups => [
+    .then((users) =>
+      getWorkmailGroups(workmail, users, config).then((groups) => [
         ...users,
         ...groups,
       ]),
@@ -41,10 +41,10 @@ async function workmailEntityWithAliases<
       OrganizationId: workmail.organizationId,
     })
     .promise()
-    .then(response => {
+    .then((response) => {
       const aliases: Email[] =
-        response.Aliases?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
-          .map(alias => new Email(alias)) ?? [];
+        response.Aliases?.filter((alias) => alias != entity.email?.email) // also the primary email is returned as an alias
+          .map((alias) => new Email(alias)) ?? [];
       return [entity, aliases];
     });
 }
@@ -65,10 +65,10 @@ async function workmailGroupWithMembers(
     .then(
       (response): WorkmailGroup => {
         const memberIds = filterUndef(
-          response.Members?.map(member => member?.Id) ?? [],
+          response.Members?.map((member) => member?.Id) ?? [],
         );
         const members: WorkmailUser[] = filterUndef(
-          memberIds.map(memberId => userMap[memberId]),
+          memberIds.map((memberId) => userMap[memberId]),
         );
         return { ...group, members };
       },
@@ -108,7 +108,7 @@ function convertEntityCommon(
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup | undefined {
   const kind: 'WorkmailGroup' = 'WorkmailGroup';
   const common = convertEntityCommon(kind, group);
-  return mapUndef(common => ({ ...common, kind, members: [] }), common); // members are fetched separately
+  return mapUndef((common) => ({ ...common, kind, members: [] }), common); // members are fetched separately
 }
 
 function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
@@ -118,7 +118,7 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
 
   const kind: 'WorkmailUser' = 'WorkmailUser';
   const common = convertEntityCommon(kind, user);
-  return mapUndef(common => ({ ...common, kind }), common);
+  return mapUndef((common) => ({ ...common, kind }), common);
 }
 
 function workmailEntitiesWithAliases(
@@ -127,7 +127,7 @@ function workmailEntitiesWithAliases(
 ): Promise<[WorkmailEntity, Email[]][]> {
   const promises: (() => Promise<
     [WorkmailEntity, Email[]]
-  >)[] = entities.map(entity => () =>
+  >)[] = entities.map((entity) => () =>
     workmailEntityWithAliases(workmail, entity),
   );
   return serialPromises(promises);
@@ -138,7 +138,7 @@ async function groupsWithMembers(
   userMap: WorkmailUserMap,
   groups: WorkmailGroup[],
 ): Promise<WorkmailGroup[]> {
-  const promises: (() => Promise<WorkmailGroup>)[] = groups.map(group => () =>
+  const promises: (() => Promise<WorkmailGroup>)[] = groups.map((group) => () =>
     workmailGroupWithMembers(workmail, userMap, group),
   );
   return serialPromises(promises);
@@ -148,7 +148,7 @@ async function getWorkmailUsers(workmail: Workmail): Promise<WorkmailUser[]> {
   return workmail.service
     .listUsers({ OrganizationId: workmail.organizationId })
     .promise()
-    .then(response => filterUndef(response.Users?.map(convertUser) ?? []));
+    .then((response) => filterUndef(response.Users?.map(convertUser) ?? []));
 }
 
 async function getWorkmailGroups(
@@ -157,45 +157,45 @@ async function getWorkmailGroups(
   config: Config,
 ): Promise<WorkmailGroup[]> {
   const userMap: WorkmailUserMap = R.zipObj(
-    users.map(x => x.entityId),
+    users.map((x) => x.entityId),
     users,
   );
 
   return workmail.service
     .listGroups({ OrganizationId: workmail.organizationId })
     .promise()
-    .then(response => response.Groups ?? [])
+    .then((response) => response.Groups ?? [])
     .then(filterUndef)
-    .then(groups =>
-      groups.filter(x => isGeneratedGroupName(x.Name ?? '', config)),
+    .then((groups) =>
+      groups.filter((x) => isGeneratedGroupName(x.Name ?? '', config)),
     )
     .then(R.map(convertGroup))
     .then(filterUndef)
-    .then(groups => groupsWithMembers(workmail, userMap, groups));
+    .then((groups) => groupsWithMembers(workmail, userMap, groups));
 }
 
 function workmailMapFromEntities(
   entities: [WorkmailEntity, Email[]][],
 ): WorkmailMap {
   const byId = R.zipObj(
-    entities.map(entity => entity[0].entityId),
-    entities.map(p => p[0]),
+    entities.map((entity) => entity[0].entityId),
+    entities.map((p) => p[0]),
   );
 
-  const entitiesByEmails: WorkmailEntityMap[] = entities.map(entityPair => {
+  const entitiesByEmails: WorkmailEntityMap[] = entities.map((entityPair) => {
     const [entity, aliases] = entityPair;
     const mainEmail = entity.email;
     const emails: Email[] = [
       ...(mainEmail === undefined ? [] : [mainEmail]),
       ...aliases,
     ];
-    const pairs: [Email, WorkmailEntity][] = emails.map(email => [
+    const pairs: [Email, WorkmailEntity][] = emails.map((email) => [
       email,
       entity,
     ]);
     return R.zipObj(
-      pairs.map(p => p[0].email),
-      pairs.map(p => p[1]),
+      pairs.map((p) => p[0].email),
+      pairs.map((p) => p[1]),
     );
   });
 
@@ -212,7 +212,7 @@ function workmailMapFromEntities(
     switch (entity.kind) {
       case 'WorkmailGroup': {
         let members: EmailUser[] = filterUndef(
-          entity.members.map(entity => entity.email),
+          entity.members.map((entity) => entity.email),
         ).map(
           (email): EmailUser => {
             return { kind: 'EmailUser', email };
@@ -224,7 +224,7 @@ function workmailMapFromEntities(
           name: entity.name,
           members,
         };
-        const aliasesObjs: EmailItem[] = aliases.map(email => ({
+        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
           kind: 'EmailGroupAlias',
           email,
           group,
@@ -233,7 +233,7 @@ function workmailMapFromEntities(
       }
       case 'WorkmailUser': {
         const user: EmailUser = { kind: 'EmailUser', email: mainEmail };
-        const aliasesObjs: EmailItem[] = aliases.map(email => ({
+        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
           kind: 'EmailUserAlias',
           email,
           user,
@@ -245,7 +245,7 @@ function workmailMapFromEntities(
 
   const emailMapItems = R.flatten(filterUndef(emailMapParts));
   const emailMap: EmailMap = R.zipObj(
-    emailMapItems.map(i => i.email.email),
+    emailMapItems.map((i) => i.email.email),
     emailMapItems,
   );
 

@@ -18,7 +18,7 @@ export function parse(input: string): AliasesFile | ParseError {
   const aliasesOrUndefs = filterUndef(
     input
       .split(lineSplitRegex)
-      .filter(line => line !== '')
+      .filter((line) => line !== '')
       .map((line: string): AliasesFileAlias | ParseError | undefined => {
         const match = line.match(aliasRegex);
         if (match == null) {

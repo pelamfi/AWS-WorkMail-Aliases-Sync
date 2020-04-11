@@ -19,7 +19,7 @@ export interface AliasesFileUsers {
 }
 
 function toAliasesPerUser(alias: AliasesFileAlias): AliasesFileUser[] {
-  return alias.localEmails.map(localEmail => ({
+  return alias.localEmails.map((localEmail) => ({
     localEmail: localEmail,
     aliases: [alias.alias],
   }));
@@ -33,7 +33,7 @@ export function aliasesPerUser(
     aliasesFile,
   );
   const grouped: { [index: string]: AliasesFileUser[] } = R.groupBy(
-    aliasesPerUser => aliasesPerUser.localEmail,
+    (aliasesPerUser) => aliasesPerUser.localEmail,
     asAliasesPerUser,
   );
 
@@ -42,7 +42,7 @@ export function aliasesPerUser(
     .map(
       (localEmail): AliasesFileUser => {
         const combinedAliases: string[] = R.uniq(
-          R.chain(user => user.aliases, grouped[localEmail]).sort(),
+          R.chain((user) => user.aliases, grouped[localEmail]).sort(),
         );
         return { localEmail: localEmail, aliases: combinedAliases };
       },

@@ -21,7 +21,7 @@ export function emailMapAliasLimitWorkaround(
   config: WorkaroundConfig,
 ): EmailMap {
   const [userAliasesUncast, otherEmails] = R.partition(
-    email => email.kind == 'EmailUserAlias',
+    (email) => email.kind == 'EmailUserAlias',
     Object.values(emails),
   );
 
@@ -32,7 +32,7 @@ export function emailMapAliasLimitWorkaround(
   const modifiedEmails = [...otherEmails, ...aliasesWithGroupOverflow];
 
   return R.zipObj(
-    modifiedEmails.map(x => x.email.email),
+    modifiedEmails.map((x) => x.email.email),
     modifiedEmails,
   );
 }
@@ -61,7 +61,7 @@ export function aliasLimitWorkaround(
       const aliasesForUser = groupedByUser[userEmail];
       const groupsNeeded = Math.ceil(aliasesForUser.length / aliasLimit);
       const sliceIndices = R.range(0, groupsNeeded);
-      const aliasesSliced = sliceIndices.map(groupIndex =>
+      const aliasesSliced = sliceIndices.map((groupIndex) =>
         aliasesForUser.slice(
           groupIndex * aliasLimit,
           (groupIndex + 1) * aliasLimit,

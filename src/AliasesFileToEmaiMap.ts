@@ -44,26 +44,26 @@ export function aliasesFileToEmailMap(
 
   const emails = filterUndef(aliasesFileUsers.users.map(localUserToEmails));
 
-  const users = emails.map(x => x[0]);
-  const aliases = R.flatten(emails.map(x => x[1]));
+  const users = emails.map((x) => x[0]);
+  const aliases = R.flatten(emails.map((x) => x[1]));
 
   // To check if there are multiple aliases but for different users
-  const allAliasesByEmail = R.groupBy(alias => alias.email.email, aliases);
+  const allAliasesByEmail = R.groupBy((alias) => alias.email.email, aliases);
 
   // Aliases that target multiple users are "groups"
   const [groups, regularAliases] = R.partition(
-    alias => allAliasesByEmail[alias.email.email].length > 1,
+    (alias) => allAliasesByEmail[alias.email.email].length > 1,
     aliases,
   );
 
   // Email aliases that target multiple users
-  const groupEmails = R.uniq(groups.map(x => x.email.email));
+  const groupEmails = R.uniq(groups.map((x) => x.email.email));
 
   const convertedGroups: EmailItem[] = R.flatten(
-    groupEmails.map(groupEmail => {
+    groupEmails.map((groupEmail) => {
       const aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail];
       const email = new Email(groupEmail);
-      const members = aliasesOfGroup.map(x => x.user);
+      const members = aliasesOfGroup.map((x) => x.user);
       const name = generateGroupName(email, config);
       const group: EmailGroup = {
         kind: 'EmailGroup',
@@ -84,7 +84,7 @@ export function aliasesFileToEmailMap(
   ];
 
   return R.zipObj(
-    results.map(a => a.email.email),
+    results.map((a) => a.email.email),
     results,
   );
 }
