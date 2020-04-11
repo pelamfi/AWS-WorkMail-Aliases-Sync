@@ -38,7 +38,6 @@ groups with just 1 user and adds the additional aliases to that group.
 The program acts as if the alias limit is 80 to allow manually adding
 aliases. (Note: that manually added aliases will be removed if the program
 is run again with the same input file.)
->>>>>>> 2216ad7... Adding documentation to README.md
 
 ## Quick start
 
