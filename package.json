@@ -1,5 +1,5 @@
 {
-  "name": "AWS-WorkMail-Aliases-Sync",
+  "name": "aws-workmail-aliases-sync",
   "version": "1.0.0",
   "description": "This project provides a way to sync a traditional UNIX `/etc/aliases` file to AWS WorkMail email service.",
   "repository": "git@github.com:pelamfi/AWS-WorkMail-Aliases-Sync.git",
