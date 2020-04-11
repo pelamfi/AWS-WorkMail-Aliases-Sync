@@ -1,7 +1,8 @@
 {
-  "name": "aws-pelam-fi-management",
-  "version": "0.0.1",
-  "description": "My custom management scripts for my personal domains.",
+  "name": "AWS-WorkMail-Aliases-Sync",
+  "version": "1.0.0",
+  "description": "This project provides a way to sync a traditional UNIX `/etc/aliases` file to AWS WorkMail email service.",
+  "repository": "git@github.com:pelamfi/AWS-WorkMail-Aliases-Sync.git",
   "engines": {
     "node": ">= 12.13 <13"
   },
