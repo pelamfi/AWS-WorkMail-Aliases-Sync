@@ -10,6 +10,10 @@ to managing groups and aliases on the AWS WorkMail. Idea here is that
 I to change aliases or groups I first edit my `aliases`-file and then
 run the program to synchronize the changes to AWS WorkMail.
 
+## Instructions
+
+TODO: Instructions on how to set up and use this script... 
+
 ## How it works
 
 The following steps describe the basic operation of this program:
@@ -19,11 +23,12 @@ The following steps describe the basic operation of this program:
   3. parses an `/etc/aliases` style file
   4. computes a sequence of operations to modify the AWS WorkMail to match the aliases file
   5. executes the operations on the AWS WorkMail organization
-    * Removing groups
-    * Adding groups
-    * Removing aliases from users and groups
-    * Adding aliases to users and groups
-    * (Note that the program does not add/remove users)
+
+  + Removing groups
+  + Adding groups
+  + Removing aliases from users and groups
+  + Adding aliases to users and groups
+  + (Note that the program does not add/remove users)
 
 Note that this "synchronization behavior" of this program means that
 it will delete groups and aliases that are not in the input `aliases`
@@ -52,11 +57,11 @@ The code is in the `src` and tests are in the `__tests__` directory.
 
 ## Project setup:
 
-+ [TypeScript][typescript] [3.7][typescript-37],
-+ [TSLint][tslint] with [Microsoft rules][tslint-microsoft-contrib],
-+ [Jest][jest] unit testing and code coverage,
++ [TypeScript](https://www.typescriptlang.org/)
++ [TSLint](https://www.npmjs.com/package/tslint) with [Microsoft rules](https://github.com/Microsoft/tslint-microsoft-contrib)
++ [Jest](https://jestjs.io/) unit testing and code coverage,
 + Type definitions for Node.js and Jest,
-+ [Prettier][prettier] to enforce a consistent code style,
++ [Prettier](https://prettier.io/) to enforce a consistent code style,
 + [NPM scripts for common operations](#available-scripts),
 + a simple example of TypeScript code and unit test,
 + .editorconfig for consistent file format.
