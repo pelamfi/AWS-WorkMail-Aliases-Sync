@@ -106,7 +106,7 @@ function convertEntityCommon(
 }
 
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup | undefined {
-  const kind: 'WorkmailGroup' = 'WorkmailGroup';
+  const kind = 'WorkmailGroup' as const;
   const common = convertEntityCommon(kind, group);
   return mapUndef((common) => ({ ...common, kind, members: [] }), common); // members are fetched separately
 }
@@ -116,7 +116,7 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
     return undefined; // filter out disabled users (includes default system users)
   }
 
-  const kind: 'WorkmailUser' = 'WorkmailUser';
+  const kind = 'WorkmailUser' as const;
   const common = convertEntityCommon(kind, user);
   return mapUndef((common) => ({ ...common, kind }), common);
 }
@@ -211,7 +211,7 @@ function workmailMapFromEntities(
     }
     switch (entity.kind) {
       case 'WorkmailGroup': {
-        let members: EmailUser[] = filterUndef(
+        const members: EmailUser[] = filterUndef(
           entity.members.map((entity) => entity.email),
         ).map(
           (email): EmailUser => {

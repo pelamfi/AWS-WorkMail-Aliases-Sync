@@ -9,15 +9,15 @@ export function addGroupToEntityMap(
   entityId: AWS.WorkMail.WorkMailIdentifier,
 ): EntityMap {
   // TODO: members should be set to reflect updated state. Possibly add them with AddGroupMember operations
-  let workmailGroup: WorkmailGroup = {
+  const workmailGroup: WorkmailGroup = {
     kind: 'WorkmailGroup',
     name: group.name,
     email: group.email,
     entityId,
     members: [],
   };
-  let byId = R.assoc(entityId, workmailGroup, entityMap.byEmail);
-  let byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail);
+  const byId = R.assoc(entityId, workmailGroup, entityMap.byEmail);
+  const byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail);
   return { byId, byEmail };
 }
 
@@ -26,8 +26,8 @@ export function removeGroupFromEntityMap(
   group: EmailGroup,
   entityId: AWS.WorkMail.WorkMailIdentifier,
 ): EntityMap {
-  let byId: WorkmailEntityMap = R.dissoc(entityId, entityMap.byEmail);
-  let byEmail: WorkmailEntityMap = R.dissoc(
+  const byId: WorkmailEntityMap = R.dissoc(entityId, entityMap.byEmail);
+  const byEmail: WorkmailEntityMap = R.dissoc(
     group.email.email,
     entityMap.byEmail,
   );

@@ -101,12 +101,12 @@ async function main() {
     });
   }
 
-  let finalEntityMap = await syncOperations.reduce(
+  const finalEntityMap = await syncOperations.reduce(
     reductionStep,
     initialPromise,
   );
 
-  let finalMap: WorkmailMap = {
+  const finalMap: WorkmailMap = {
     entityMap: finalEntityMap,
     emailMap: targetAwsEmailMap,
   };

@@ -10,7 +10,7 @@ import {
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
 
-const noEntityMapUpdate: (_: any) => EntityMapUpdate = (_) => (entityMap) =>
+const noEntityMapUpdate: (_: unknown) => EntityMapUpdate = () => (entityMap) =>
   entityMap;
 
 export function createAwsWorkmailRequest(
@@ -44,8 +44,8 @@ export function createAwsWorkmailRequest(
             );
             return (x) => x;
           } else {
-            let entityId = result.GroupId;
-            let registerRequest: AWS.WorkMail.Types.RegisterToWorkMailRequest = {
+            const entityId = result.GroupId;
+            const registerRequest: AWS.WorkMail.Types.RegisterToWorkMailRequest = {
               OrganizationId: workmail.organizationId,
               EntityId: entityId,
               Email: op.group.email.email,
@@ -145,7 +145,7 @@ export function createAwsWorkmailRequest(
       return workmail.service
         .deregisterFromWorkMail(unregisterRequest)
         .promise()
-        .then((_) =>
+        .then(() =>
           workmail.service
             .deleteGroup(request)
             .promise()
