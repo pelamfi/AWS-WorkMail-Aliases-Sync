@@ -7,7 +7,8 @@ module.exports = {
   "parserOptions": {
     ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
     "project": "tsconfig.json",
-    "sourceType": "module"
+    "sourceType": "module",
+    createDefaultProgram: true, // temp fix https://stackoverflow.com/a/59886133/1148030
   },
   "plugins": [
     "@typescript-eslint",
