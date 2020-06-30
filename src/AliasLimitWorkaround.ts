@@ -12,7 +12,7 @@ import { Email } from './Email';
 export interface WorkaroundConfig {
   groupPrefix: string;
   aliasesFileDomain: string;
-  aliasLimit?: number; // defaults to 80
+  aliasLimit: number; // 80 may be a good value, 100 is the absolute maximum with current AWS
 }
 
 // Adapter/wrapper for EmailMap, calls aliasLimitWorkaround
@@ -50,7 +50,7 @@ export function aliasLimitWorkaround(
     userAliases,
   );
 
-  const aliasLimit = config.aliasLimit ?? 80; // 100 really, but lets leave some headroom
+  const aliasLimit = config.aliasLimit;
 
   const aliasesByUserAndSlicedByLimit: [
     string,

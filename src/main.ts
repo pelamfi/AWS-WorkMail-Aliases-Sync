@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import * as ScriptConfig from './ScriptConfig';
 import * as AliasesFileParse from './AliasesFileParse';
 import * as Alias from './AliasesFile';
-import { readFileSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser } from './AliasesFile';
 import { emailMapSync } from './EmailMapSync';
@@ -13,13 +13,7 @@ import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
 
-console.log('Script starting, configuring AWS');
-
-AWS.config.setPromisesDependency(null);
-AWS.config.loadFromPath('./aws-sdk-config.json');
-const workmailService = new AWS.WorkMail({
-  endpoint: 'https://workmail.eu-west-1.amazonaws.com',
-});
+console.log('Script starting');
 
 const scriptConfig = ScriptConfig.load();
 
@@ -37,18 +31,32 @@ function aliasesFromFile(): Alias.AliasesFile {
 async function main() {
   console.log(
     `Syncing users and aliases from with AWS WorkMail:\n` +
-      `  Using configuration file: ${ScriptConfig.configFile}\n` +
-      `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
-      `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
-      `  domain: ${scriptConfig.aliasesFileDomain}`,
+    `  Using configuration file: ${ScriptConfig.configFile}\n` +
+    `  AWS config file: ${scriptConfig.awsConfigFile}\n` +
+    `  WorkMail endpoint: ${scriptConfig.workmailEndpoint}\n` +
+    `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
+    `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
+    `  domain: ${scriptConfig.aliasesFileDomain}`,
   );
+
+  console.log('Configuring the AWS connection.')
+
+  AWS.config.setPromisesDependency(null);
+  AWS.config.loadFromPath(scriptConfig.awsConfigFile);
+  
+  const workmailService = new AWS.WorkMail({
+    endpoint: scriptConfig.workmailEndpoint,
+  });
 
   const workmail = {
     service: workmailService,
     organizationId: scriptConfig.workmailOrganizationId,
   };
+
   console.log('Fetching the current users, groups and aliases from AWS');
   const currentWorkmailMap = await getWorkmailMap(workmail, scriptConfig);
+
+  writeFileSync('current-map.json', JSON.stringify(currentWorkmailMap, null, 2), {encoding: 'utf8'});  
 
   console.log('Reading the aliases file');
   const aliasesFile = aliasesFromFile();
@@ -66,10 +74,13 @@ async function main() {
     ...scriptConfig,
     localUserToEmail,
   });
+
   const targetAwsEmailMap = emailMapAliasLimitWorkaround(
     targetAwsEmailMapIdeal,
     scriptConfig,
   );
+
+  writeFileSync('target-map.json', JSON.stringify(targetAwsEmailMap, null, 2), {encoding: 'utf8'});
 
   console.log(
     `Computing operations to sync aliases file with ${
@@ -101,6 +112,8 @@ async function main() {
     });
   }
 
+  console.log(`Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`)
+  
   const finalEntityMap = await syncOperations.reduce(
     reductionStep,
     initialPromise,
@@ -110,6 +123,8 @@ async function main() {
     entityMap: finalEntityMap,
     emailMap: targetAwsEmailMap,
   };
+  
+  writeFileSync('final-map.json', JSON.stringify(finalMap, null, 2), {encoding: 'utf8'});
 
   console.log(
     `${syncOperations.length} operations completed, entityIds: ${
