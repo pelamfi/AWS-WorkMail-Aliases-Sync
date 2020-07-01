@@ -7,7 +7,7 @@ import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser } from './AliasesFile';
 import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
-import { getWorkmailMap } from './GetWorkmailMap';
+import { getWorkmailListing, workmailMapFromListing } from './GetWorkmailMap';
 import { Email } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap } from './WorkmailMap';
@@ -55,9 +55,11 @@ async function main() {
   };
 
   console.log('Fetching the current users, groups and aliases from AWS');
-  const currentWorkmailMap = await getWorkmailMap(workmail, scriptConfig);
+  const currentWorkmailListing = await getWorkmailListing(workmail, scriptConfig);
+  const currentWorkmailMap = await workmailMapFromListing(currentWorkmailListing);
 
-  writeFileSync('current-map.json', JSON.stringify(currentWorkmailMap, null, 2), {encoding: 'utf8'});  
+  writeFileSync('current-workmail-listing.json', 
+    JSON.stringify(currentWorkmailListing, null, 2), {encoding: 'utf8'});  
 
   console.log('Reading the aliases file');
   const aliasesFile = aliasesFromFile();

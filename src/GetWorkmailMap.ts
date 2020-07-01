@@ -3,6 +3,8 @@ import * as R from 'ramda';
 import { Workmail } from './AwsWorkMailUtil';
 import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import {
+  WorkmailListing,
+  WorkmailEntityAliases,  
   WorkmailMap,
   WorkmailGroup,
   WorkmailUser,
@@ -16,37 +18,40 @@ import { mapUndef, filterUndef } from './UndefUtil';
 import { isGeneratedGroupName, Config } from './GroupNameUtil';
 import { Email } from './Email';
 
-// Query a Workmail organization and describe its contents as a WorkmailMap
-export async function getWorkmailMap(
+// Query a Workmail organization and describe its contents as a WorkmailListing
+// The listing can then be expanded to a WorkmailMap with workmailMapFromListing
+// for easier and faster lookups.
+export async function getWorkmailListing(
   workmail: Workmail,
-  config: Config,
-): Promise<WorkmailMap> {
-  return getWorkmailUsers(workmail)
+  config: Config
+): Promise<WorkmailListing> {
+
+  const users = await getWorkmailUsers(workmail)
     .then((users) =>
       getWorkmailGroups(workmail, users, config).then((groups) => [
         ...users,
         ...groups,
       ]),
-    )
-    .then(R.curry(workmailEntitiesWithAliases)(workmail))
-    .then(workmailMapFromEntities);
+    );
+  
+  return workmailEntitiesAndAliases(workmail, users);
 }
 
-async function workmailEntityWithAliases<
+async function workmailEntityAliases<
   T extends WorkmailGroup | WorkmailUser
->(workmail: Workmail, entity: T): Promise<[T, Email[]]> {
+>(workmail: Workmail, entity: T): Promise<WorkmailEntityAliases> {
   return workmail.service
     .listAliases({
       EntityId: entity.entityId,
       OrganizationId: workmail.organizationId,
     })
     .promise()
-    .then(response => {
+    .then((response: AWS.WorkMail.ListAliasesResponse): WorkmailEntityAliases => {
       // console.log("workmailEntityWithAliases response", entity.name)  
       const aliases: Email[] =
         response.Aliases?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
           .map(alias => new Email(alias)) ?? [];
-      return [entity, aliases];
+      return {entity, aliases}
     });
 }
 
@@ -123,16 +128,15 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
   return mapUndef(common => ({ ...common, kind }), common);
 }
 
-function workmailEntitiesWithAliases(
-  workmail,
-  entities: WorkmailEntity[],
-): Promise<[WorkmailEntity, Email[]][]> {
-  const promises: (() => Promise<
-    [WorkmailEntity, Email[]]
-  >)[] = entities.map(entity => () =>
-    workmailEntityWithAliases(workmail, entity),
+function workmailEntitiesAndAliases(
+  workmail: Workmail,
+  entities: WorkmailEntity[]
+): Promise<WorkmailListing> {
+  const promises: (() => Promise<WorkmailEntityAliases>)[] = entities.map(entity => () =>
+    workmailEntityAliases(workmail, entity),
   );
-  return serialPromises(promises);
+  
+  return serialPromises(promises).then(entities => ({entities}));
 }
 
 async function groupsWithMembers(
@@ -176,20 +180,21 @@ async function getWorkmailGroups(
     .then(groups => groupsWithMembers(workmail, userMap, groups));
 }
 
-function workmailMapFromEntities(
-  entities: [WorkmailEntity, Email[]][],
+export function workmailMapFromListing(
+  listing: WorkmailListing,
 ): WorkmailMap {
+
   const byId = R.zipObj(
-    entities.map(entity => entity[0].entityId),
-    entities.map(p => p[0]),
+    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity.entityId),
+    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
   );
 
-  const entitiesByEmails: WorkmailEntityMap[] = entities.map((entityPair) => {
-    const [entity, aliases] = entityPair;
+  const entitiesByEmails: WorkmailEntityMap[] = listing.entities.map((entityAliases: WorkmailEntityAliases) => {
+    const entity = entityAliases.entity
     const mainEmail = entity.email;
     const emails: Email[] = [
       ...(mainEmail === undefined ? [] : [mainEmail]),
-      ...aliases,
+      ...entityAliases.aliases,
     ];
     const pairs: [Email, WorkmailEntity][] = emails.map((email) => [
       email,
@@ -205,8 +210,8 @@ function workmailMapFromEntities(
 
   const entityMap: EntityMap = { byId, byEmail };
 
-  const emailMapParts = entities.map((entityPair): EmailItem[] | undefined => {
-    const [entity, aliases] = entityPair;
+  const emailMapParts = listing.entities.map((entityAliases): EmailItem[] | undefined => {
+    const {entity, aliases} = entityAliases;
     const mainEmail = entity.email;
     if (mainEmail === undefined) {
       return undefined;
