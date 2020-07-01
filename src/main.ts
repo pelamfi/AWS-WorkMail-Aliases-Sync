@@ -36,7 +36,8 @@ async function main() {
     `  WorkMail endpoint: ${scriptConfig.workmailEndpoint}\n` +
     `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
     `  aliases file to sync with: ${scriptConfig.aliasesFile}\n` +
-    `  domain: ${scriptConfig.aliasesFileDomain}`,
+    `  domain: ${scriptConfig.aliasesFileDomain}\n` + 
+    `  aliases per user/group limit: ${scriptConfig.aliasLimit}`,
   );
 
   console.log('Configuring the AWS connection.')

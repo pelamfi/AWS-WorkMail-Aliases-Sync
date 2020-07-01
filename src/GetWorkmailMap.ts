@@ -42,7 +42,7 @@ async function workmailEntityWithAliases<
     })
     .promise()
     .then(response => {
-      console.log("workmailEntityWithAliases response", entity.name)  
+      // console.log("workmailEntityWithAliases response", entity.name)  
       const aliases: Email[] =
         response.Aliases?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
           .map(alias => new Email(alias)) ?? [];
@@ -65,7 +65,7 @@ async function workmailGroupWithMembers(
     .promise()
     .then(
       (response): WorkmailGroup => {
-        console.log("workmailGroupWithMembers response", group)  
+        // console.log("workmailGroupWithMembers response", group)  
         const memberIds = filterUndef(
           response.Members?.map(member => member?.Id) ?? [],
         );
