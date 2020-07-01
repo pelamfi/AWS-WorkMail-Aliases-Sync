@@ -7,8 +7,28 @@ export interface EntityId extends String {
   _AwsWorkmailEntityIdEmailBrand: string;
 };
 
-export function brandEntityId(id: AWS.WorkMail.WorkMailIdentifier): EntityId {
-  return id as unknown as EntityId
+export interface UserEntityId extends EntityId {
+  _AwsWorkmailUserEntityIdEmailBrand: string;
+};
+
+export function userEntityId(id: AWS.WorkMail.WorkMailIdentifier): UserEntityId {
+  return id as unknown as UserEntityId
+}
+
+export function userEntityIdString(id: UserEntityId): string {
+  return id as unknown as string
+}
+
+export interface GroupEntityId extends EntityId {
+  _AwsWorkmailGroupEntityIdEmailBrand: string;
+};
+
+export function groupEntityId(id: AWS.WorkMail.WorkMailIdentifier): GroupEntityId {
+  return id as unknown as GroupEntityId
+}
+
+export function groupEntityIdString(id: GroupEntityId): string {
+  return id as unknown as string
 }
 
 export function entityIdString(id: EntityId): string {
@@ -43,9 +63,10 @@ export interface WorkmailEntityCommon {
   readonly email?: Email;
 }
 
-export type WorkmailUser = { kind: 'WorkmailUser' } & WorkmailEntityCommon;
+export type WorkmailUser = { kind: 'WorkmailUser', entityId: UserEntityId } & WorkmailEntityCommon;
 
 export type WorkmailGroup = {
+  entityId: GroupEntityId,  
   kind: 'WorkmailGroup';
   members: WorkmailUser[];
 } & WorkmailEntityCommon;

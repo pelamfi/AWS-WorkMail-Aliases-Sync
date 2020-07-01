@@ -6,8 +6,10 @@ import {
   WorkmailUser,
   WorkmailEntityCommon,
   WorkmailEntity,
+  userEntityId,
+  groupEntityId,
+  EntityId,
   entityIdString,
-  brandEntityId,
 } from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
@@ -79,10 +81,11 @@ async function workmailGroupWithMembers(
     );
 }
 
-function convertEntityCommon(
+function convertEntityCommon<T extends EntityId>(
   kind: string,
   entity: AWS.WorkMail.User | AWS.WorkMail.Group,
-): WorkmailEntityCommon | undefined {
+  brandId: (id: AWS.WorkMail.WorkMailIdentifier) => T
+): WorkmailEntityCommon & {entityId : T} | undefined {
   if (entity.State === 'DELETED') {
     return undefined; // filter out ghosts
   }
@@ -105,13 +108,13 @@ function convertEntityCommon(
   return {
     email: emailFrom(entity.Email),
     name: entity.Name,
-    entityId: brandEntityId(entity.Id),
+    entityId: brandId(entity.Id),
   };
 }
 
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup | undefined {
   const kind = 'WorkmailGroup' as const;
-  const common = convertEntityCommon(kind, group);
+  const common = convertEntityCommon(kind, group, groupEntityId);
   return mapUndef(common => ({ ...common, kind, members: [] }), common); // members are fetched separately
 }
 
@@ -121,7 +124,7 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
   }
 
   const kind = 'WorkmailUser' as const;
-  const common = convertEntityCommon(kind, user);
+  const common = convertEntityCommon(kind, user, userEntityId);
   return mapUndef(common => ({ ...common, kind }), common);
 }
 
