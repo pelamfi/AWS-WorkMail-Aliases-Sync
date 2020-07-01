@@ -38,7 +38,8 @@ export function entityIdString(id: EntityId): string {
 // This represents the information contained in an AWS WorkMail account
 // that this program is interested in.
 export type WorkmailListing = {
-  readonly entities: WorkmailEntityAliases[]
+  readonly groups: WorkmailGroupAliases[]
+  readonly users: WorkmailUserAliases[]
 };
 
 // WorkmailMap includes an EmailMap and adds information about Workmail entitites
@@ -68,7 +69,7 @@ export type WorkmailUser = { kind: 'WorkmailUser', entityId: UserEntityId } & Wo
 export type WorkmailGroup = {
   entityId: GroupEntityId,  
   kind: 'WorkmailGroup';
-  members: WorkmailUser[];
+  members: UserEntityId[];
 } & WorkmailEntityCommon;
 
 // This information is read from AWS. It includes the basic information
@@ -79,16 +80,33 @@ export type WorkmailEntityAliases = {
   aliases: Email[]
 };
 
+export type WorkmailUserAliases = {
+  entity: WorkmailUser,
+  aliases: Email[]
+};
+
+export type WorkmailGroupAliases = {
+  entity: WorkmailGroup,
+  aliases: Email[]
+};
+
 export function workmailMapFromListing(
   listing: WorkmailListing,
 ): WorkmailMap {
 
-  const byId = R.zipObj(
-    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityIdString(entityAliases.entity.entityId)),
-    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
+  const entities = R.concat<WorkmailEntityAliases>(listing.groups, listing.users);
+  
+  const userById = R.zipObj(
+    listing.users.map(user => entityIdString(user.entity.entityId)),
+    listing.users.map(user => user.entity),
   );
 
-  const entitiesByEmails: WorkmailEntityMap[] = listing.entities.map((entityAliases: WorkmailEntityAliases) => {
+  const byId = R.zipObj(
+    entities.map((entityAliases: WorkmailEntityAliases) => entityIdString(entityAliases.entity.entityId)),
+    entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
+  );
+
+  const entitiesByEmails: WorkmailEntityMap[] = entities.map((entityAliases: WorkmailEntityAliases) => {
     const entity = entityAliases.entity
     const mainEmail = entity.email;
     const emails: Email[] = [
@@ -109,7 +127,7 @@ export function workmailMapFromListing(
 
   const entityMap: EntityMap = { byId, byEmail };
 
-  const emailMapParts = listing.entities.map((entityAliases): EmailItem[] | undefined => {
+  const emailMapParts = entities.map((entityAliases): EmailItem[] | undefined => {
     const {entity, aliases} = entityAliases;
     const mainEmail = entity.email;
     if (mainEmail === undefined) {
@@ -118,7 +136,7 @@ export function workmailMapFromListing(
     switch (entity.kind) {
       case 'WorkmailGroup': {
         const members: EmailUser[] = filterUndef(
-          entity.members.map((entity) => entity.email),
+          entity.members.map((entityId: UserEntityId) => userById[entityIdString(entityId)]?.email),
         ).map(
           (email): EmailUser => {
             return { kind: 'EmailUser', email };
