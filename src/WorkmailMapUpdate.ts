@@ -16,7 +16,7 @@ export function addGroupToEntityMap(
     entityId,
     members: [],
   };
-  const byId = R.assoc(entityId, workmailGroup, entityMap.byEmail);
+  const byId = R.assoc(entityId, workmailGroup, entityMap.byId);
   const byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail);
   return { byId, byEmail };
 }
