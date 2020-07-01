@@ -1,27 +1,26 @@
-import * as AWS from 'aws-sdk';
-import * as ScriptConfig from './ScriptConfig';
-import * as AliasesFileParse from './AliasesFileParse';
-import * as Alias from './AliasesFile';
 import { writeFileSync, readFileSync } from 'fs';
 import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
-import { aliasesPerUser } from './AliasesFile';
+import { loadScriptConfig, configFile } from './ScriptConfig';
+import { aliasesPerUser, AliasesFile } from './AliasesFile';
 import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
-import { getWorkmailListing, workmailMapFromListing } from './GetWorkmailMap';
+import { getWorkmailListing } from './GetWorkmailListing';
 import { Email } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
-import { EntityMap, WorkmailMap } from './WorkmailMap';
+import { EntityMap, WorkmailMap, workmailMapFromListing } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
+import { parseAliasesFile, AliasesFileParseError } from './AliasesFileParse';
+import { openWorkmail } from './AwsWorkMailUtil';
 
 console.log('Script starting');
 
-const scriptConfig = ScriptConfig.load();
+const scriptConfig = loadScriptConfig();
 
-function aliasesFromFile(): Alias.AliasesFile {
-  const result = AliasesFileParse.parse(
+function aliasesFromFile(): AliasesFile {
+  const result = parseAliasesFile(
     readFileSync(scriptConfig.aliasesFile).toString(),
   );
-  if (result instanceof AliasesFileParse.ParseError) {
+  if (result instanceof AliasesFileParseError) {
     throw `Error parsing ${scriptConfig.aliasesFile}: ${result.error}`;
   } else {
     return result;
@@ -31,7 +30,7 @@ function aliasesFromFile(): Alias.AliasesFile {
 async function main() {
   console.log(
     `Syncing users and aliases from with AWS WorkMail:\n` +
-    `  Using configuration file: ${ScriptConfig.configFile}\n` +
+    `  Using configuration file: ${configFile}\n` +
     `  AWS config file: ${scriptConfig.awsConfigFile}\n` +
     `  WorkMail endpoint: ${scriptConfig.workmailEndpoint}\n` +
     `  WorkMail organizationId: ${scriptConfig.workmailOrganizationId}\n` +
@@ -40,19 +39,7 @@ async function main() {
     `  aliases per user/group limit: ${scriptConfig.aliasLimit}`,
   );
 
-  console.log('Configuring the AWS connection.')
-
-  AWS.config.setPromisesDependency(null);
-  AWS.config.loadFromPath(scriptConfig.awsConfigFile);
-  
-  const workmailService = new AWS.WorkMail({
-    endpoint: scriptConfig.workmailEndpoint,
-  });
-
-  const workmail = {
-    service: workmailService,
-    organizationId: scriptConfig.workmailOrganizationId,
-  };
+  const workmail = openWorkmail(scriptConfig);
 
   console.log('Fetching the current users, groups and aliases from AWS');
   const currentWorkmailListing = await getWorkmailListing(workmail, scriptConfig);

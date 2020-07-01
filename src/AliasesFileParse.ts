@@ -1,7 +1,7 @@
 import { AliasesFileAlias, AliasesFile } from './AliasesFile';
 import { filterUndef } from './UndefUtil';
 
-export class ParseError {
+export class AliasesFileParseError {
   readonly error: string;
 
   constructor(error: string) {
@@ -14,18 +14,18 @@ const commentRegex = /^\s*#.*$/;
 const lineSplitRegex = /[\r\n]+/;
 const targetsSplitRegex = /\s*,\s*/;
 
-export function parse(input: string): AliasesFile | ParseError {
+export function parseAliasesFile(input: string): AliasesFile | AliasesFileParseError {
   const aliasesOrUndefs = filterUndef(
     input
       .split(lineSplitRegex)
       .filter((line) => line !== '')
-      .map((line: string): AliasesFileAlias | ParseError | undefined => {
+      .map((line: string): AliasesFileAlias | AliasesFileParseError | undefined => {
         const match = line.match(aliasRegex);
         if (match == null) {
           if (line.match(commentRegex)) {
             return undefined;
           } else {
-            return new ParseError(`Unrecognized aliases file line: ${line}`);
+            return new AliasesFileParseError(`Unrecognized aliases file line: ${line}`);
           }
         } else {
           const [, alias, targetsPart] = match;
@@ -35,19 +35,19 @@ export function parse(input: string): AliasesFile | ParseError {
       }),
   );
 
-  const aliasesOrErrors: (AliasesFileAlias | ParseError)[] = filterUndef(
+  const aliasesOrErrors: (AliasesFileAlias | AliasesFileParseError)[] = filterUndef(
     aliasesOrUndefs,
   );
 
-  const errors: ParseError[] = aliasesOrErrors.filter(
-    (x: ParseError | AliasesFileAlias) => x instanceof ParseError,
-  ) as ParseError[];
+  const errors: AliasesFileParseError[] = aliasesOrErrors.filter(
+    (x: AliasesFileParseError | AliasesFileAlias) => x instanceof AliasesFileParseError,
+  ) as AliasesFileParseError[];
 
   if (errors.length > 0) {
     return errors[0];
   } else {
     const aliases: AliasesFileAlias[] = aliasesOrErrors.filter(
-      (x: ParseError | AliasesFileAlias) => !(x instanceof ParseError),
+      (x: AliasesFileParseError | AliasesFileAlias) => !(x instanceof AliasesFileParseError),
     ) as AliasesFileAlias[];
     return { aliases };
   }

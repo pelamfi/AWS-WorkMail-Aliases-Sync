@@ -1,22 +1,17 @@
-import * as AWS from 'aws-sdk';
-import * as R from 'ramda';
 import { Workmail } from './AwsWorkMailUtil';
-import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import {
   WorkmailListing,
   WorkmailEntityAliases,  
-  WorkmailMap,
   WorkmailGroup,
   WorkmailUser,
   WorkmailEntityCommon,
   WorkmailEntity,
-  EntityMap,
-  WorkmailEntityMap,
 } from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
 import { isGeneratedGroupName, Config } from './GroupNameUtil';
 import { Email } from './Email';
+import R from 'ramda';
 
 // Query a Workmail organization and describe its contents as a WorkmailListing
 // The listing can then be expanded to a WorkmailMap with workmailMapFromListing
@@ -69,7 +64,7 @@ async function workmailGroupWithMembers(
     })
     .promise()
     .then(
-      (response): WorkmailGroup => {
+      (response: AWS.WorkMail.ListGroupMembersResponse): WorkmailGroup => {
         // console.log("workmailGroupWithMembers response", group)  
         const memberIds = filterUndef(
           response.Members?.map(member => member?.Id) ?? [],
@@ -180,81 +175,3 @@ async function getWorkmailGroups(
     .then(groups => groupsWithMembers(workmail, userMap, groups));
 }
 
-export function workmailMapFromListing(
-  listing: WorkmailListing,
-): WorkmailMap {
-
-  const byId = R.zipObj(
-    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity.entityId),
-    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
-  );
-
-  const entitiesByEmails: WorkmailEntityMap[] = listing.entities.map((entityAliases: WorkmailEntityAliases) => {
-    const entity = entityAliases.entity
-    const mainEmail = entity.email;
-    const emails: Email[] = [
-      ...(mainEmail === undefined ? [] : [mainEmail]),
-      ...entityAliases.aliases,
-    ];
-    const pairs: [Email, WorkmailEntity][] = emails.map((email) => [
-      email,
-      entity,
-    ]);
-    return R.zipObj(
-      pairs.map(p => p[0].email),
-      pairs.map(p => p[1]),
-    );
-  });
-
-  const byEmail = R.mergeAll(entitiesByEmails);
-
-  const entityMap: EntityMap = { byId, byEmail };
-
-  const emailMapParts = listing.entities.map((entityAliases): EmailItem[] | undefined => {
-    const {entity, aliases} = entityAliases;
-    const mainEmail = entity.email;
-    if (mainEmail === undefined) {
-      return undefined;
-    }
-    switch (entity.kind) {
-      case 'WorkmailGroup': {
-        const members: EmailUser[] = filterUndef(
-          entity.members.map((entity) => entity.email),
-        ).map(
-          (email): EmailUser => {
-            return { kind: 'EmailUser', email };
-          },
-        );
-        const group: EmailGroup = {
-          kind: 'EmailGroup',
-          email: mainEmail,
-          name: entity.name,
-          members,
-        };
-        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
-          kind: 'EmailGroupAlias',
-          email,
-          group,
-        }));
-        return [group, ...aliasesObjs];
-      }
-      case 'WorkmailUser': {
-        const user: EmailUser = { kind: 'EmailUser', email: mainEmail };
-        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
-          kind: 'EmailUserAlias',
-          email,
-          user,
-        }));
-        return [user, ...aliasesObjs];
-      }
-    }
-  });
-
-  const emailMapItems = R.flatten(filterUndef(emailMapParts));
-  const emailMap: EmailMap = R.zipObj(
-    emailMapItems.map((i) => i.email.email),
-    emailMapItems,
-  );
-
-  return { entityMap, emailMap };
-}

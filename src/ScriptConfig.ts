@@ -13,7 +13,7 @@ export interface Config {
 
 export const configFile = './aliases-sync-config.json';
 
-export function load(): Config {
+export function loadScriptConfig(): Config {
   console.log(`Loading ${configFile}`);
   const data = readFileSync(configFile);
   // tslint:disable-next-line: no-suspicious-comment
