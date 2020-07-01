@@ -4,10 +4,10 @@ import { filterUndef } from './UndefUtil';
 import { EmailMap, EmailGroup } from './EmailMap';
 
 function groupsEqual(a: EmailGroup, b: EmailGroup): boolean {
-  const aMemberEmails = a.members.map((x) => x.email.email).sort();
-  const bMemberEmails = b.members.map((x) => x.email.email).sort();
+  const aMemberEmails = a.members.map((x) => x.email).sort();
+  const bMemberEmails = b.members.map((x) => x.email).sort();
   return (
-    a.email.email == b.email.email &&
+    a.email == b.email &&
     a.name == b.name &&
     R.equals(aMemberEmails, bMemberEmails)
   );
@@ -30,7 +30,7 @@ export function emailMapSync(
     if (
       current.kind == 'EmailGroupAlias' &&
       ((target?.kind == 'EmailGroupAlias' &&
-        target?.group.email.email != current.group.email.email) ||
+        target?.group.email != current.group.email) ||
         current.kind != target?.kind)
     ) {
       return { kind: 'RemoveGroupAlias', alias: current };
@@ -44,7 +44,7 @@ export function emailMapSync(
     } else if (
       current.kind == 'EmailUserAlias' &&
       ((target?.kind == 'EmailUserAlias' &&
-        target?.user.email.email != current.user.email.email) ||
+        target?.user.email != current.user.email) ||
         current.kind != target?.kind)
     ) {
       return { kind: 'RemoveUserAlias', alias: current };
@@ -52,7 +52,7 @@ export function emailMapSync(
       current.kind == 'EmailUser' &&
       target !== undefined &&
       ((target.kind == 'EmailUser' &&
-        target.email.email != current.email.email) ||
+        target.email != current.email) ||
         current.kind != target.kind)
     ) {
       throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the user is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}`; // can this happen?
@@ -70,7 +70,7 @@ export function emailMapSync(
           if (
             current == undefined ||
             (current.kind == 'EmailGroupAlias' &&
-              current.group.email.email != target.group.email.email)
+              current.group.email != target.group.email)
           ) {
             return [{ kind: 'AddGroupAlias', alias: target }];
           }
@@ -79,7 +79,7 @@ export function emailMapSync(
           if (
             current == undefined ||
             (current.kind == 'EmailUserAlias' &&
-              current.user.email.email != target.user.email.email)
+              current.user.email != target.user.email)
           ) {
             return [{ kind: 'AddUserAlias', alias: target }];
           }

@@ -1,4 +1,4 @@
-import { Email } from './Email';
+import { Email, emailString } from './Email';
 
 export interface Config {
   groupPrefix: string;
@@ -14,5 +14,5 @@ export function isGeneratedGroupName(
 
 // Default group name based on email address.
 export function generateGroupName(email: Email, config: Config) {
-  return config.groupPrefix + '-' + email.local;
+  return config.groupPrefix + '-' + emailString(email);
 }

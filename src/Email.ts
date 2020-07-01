@@ -1,33 +1,31 @@
-export type PlainEmailAddress = string;
 
-export class Email {
-  private readonly _email: PlainEmailAddress; // using private disables structural typing
+export interface Email extends String {
+  _EmailBrand: string;
+};
 
-  constructor(email: PlainEmailAddress);
-  constructor(email: string, domain: string);
-  constructor(email: string, domain?: string) {
-    if (domain === undefined) {
-      this._email = email;
-    } else {
-      this._email = `${email}@${domain}`;
-    }
+export function emailFrom(email: string, domain?: string): Email {
+  if (domain === undefined) {
+    return email as unknown as Email;
+  } else {
+    return `${email}@${domain}` as unknown as Email;
   }
+}
 
-  get email() {
-    return this._email;
-  }
+export function emailString(email: Email): string {
+  return email as unknown as string;
+}
 
-  get domain() {
-    const split = this._email.split('@');
-    if (split.length >= 2) {
-      return split[split.length - 1]; // name part can contain @ characters
-    } else {
-      return '';
-    }
+export function emailDomain(email: Email) {
+  const split = emailString(email).split('@');
+  if (split.length >= 2) {
+    return split[split.length - 1]; // name part can contain @ characters
+  } else {
+    return '';
   }
+}
 
-  get local() {
-    const domain = this.domain;
-    return this._email.substring(0, this._email.length - domain.length - 1);
-  }
+export function emailLocal(email: Email) {
+  const domain = emailDomain(email);
+  const str = emailString(email);
+  return str.substring(0, str.length - domain.length - 1);
 }

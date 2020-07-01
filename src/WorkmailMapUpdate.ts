@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk';
 import * as R from 'ramda';
 import { EmailGroup } from './EmailMap';
 import { WorkmailGroup, EntityMap, WorkmailEntityMap } from './WorkmailMap';
+import { emailString } from './Email';
 
 export function addGroupToEntityMap(
   entityMap: EntityMap,
@@ -17,7 +18,7 @@ export function addGroupToEntityMap(
     members: [],
   };
   const byId = R.assoc(entityId, workmailGroup, entityMap.byId);
-  const byEmail = R.assoc(group.email.email, workmailGroup, entityMap.byEmail);
+  const byEmail = R.assoc(emailString(group.email), workmailGroup, entityMap.byEmail);
   return { byId, byEmail };
 }
 
@@ -28,7 +29,7 @@ export function removeGroupFromEntityMap(
 ): EntityMap {
   const byId: WorkmailEntityMap = R.dissoc(entityId, entityMap.byEmail);
   const byEmail: WorkmailEntityMap = R.dissoc(
-    group.email.email,
+    emailString(group.email),
     entityMap.byEmail,
   );
   return { byId, byEmail };

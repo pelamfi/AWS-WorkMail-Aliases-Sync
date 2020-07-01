@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import { Workmail } from './AwsWorkMailUtil';
 import { EmailOperation } from './EmailOperation';
 import { EntityMap, WorkmailEntityCommon } from './WorkmailMap';
-import { Email } from './Email';
+import { Email, emailString } from './Email';
 import {
   addGroupToEntityMap,
   removeGroupFromEntityMap,
@@ -19,12 +19,12 @@ export function createAwsWorkmailRequest(
   op: EmailOperation,
 ): Promise<EntityMapUpdate> {
   function resolveEntityId(email: Email): WorkmailEntityCommon {
-    const entity = entityMap.byEmail[email.email];
+    const entity = entityMap.byEmail[emailString(email)];
     if (entity !== undefined) {
       return entity;
     }
 
-    throw `Can't resolve ${email.email} to a Workmail entityId`;
+    throw `Can't resolve ${email} to a Workmail entityId`;
   }
 
   switch (op.kind) {
@@ -33,7 +33,7 @@ export function createAwsWorkmailRequest(
         OrganizationId: workmail.organizationId,
         Name: op.group.name,
       };
-      console.log(`add group ${op.group.name} (${op.group.email.email})`);
+      console.log(`add group ${op.group.name} (${op.group.email})`);
       return workmail.service
         .createGroup(request)
         .promise()
@@ -48,7 +48,7 @@ export function createAwsWorkmailRequest(
             const registerRequest: AWS.WorkMail.Types.RegisterToWorkMailRequest = {
               OrganizationId: workmail.organizationId,
               EntityId: entityId,
-              Email: op.group.email.email,
+              Email: emailString(op.group.email),
             };
             return workmail.service
               .registerToWorkMail(registerRequest)
@@ -68,7 +68,7 @@ export function createAwsWorkmailRequest(
         MemberId: userEntity.entityId,
       };
       console.log(
-        `add group member ${op.member.email.email} to ${op.group.name}`,
+        `add group member ${op.member.email} to ${op.group.name}`,
       );
       return workmail.service
         .associateMemberToGroup(request)
@@ -77,7 +77,7 @@ export function createAwsWorkmailRequest(
     }
     case 'AddGroupAlias': {
       const groupEntity = resolveEntityId(op.alias.group.email);
-      const aliasEmail = op.alias.email.email;
+      const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
         EntityId: groupEntity.entityId,
@@ -91,7 +91,7 @@ export function createAwsWorkmailRequest(
     }
     case 'AddUserAlias': {
       const userEntity = resolveEntityId(op.alias.user.email);
-      const aliasEmail = op.alias.email.email;
+      const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
         EntityId: userEntity.entityId,
@@ -105,7 +105,7 @@ export function createAwsWorkmailRequest(
     }
     case 'RemoveGroupAlias': {
       const groupEntity = resolveEntityId(op.alias.group.email);
-      const aliasEmail = op.alias.email.email;
+      const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
         EntityId: groupEntity.entityId,
@@ -119,7 +119,7 @@ export function createAwsWorkmailRequest(
     }
     case 'RemoveUserAlias': {
       const userEntity = resolveEntityId(op.alias.user.email);
-      const aliasEmail = op.alias.email.email;
+      const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
         EntityId: userEntity.entityId,

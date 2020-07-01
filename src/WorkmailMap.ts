@@ -1,4 +1,4 @@
-import { Email } from './Email';
+import { Email, emailString } from './Email';
 import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import { filterUndef } from './UndefUtil';
 import R from 'ramda';
@@ -67,7 +67,7 @@ export function workmailMapFromListing(
       entity,
     ]);
     return R.zipObj(
-      pairs.map(p => p[0].email),
+      pairs.map(p => emailString(p[0])),
       pairs.map(p => p[1]),
     );
   });
@@ -118,7 +118,7 @@ export function workmailMapFromListing(
 
   const emailMapItems = R.flatten(filterUndef(emailMapParts));
   const emailMap: EmailMap = R.zipObj(
-    emailMapItems.map((i) => i.email.email),
+    emailMapItems.map((i) => emailString(i.email)),
     emailMapItems,
   );
 

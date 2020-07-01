@@ -10,7 +10,7 @@ import {
   EmailGroup,
 } from './EmailMap';
 import { generateGroupName } from './GroupNameUtil';
-import { Email } from './Email';
+import { Email, emailFrom, emailString } from './Email';
 
 export interface Config {
   aliasesFileDomain: string;
@@ -26,7 +26,7 @@ export function aliasesFileToEmailMap(
     localUser: AliasesFileUser,
   ): [EmailUser, EmailUserAlias[]] | undefined {
     const localUserEmail = config.localUserToEmail(localUser.localEmail);
-    if (localUserEmail?.email === undefined) {
+    if (localUserEmail === undefined) {
       console.log(
         `Local email user '${localUser.localEmail}' is not in the configuration file localEmailUserToEmail map. Ignored.`,
       );
@@ -35,7 +35,7 @@ export function aliasesFileToEmailMap(
     const user: EmailUser = { kind: 'EmailUser', email: localUserEmail };
     const aliases = localUser.aliases.map(
       (alias): EmailUserAlias => {
-        const email = new Email(alias, config.aliasesFileDomain);
+        const email = emailFrom(alias, config.aliasesFileDomain);
         return { kind: 'EmailUserAlias', email, user };
       },
     );
@@ -48,21 +48,21 @@ export function aliasesFileToEmailMap(
   const aliases = R.flatten(emails.map((x) => x[1]));
 
   // To check if there are multiple aliases but for different users
-  const allAliasesByEmail = R.groupBy((alias) => alias.email.email, aliases);
+  const allAliasesByEmail = R.groupBy((alias) => emailString(alias.email), aliases);
 
   // Aliases that target multiple users are "groups"
   const [groups, regularAliases] = R.partition(
-    (alias) => allAliasesByEmail[alias.email.email].length > 1,
+    (alias) => allAliasesByEmail[emailString(alias.email)].length > 1,
     aliases,
   );
 
   // Email aliases that target multiple users
-  const groupEmails = R.uniq(groups.map((x) => x.email.email));
+  const groupEmails = R.uniq(groups.map((x) => emailString(x.email)));
 
   const convertedGroups: EmailItem[] = R.flatten(
     groupEmails.map((groupEmail) => {
       const aliasesOfGroup: EmailUserAlias[] = allAliasesByEmail[groupEmail];
-      const email = new Email(groupEmail);
+      const email = emailFrom(groupEmail);
       const members = aliasesOfGroup.map((x) => x.user);
       const name = generateGroupName(email, config);
       const group: EmailGroup = {
@@ -84,7 +84,7 @@ export function aliasesFileToEmailMap(
   ];
 
   return R.zipObj(
-    results.map((a) => a.email.email),
+    results.map((a) => emailString(a.email)),
     results,
   );
 }

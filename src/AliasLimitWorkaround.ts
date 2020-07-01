@@ -6,7 +6,7 @@ import {
   EmailItem,
   EmailGroupAlias,
 } from './EmailMap';
-import { Email } from './Email';
+import { emailFrom, emailString, emailLocal } from './Email';
 
 // Information needed to create the groups for the workaround
 export interface WorkaroundConfig {
@@ -32,7 +32,7 @@ export function emailMapAliasLimitWorkaround(
   const modifiedEmails = [...otherEmails, ...aliasesWithGroupOverflow];
 
   return R.zipObj(
-    modifiedEmails.map((x) => x.email.email),
+    modifiedEmails.map((x) => emailString(x.email)),
     modifiedEmails,
   );
 }
@@ -43,7 +43,7 @@ export function aliasLimitWorkaround(
   config: WorkaroundConfig,
 ): EmailItem[] {
   const groupByUserEmail = R.groupBy(
-    (email: EmailUserAlias): string => email.user.email.email,
+    (email: EmailUserAlias): string => emailString(email.user.email),
   );
 
   const groupedByUser: { [index: string]: EmailUserAlias[] } = groupByUserEmail(
@@ -79,8 +79,8 @@ export function aliasLimitWorkaround(
       const groupIndices = R.range(0, overflowing.length);
       const groups: EmailGroup[] = groupIndices.map(
         (groupIndex): EmailGroup => {
-          const name = `${config.groupPrefix}-alias-${user.email.local}-${groupIndex}`;
-          const email = new Email(`${name}@${config.aliasesFileDomain}`);
+          const name = `${config.groupPrefix}-alias-${emailLocal(user.email)}-${groupIndex}`;
+          const email = emailFrom(name, config.aliasesFileDomain);
           return { kind: 'EmailGroup', email, members: [user], name };
         },
       );

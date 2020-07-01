@@ -9,7 +9,7 @@ import {
   EmailGroup,
   EmailGroupAlias,
 } from '../src/EmailMap';
-import { Email } from '../src/Email';
+import { emailFrom } from '../src/Email';
 
 const config = {
   groupPrefix: 'prefix',
@@ -18,12 +18,12 @@ const config = {
 };
 // const config2 = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 2}
 
-const userEmail1 = new Email('user1@bar');
-const alias1Email = new Email('alias1@bar');
-const alias2Email = new Email('alias2@bar');
-const alias3Email = new Email('alias1@bar');
-const alias4Email = new Email('alias2@bar');
-const userEmail2 = new Email('user2@bar');
+const userEmail1 = emailFrom('user1@bar');
+const alias1Email = emailFrom('alias1@bar');
+const alias2Email = emailFrom('alias2@bar');
+const alias3Email = emailFrom('alias1@bar');
+const alias4Email = emailFrom('alias2@bar');
+const userEmail2 = emailFrom('user2@bar');
 //const email1 = new EmailAddr("foo@bar")
 const user1: EmailUser = { kind: 'EmailUser', email: userEmail1 };
 const alias1: EmailUserAlias = {
@@ -47,7 +47,7 @@ const alias4: EmailUserAlias = {
   email: alias4Email,
   user: user2,
 };
-const aliasGroup1Email = new Email('prefix-alias-user1-0@domain');
+const aliasGroup1Email = emailFrom('prefix-alias-user1-0@domain');
 const aliasGroup1: EmailGroup = {
   kind: 'EmailGroup',
   name: 'prefix-alias-user1-0',
@@ -59,7 +59,7 @@ const alias2OnGroup1: EmailGroupAlias = {
   email: alias2Email,
   group: aliasGroup1,
 };
-const aliasGroup2Email = new Email('prefix-alias-user2-0@domain');
+const aliasGroup2Email = emailFrom('prefix-alias-user2-0@domain');
 const aliasGroup2: EmailGroup = {
   kind: 'EmailGroup',
   name: 'prefix-alias-user2-0',

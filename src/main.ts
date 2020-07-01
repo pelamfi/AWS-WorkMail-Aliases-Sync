@@ -5,7 +5,7 @@ import { aliasesPerUser, AliasesFile } from './AliasesFile';
 import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { getWorkmailListing } from './GetWorkmailListing';
-import { Email } from './Email';
+import { Email, emailFrom } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap, workmailMapFromListing } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
@@ -57,7 +57,7 @@ async function main() {
     if (localEmail === undefined) {
       return undefined;
     }
-    return new Email(localEmail);
+    return emailFrom(localEmail);
   }
 
   const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {

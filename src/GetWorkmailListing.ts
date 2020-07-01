@@ -10,7 +10,7 @@ import {
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
 import { isGeneratedGroupName, Config } from './GroupNameUtil';
-import { Email } from './Email';
+import { emailFrom, Email } from './Email';
 import R from 'ramda';
 
 // Query a Workmail organization and describe its contents as a WorkmailListing
@@ -44,8 +44,8 @@ async function workmailEntityAliases<
     .then((response: AWS.WorkMail.ListAliasesResponse): WorkmailEntityAliases => {
       // console.log("workmailEntityWithAliases response", entity.name)  
       const aliases: Email[] =
-        response.Aliases?.filter(alias => alias != entity.email?.email) // also the primary email is returned as an alias
-          .map(alias => new Email(alias)) ?? [];
+        response.Aliases?.filter(alias => emailFrom(alias) != entity.email) // also the primary email is returned as an alias
+          .map(alias => emailFrom(alias)) ?? [];
       return {entity, aliases}
     });
 }
@@ -101,7 +101,7 @@ function convertEntityCommon(
   }
 
   return {
-    email: new Email(entity.Email),
+    email: emailFrom(entity.Email),
     name: entity.Name,
     entityId: entity.Id,
   };
