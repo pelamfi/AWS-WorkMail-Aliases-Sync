@@ -6,6 +6,8 @@ import {
   WorkmailUser,
   WorkmailEntityCommon,
   WorkmailEntity,
+  entityIdString,
+  brandEntityId,
 } from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
@@ -37,7 +39,7 @@ async function workmailEntityAliases<
 >(workmail: Workmail, entity: T): Promise<WorkmailEntityAliases> {
   return workmail.service
     .listAliases({
-      EntityId: entity.entityId,
+      EntityId: entityIdString(entity.entityId),
       OrganizationId: workmail.organizationId,
     })
     .promise()
@@ -59,7 +61,7 @@ async function workmailGroupWithMembers(
 ): Promise<WorkmailGroup> {
   return workmail.service
     .listGroupMembers({
-      GroupId: group.entityId,
+      GroupId: entityIdString(group.entityId),
       OrganizationId: workmail.organizationId,
     })
     .promise()
@@ -103,7 +105,7 @@ function convertEntityCommon(
   return {
     email: emailFrom(entity.Email),
     name: entity.Name,
-    entityId: entity.Id,
+    entityId: brandEntityId(entity.Id),
   };
 }
 
@@ -158,7 +160,7 @@ async function getWorkmailGroups(
   config: Config,
 ): Promise<WorkmailGroup[]> {
   const userMap: WorkmailUserMap = R.zipObj(
-    users.map((x) => x.entityId),
+    users.map((x) => entityIdString(x.entityId)),
     users,
   );
 

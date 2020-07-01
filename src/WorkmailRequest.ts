@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import { Workmail } from './AwsWorkMailUtil';
 import { EmailOperation } from './EmailOperation';
-import { EntityMap, WorkmailEntityCommon } from './WorkmailMap';
+import { EntityMap, WorkmailEntityCommon, entityIdString } from './WorkmailMap';
 import { Email, emailString } from './Email';
 import {
   addGroupToEntityMap,
@@ -64,8 +64,8 @@ export function createAwsWorkmailRequest(
       const userEntity = resolveEntityId(op.member.email);
       const request: AWS.WorkMail.Types.AssociateMemberToGroupRequest = {
         OrganizationId: workmail.organizationId,
-        GroupId: groupEntity.entityId,
-        MemberId: userEntity.entityId,
+        GroupId: entityIdString(groupEntity.entityId),
+        MemberId: entityIdString(userEntity.entityId),
       };
       console.log(
         `add group member ${op.member.email} to ${op.group.name}`,
@@ -80,7 +80,7 @@ export function createAwsWorkmailRequest(
       const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
-        EntityId: groupEntity.entityId,
+        EntityId: entityIdString(groupEntity.entityId),
         Alias: aliasEmail,
       };
       console.log(`add alias ${aliasEmail} to group to ${op.alias.group.name}`);
@@ -94,7 +94,7 @@ export function createAwsWorkmailRequest(
       const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
-        EntityId: userEntity.entityId,
+        EntityId: entityIdString(userEntity.entityId),
         Alias: aliasEmail,
       };
       console.log(`add alias ${aliasEmail} to user ${userEntity.name}`);
@@ -108,7 +108,7 @@ export function createAwsWorkmailRequest(
       const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
-        EntityId: groupEntity.entityId,
+        EntityId: entityIdString(groupEntity.entityId),
         Alias: aliasEmail,
       };
       console.log(`remove alias ${aliasEmail} from group ${groupEntity.name}`);
@@ -122,7 +122,7 @@ export function createAwsWorkmailRequest(
       const aliasEmail = emailString(op.alias.email);
       const request = {
         OrganizationId: workmail.organizationId,
-        EntityId: userEntity.entityId,
+        EntityId: entityIdString(userEntity.entityId),
         Alias: aliasEmail,
       };
       console.log(`remove alias ${aliasEmail} from user ${userEntity.name}`);
@@ -135,11 +135,11 @@ export function createAwsWorkmailRequest(
       const groupEntity = resolveEntityId(op.group.email);
       const unregisterRequest: AWS.WorkMail.Types.DeregisterFromWorkMailRequest = {
         OrganizationId: workmail.organizationId,
-        EntityId: groupEntity.entityId,
+        EntityId: entityIdString(groupEntity.entityId),
       };
       const request: AWS.WorkMail.Types.DeleteGroupRequest = {
         OrganizationId: workmail.organizationId,
-        GroupId: groupEntity.entityId,
+        GroupId: entityIdString(groupEntity.entityId),
       };
       console.log(`remove group ${op.group.name}`);
       return workmail.service

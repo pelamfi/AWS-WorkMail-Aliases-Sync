@@ -3,6 +3,18 @@ import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import { filterUndef } from './UndefUtil';
 import R from 'ramda';
 
+export interface EntityId extends String {
+  _AwsWorkmailEntityIdEmailBrand: string;
+};
+
+export function brandEntityId(id: AWS.WorkMail.WorkMailIdentifier): EntityId {
+  return id as unknown as EntityId
+}
+
+export function entityIdString(id: EntityId): string {
+  return id as unknown as string
+}
+
 // This represents the information contained in an AWS WorkMail account
 // that this program is interested in.
 export type WorkmailListing = {
@@ -26,7 +38,7 @@ export type WorkmailEntityMap = { readonly [index: string]: WorkmailEntity };
 export type WorkmailEntity = WorkmailUser | WorkmailGroup;
 
 export interface WorkmailEntityCommon {
-  readonly entityId: AWS.WorkMail.WorkMailIdentifier;
+  readonly entityId: EntityId;
   readonly name: string;
   readonly email?: Email;
 }
@@ -51,7 +63,7 @@ export function workmailMapFromListing(
 ): WorkmailMap {
 
   const byId = R.zipObj(
-    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity.entityId),
+    listing.entities.map((entityAliases: WorkmailEntityAliases) => entityIdString(entityAliases.entity.entityId)),
     listing.entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
   );
 

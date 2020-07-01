@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as R from 'ramda';
 import { EmailGroup } from './EmailMap';
-import { WorkmailGroup, EntityMap, WorkmailEntityMap } from './WorkmailMap';
+import { WorkmailGroup, EntityMap, WorkmailEntityMap, brandEntityId, EntityId, entityIdString } from './WorkmailMap';
 import { emailString } from './Email';
 
 export function addGroupToEntityMap(
@@ -14,7 +14,7 @@ export function addGroupToEntityMap(
     kind: 'WorkmailGroup',
     name: group.name,
     email: group.email,
-    entityId,
+    entityId: brandEntityId(entityId),
     members: [],
   };
   const byId = R.assoc(entityId, workmailGroup, entityMap.byId);
@@ -25,9 +25,9 @@ export function addGroupToEntityMap(
 export function removeGroupFromEntityMap(
   entityMap: EntityMap,
   group: EmailGroup,
-  entityId: AWS.WorkMail.WorkMailIdentifier,
+  entityId: EntityId,
 ): EntityMap {
-  const byId: WorkmailEntityMap = R.dissoc(entityId, entityMap.byEmail);
+  const byId: WorkmailEntityMap = R.dissoc(entityIdString(entityId), entityMap.byId);
   const byEmail: WorkmailEntityMap = R.dissoc(
     emailString(group.email),
     entityMap.byEmail,
