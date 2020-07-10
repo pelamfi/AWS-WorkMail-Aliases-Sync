@@ -24,6 +24,9 @@
             "request": "launch",
             "name": "main.ts",
             "program": "${workspaceFolder}/src/main.ts",
+            "runtimeArgs": [
+                "--trace-warnings"
+            ],
             "skipFiles": [
                 "<node_internals>/**"
             ],
