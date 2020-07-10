@@ -38,3 +38,8 @@ aliases-sync-config.json
 aliases
 
 *~
+
+# Temporary debug files
+current-workmail-listing.json
+final-map.json
+target-map.json
