@@ -50,39 +50,40 @@ export type WorkmailMap = {
 };
 
 export type EntityMap = {
-  readonly byId: WorkmailEntityMap;
-  readonly byEmail: WorkmailEntityMap;
+  readonly usersByEmail: { readonly [index: string]: WorkmailUserAliases };
+  readonly groupsByEmail: { readonly [index: string]: WorkmailGroupAliases };
 };
-
-export type WorkmailEntityMap = { readonly [index: string]: WorkmailEntity };
 
 export type WorkmailEntity = WorkmailUser | WorkmailGroup;
 
 export interface WorkmailEntityCommon {
   readonly entityId: EntityId;
   readonly name: string;
-  readonly email?: Email;
+  readonly email: Email;
 }
 
-export type WorkmailUser = { kind: 'WorkmailUser', entityId: UserEntityId } & WorkmailEntityCommon;
+export type WorkmailUser = { 
+  readonly kind: 'WorkmailUser';
+  readonly entityId: UserEntityId;
+} & WorkmailEntityCommon;
 
 export type WorkmailGroup = {
-  entityId: GroupEntityId,  
-  kind: 'WorkmailGroup';
-  members: UserEntityId[];
+  readonly entityId: GroupEntityId;
+  readonly kind: 'WorkmailGroup';
+  readonly members: UserEntityId[];
 } & WorkmailEntityCommon;
 
 // This information is read from AWS. It includes the basic information
 // for a user or a group and the list of email aliases bound to that
 // entity
 export type WorkmailEntityAliases = {
-  entity: WorkmailEntity,
-  aliases: Email[]
+  readonly entity: WorkmailEntity,
+  readonly aliases: Email[]
 };
 
 export type WorkmailUserAliases = {
-  entity: WorkmailUser,
-  aliases: Email[]
+  readonly entity: WorkmailUser,
+  readonly aliases: Email[]
 };
 
 export type WorkmailGroupAliases = {
@@ -101,31 +102,17 @@ export function workmailMapFromListing(
     listing.users.map(user => user.entity),
   );
 
-  const byId = R.zipObj(
-    entities.map((entityAliases: WorkmailEntityAliases) => entityIdString(entityAliases.entity.entityId)),
-    entities.map((entityAliases: WorkmailEntityAliases) => entityAliases.entity),
+  const usersByEmail = R.zipObj(
+    listing.users.map(user => emailString(user.entity.email)),
+    listing.users
   );
 
-  const entitiesByEmails: WorkmailEntityMap[] = entities.map((entityAliases: WorkmailEntityAliases) => {
-    const entity = entityAliases.entity
-    const mainEmail = entity.email;
-    const emails: Email[] = [
-      ...(mainEmail === undefined ? [] : [mainEmail]),
-      ...entityAliases.aliases,
-    ];
-    const pairs: [Email, WorkmailEntity][] = emails.map((email) => [
-      email,
-      entity,
-    ]);
-    return R.zipObj(
-      pairs.map(p => emailString(p[0])),
-      pairs.map(p => p[1]),
-    );
-  });
+  const groupsByEmail = R.zipObj(
+    listing.groups.map(user => emailString(user.entity.email)),
+    listing.groups
+  );  
 
-  const byEmail = R.mergeAll(entitiesByEmails);
-
-  const entityMap: EntityMap = { byId, byEmail };
+  const entityMap: EntityMap = { usersByEmail, groupsByEmail };
 
   const emailMapParts = entities.map((entityAliases): EmailItem[] | undefined => {
     const {entity, aliases} = entityAliases;

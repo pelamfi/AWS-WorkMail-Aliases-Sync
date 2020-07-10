@@ -75,9 +75,7 @@ async function main() {
   console.log(
     `Computing operations to sync aliases file with ${
       Object.keys(targetAwsEmailMap).length
-    } aliases to WorkMail with ${
-      Object.keys(currentWorkmailMap.emailMap).length
-    } aliases`,
+    } aliases to WorkMail with`,
   );
 
   const syncOperations = emailMapSync(
@@ -117,8 +115,10 @@ async function main() {
   writeFileSync('final-map.json', JSON.stringify(finalMap, null, 2), {encoding: 'utf8'});
 
   console.log(
-    `${syncOperations.length} operations completed, entityIds: ${
-      Object.keys(finalMap.entityMap.byId).length
+    `${syncOperations.length} operations completed, users: ${
+      Object.keys(finalMap.entityMap.usersByEmail.length).length
+    } groups: ${
+      Object.keys(finalMap.entityMap.groupsByEmail.length).length
     }`,
   );
 }
