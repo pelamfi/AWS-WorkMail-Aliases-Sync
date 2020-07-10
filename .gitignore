@@ -36,3 +36,5 @@ management-script-config.json
 
 # Don't put an aliases file that user may be syncing into git
 aliases
+
+*~
