@@ -1,6 +1,7 @@
 root = true
 
 [*]
+indent_size = 2
 charset = utf-8
 end_of_line = lf
 trim_trailing_whitespace = true
@@ -10,6 +11,6 @@ insert_final_newline = true
 insert_final_newline = false
 trim_trailing_whitespace = false
 
-[*.{js,jsx,json,ts,tsx,yml}]
+[*.{js,jsx,json,ts,tsx,yml,spec.ts}]
 indent_size = 2
 indent_style = space

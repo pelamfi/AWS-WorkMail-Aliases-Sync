@@ -23,6 +23,7 @@ module.exports = {
     "prettier/@typescript-eslint"
   ],
   "rules": {
+    "indent": ["error", 2],
     "@typescript-eslint/explicit-module-boundary-types": 0,
   }
 }
