@@ -92,7 +92,7 @@ async function main() {
     op: EmailOperation,
   ): Promise<EntityMap> {
     return prev.then((entityMap) => {
-      return createAwsWorkmailRequest(workmail, entityMap, op).then(
+      return createAwsWorkmailRequest(workmail.update, entityMap, op).then(
         (entityMapUpdate) => {
           return entityMapUpdate(entityMap);
         },
