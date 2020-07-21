@@ -91,6 +91,13 @@ export type WorkmailGroupAliases = {
   aliases: Email[]
 };
 
+export function workmailListingFromMap(workmailMap: WorkmailMap): WorkmailListing {
+  return {
+    groups: Object.values(workmailMap.entityMap.groupsByEmail),
+    users: Object.values(workmailMap.entityMap.usersByEmail),
+  }
+}
+
 export function workmailMapFromListing(
   listing: WorkmailListing,
 ): WorkmailMap {
