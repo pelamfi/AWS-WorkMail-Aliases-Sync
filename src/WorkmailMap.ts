@@ -121,36 +121,36 @@ export function workmailMapFromListing(
       return undefined;
     }
     switch (entity.kind) {
-      case 'WorkmailGroup': {
-        const members: EmailUser[] = filterUndef(
-          entity.members.map((entityId: UserEntityId) => userById[entityIdString(entityId)]?.email),
-        ).map(
-          (email): EmailUser => {
-            return { kind: 'EmailUser', email };
-          },
-        );
-        const group: EmailGroup = {
-          kind: 'EmailGroup',
-          email: mainEmail,
-          name: entity.name,
-          members,
-        };
-        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
-          kind: 'EmailGroupAlias',
-          email,
-          group,
-        }));
-        return [group, ...aliasesObjs];
-      }
-      case 'WorkmailUser': {
-        const user: EmailUser = { kind: 'EmailUser', email: mainEmail };
-        const aliasesObjs: EmailItem[] = aliases.map((email) => ({
-          kind: 'EmailUserAlias',
-          email,
-          user,
-        }));
-        return [user, ...aliasesObjs];
-      }
+    case 'WorkmailGroup': {
+      const members: EmailUser[] = filterUndef(
+        entity.members.map((entityId: UserEntityId) => userById[entityIdString(entityId)]?.email),
+      ).map(
+        (email): EmailUser => {
+          return { kind: 'EmailUser', email };
+        },
+      );
+      const group: EmailGroup = {
+        kind: 'EmailGroup',
+        email: mainEmail,
+        name: entity.name,
+        members,
+      };
+      const aliasesObjs: EmailItem[] = aliases.map((email) => ({
+        kind: 'EmailGroupAlias',
+        email,
+        group,
+      }));
+      return [group, ...aliasesObjs];
+    }
+    case 'WorkmailUser': {
+      const user: EmailUser = { kind: 'EmailUser', email: mainEmail };
+      const aliasesObjs: EmailItem[] = aliases.map((email) => ({
+        kind: 'EmailUserAlias',
+        email,
+        user,
+      }));
+      return [user, ...aliasesObjs];
+    }
     }
   });
 
