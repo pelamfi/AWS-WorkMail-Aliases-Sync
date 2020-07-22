@@ -15,7 +15,7 @@ export function emailString(email: Email): string {
   return email as unknown as string;
 }
 
-export function emailDomain(email: Email) {
+export function emailDomain(email: Email): string {
   const split = emailString(email).split('@');
   if (split.length >= 2) {
     return split[split.length - 1]; // name part can contain @ characters
@@ -24,7 +24,7 @@ export function emailDomain(email: Email) {
   }
 }
 
-export function emailLocal(email: Email) {
+export function emailLocal(email: Email): string {
   const domain = emailDomain(email);
   const str = emailString(email);
   return str.substring(0, str.length - domain.length - 1);
