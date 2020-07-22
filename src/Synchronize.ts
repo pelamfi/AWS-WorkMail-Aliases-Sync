@@ -77,8 +77,8 @@ export async function synchronize(
 
   console.log(
     `${syncOperations.length} operations completed, users: ${
-      Object.keys(finalMap.entityMap.usersByEmail.length).length} groups: ${
-      Object.keys(finalMap.entityMap.groupsByEmail.length).length}`);
+      Object.keys(finalMap.entityMap.usersByEmail).length} groups: ${
+      Object.keys(finalMap.entityMap.groupsByEmail).length}`);
 
   return workmailListingFromMap(finalMap);
 }
