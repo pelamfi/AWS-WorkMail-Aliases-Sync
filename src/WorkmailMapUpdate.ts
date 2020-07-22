@@ -2,7 +2,6 @@ import * as R from 'ramda';
 import { WorkmailGroup, EntityMap, WorkmailGroupAliases, WorkmailUserAliases, WorkmailUser  } from './WorkmailMap';
 import { emailString, Email } from './Email';
 import { AddUserAlias, AddGroupMember } from './EmailOperation';
-import { group } from 'console';
 
 export function addGroupToEntityMap(
   group: WorkmailGroup,
