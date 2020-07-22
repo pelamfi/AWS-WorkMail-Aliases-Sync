@@ -8,6 +8,8 @@ const domain = "domain";
 const user1 = emailFrom("user1", domain);
 const user2 = emailFrom("user2", domain);
 const aliasFoo = emailFrom("foo", domain);
+const aliasBar = emailFrom("bar", domain);
+const aliasBaz = emailFrom("baz", domain);
 
 const groupPrefix = "groupPrefix"
 const aliasLimit = 2
@@ -119,5 +121,41 @@ describe('End to end test with mocked WorkMail', () => {
         expect(listing).toStrictEqual(twoUserWorkmailListing);
       });
   });
+
+  it('Adds overflowing aliases, remove 1 group', () => {
+    const update = mockWorkmail();
+    const aliases = [
+      {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
+      {alias: emailLocal(aliasBar), localEmails: [emailLocal(user1)]},
+      {alias: emailLocal(aliasBaz), localEmails: [emailLocal(user1)]}
+    ];
+
+    return Synchronize.synchronize(config, aliases, listingWith1Group, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(3);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(1);
+        expect(update.associateMemberToGroup).toBeCalledTimes(1);
+        expect(update.addGroup).toBeCalledTimes(1);
+
+        const email = emailFrom(groupPrefix + "-alias-user1-0", domain)
+
+        const group: WorkmailGroup = {
+          kind: "WorkmailGroup",
+          email: email,
+          entityId: groupEntityId1,
+          name: emailLocal(email),
+          members: [workmailUser1.entityId]};
+
+        const expectedListing: WorkmailListing = {
+          groups: [{entity: group, aliases: [aliasFoo]}],
+          users: [
+            {entity: workmailUser1, aliases: [aliasBar, aliasBaz]},
+            {entity: workmailUser2, aliases: []}]};
+
+        expect(listing).toStrictEqual(expectedListing);
+      });
+  });
+
 });
 

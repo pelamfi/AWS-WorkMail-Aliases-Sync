@@ -27,17 +27,19 @@ export function emailMapSync(
       return undefined;
     }
 
+    const differentKinds = current.kind != target?.kind;
+
     if (
       current.kind == 'EmailGroupAlias' &&
       ((target?.kind == 'EmailGroupAlias' &&
         target?.group.email != current.group.email) ||
-        current.kind != target?.kind)
+        differentKinds)
     ) {
       return { kind: 'RemoveGroupAlias', alias: current };
     } else if (
       current.kind == 'EmailGroup' &&
       (target === undefined ||
-        target.kind !== 'EmailGroup' ||
+        target.kind !== 'EmailGroup' || // TODO: We could update the group members
         !groupsEqual(current, target))
     ) {
       return { kind: 'RemoveGroup', group: current };
@@ -45,7 +47,7 @@ export function emailMapSync(
       current.kind == 'EmailUserAlias' &&
       ((target?.kind == 'EmailUserAlias' &&
         target?.user.email != current.user.email) ||
-        current.kind != target?.kind)
+        differentKinds)
     ) {
       return { kind: 'RemoveUserAlias', alias: current };
     } else if (
@@ -53,7 +55,7 @@ export function emailMapSync(
       target !== undefined &&
       ((target.kind == 'EmailUser' &&
         target.email != current.email) ||
-        current.kind != target.kind)
+        differentKinds)
     ) {
       throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the user is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}`; // can this happen?
     }
@@ -65,10 +67,11 @@ export function emailMapSync(
     R.keys(targetMap).map((email): EmailOperation[] | undefined => {
       const target = targetMap[email];
       const current = currentMap[email];
+      const differentKinds = target.kind != current?.kind;
       switch (target.kind) {
       case 'EmailGroupAlias':
         if (
-          current == undefined ||
+          differentKinds ||
             (current.kind == 'EmailGroupAlias' &&
               current.group.email != target.group.email)
         ) {
@@ -77,7 +80,7 @@ export function emailMapSync(
         break;
       case 'EmailUserAlias':
         if (
-          current == undefined ||
+          differentKinds ||
             (current.kind == 'EmailUserAlias' &&
               current.user.email != target.user.email)
         ) {
@@ -86,7 +89,7 @@ export function emailMapSync(
         break;
       case 'EmailGroup':
         if (
-          current == undefined ||
+          differentKinds ||
             current.kind !== 'EmailGroup' ||
             !groupsEqual(current, target)
         ) {
@@ -100,7 +103,7 @@ export function emailMapSync(
         }
         break;
       default:
-        if (current == undefined || current.kind !== target.kind) {
+        if (current == undefined || differentKinds) {
           throw `unsupported, can't currently add ${target.kind}`;
         }
       }

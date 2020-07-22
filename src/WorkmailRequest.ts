@@ -6,7 +6,8 @@ import * as R from 'ramda';
 import {
   addGroupToEntityMap,
   removeGroupFromEntityMap,
-  addAliasToEntityMap,
+  addUserAliasToEntityMap,
+  addGroupAliasToEntityMap,
   addGroupAssociationToEntityMap,
 } from './WorkmailMapUpdate';
 
@@ -64,14 +65,14 @@ export function createAwsWorkmailRequest(
     console.log(`add alias ${emailString(op.alias.email)} to group to ${op.alias.group.name}`);
     return workmail
       .createAlias(group.entity.entityId, op.alias.email)
-      .then(noEntityMapUpdate);
+      .then(() => R.curry(addGroupAliasToEntityMap)(op));
   }
   case 'AddUserAlias': {
     const user = resolveUser(op.alias.user.email);
     console.log(`add alias ${emailString(op.alias.email)} to user ${user.entity.name}`);
     return workmail
       .createAlias(user.entity.entityId, op.alias.email)
-      .then(() => R.curry(addAliasToEntityMap)(op));
+      .then(() => R.curry(addUserAliasToEntityMap)(op));
   }
   case 'RemoveGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
