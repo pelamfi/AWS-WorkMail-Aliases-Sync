@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Jest All",
+            "name": "vscode-jest-tests",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": [
                 "--runInBand"
