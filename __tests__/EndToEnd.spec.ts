@@ -1,7 +1,6 @@
 import { emailFrom, emailString, emailLocal, Email } from '../src/Email';
 import { WorkmailUpdate } from '../src/AwsWorkMailUtil';
-import { GroupEntityId, WorkmailGroup, UserEntityId, groupEntityIdString, userEntityIdString, groupEntityId, WorkmailListing, WorkmailUser, userEntityId } from '../src/WorkmailMap';
-import { EmailUser } from '../src/EmailMap';
+import { GroupEntityId, WorkmailGroup, UserEntityId, groupEntityId, WorkmailListing, WorkmailUser, userEntityId } from '../src/WorkmailMap';
 import * as Synchronize from '../src/Synchronize';
 import { AliasesFileAlias } from '../src/AliasesFile';
 
@@ -63,10 +62,10 @@ function mockWorkmail(): WorkmailUpdate {
   };
 }
 
-const update = mockWorkmail();
 
 describe('End to end test with mocked WorkMail', () => {
   it('accepts empty data and does nothing', () => {
+    const update = mockWorkmail();
     const emptyWorkmailListing: WorkmailListing = {groups: [], users: []};
     return Synchronize.synchronize(config, aliases, emptyWorkmailListing, update)
       .then((listing) => {
@@ -80,6 +79,7 @@ describe('End to end test with mocked WorkMail', () => {
       });
   });
   it('Adds one alias', () => {
+    const update = mockWorkmail();
     const aliases = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]}];
     return Synchronize.synchronize(config, aliases, minimalWorkmailListing, update)
       .then((listing) => {
@@ -93,6 +93,7 @@ describe('End to end test with mocked WorkMail', () => {
       });
   });
   it('Adds one group', () => {
+    const update = mockWorkmail();
     const aliases: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
     return Synchronize.synchronize(config, aliases, twoUserWorkmailListing, update)
       .then((listing) => {
@@ -106,6 +107,7 @@ describe('End to end test with mocked WorkMail', () => {
   });
 
   it('Removes one group', () => {
+    const update = mockWorkmail();
     const aliases: AliasesFileAlias[] = [];
     return Synchronize.synchronize(config, aliases, listingWith1Group, update)
       .then((listing) => {
