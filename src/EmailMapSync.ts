@@ -2,7 +2,7 @@ import { EmailOperation, AddGroupMember } from './EmailOperation';
 import * as R from 'ramda';
 import { filterUndef } from './UndefUtil';
 import { EmailMap, EmailGroup } from './EmailMap';
-import { emailFrom, emailFromString, emailString, Email } from './Email';
+import { emailFromString, emailString, Email } from './Email';
 
 function groupsEqual(a: EmailGroup, b: EmailGroup): boolean {
   const aMemberEmails = a.members.map((x) => x.email).sort();

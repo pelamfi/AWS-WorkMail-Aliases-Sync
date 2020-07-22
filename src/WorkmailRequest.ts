@@ -9,6 +9,7 @@ import {
   addUserAliasToEntityMap,
   addGroupAliasToEntityMap,
   addGroupAssociationToEntityMap,
+  removeUserAliasFromEntityMap,
 } from './WorkmailMapUpdate';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
@@ -79,14 +80,14 @@ export function createAwsWorkmailRequest(
     console.log(`remove alias ${emailString(op.alias.email)} from group ${group.entity.name}`);
     return workmail
       .deleteAlias(group.entity.entityId, op.alias.email)
-      .then(noEntityMapUpdate);
+      .then(noEntityMapUpdate); // TODO: Not needed because the whole group gets removed
   }
   case 'RemoveUserAlias': {
     const user = resolveUser(op.alias.user.email);
     console.log(`remove alias ${emailString(op.alias.email)} from user ${user.entity.name}`);
     return workmail
       .deleteAlias(user.entity.entityId, op.alias.email)
-      .then(noEntityMapUpdate);
+      .then(() => R.curry(removeUserAliasFromEntityMap)(op));
   }
   case 'RemoveGroup': {
     const group = resolveGroup(op.group.email);
