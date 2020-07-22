@@ -2,10 +2,12 @@ import { WorkmailUpdate } from './AwsWorkMailUtil';
 import { EmailOperation } from './EmailOperation';
 import { EntityMap,  WorkmailUserAliases,  WorkmailGroupAliases, GroupEntityId } from './WorkmailMap';
 import { Email, emailString } from './Email';
+import * as R from 'ramda';
 import {
   addGroupToEntityMap,
   removeGroupFromEntityMap,
   addAliasToEntityMap,
+  addGroupAssociationToEntityMap,
 } from './WorkmailMapUpdate';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
@@ -43,8 +45,8 @@ export function createAwsWorkmailRequest(
     return workmail
       .addGroup(op.group.name, op.group.email)
       .then((entityId: GroupEntityId) => (entityMap: EntityMap) =>
-        addGroupToEntityMap(entityMap,
-          {kind: "WorkmailGroup", entityId, members: [], name: op.group.name, email: op.group.email}),
+        addGroupToEntityMap(
+          {kind: "WorkmailGroup", entityId, members: [], name: op.group.name, email: op.group.email}, entityMap),
       );
   }
   case 'AddGroupMember': {
@@ -55,7 +57,7 @@ export function createAwsWorkmailRequest(
     );
     return workmail
       .associateMemberToGroup(group.entity.entityId, user.entity.entityId)
-      .then(noEntityMapUpdate);
+      .then(() => R.curry(addGroupAssociationToEntityMap)(user.entity)(op));
   }
   case 'AddGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
@@ -69,8 +71,7 @@ export function createAwsWorkmailRequest(
     console.log(`add alias ${emailString(op.alias.email)} to user ${user.entity.name}`);
     return workmail
       .createAlias(user.entity.entityId, op.alias.email)
-      .then(() => (entityMap: EntityMap) =>
-        addAliasToEntityMap(entityMap, op));
+      .then(() => R.curry(addAliasToEntityMap)(op));
   }
   case 'RemoveGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
@@ -93,8 +94,8 @@ export function createAwsWorkmailRequest(
       .removeGroup(group.entity.entityId)
       .then(() => (entityMap: EntityMap) =>
         removeGroupFromEntityMap(
-          entityMap,
-          group.entity.email
+          group.entity.email,
+          entityMap
         )
       );
   }

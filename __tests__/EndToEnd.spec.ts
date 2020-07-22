@@ -1,6 +1,6 @@
 import { emailFrom, emailString, emailLocal, Email } from '../src/Email';
 import { WorkmailUpdate } from '../src/AwsWorkMailUtil';
-import { GroupEntityId, UserEntityId, groupEntityIdString, userEntityIdString, groupEntityId, WorkmailListing, WorkmailUser, userEntityId } from '../src/WorkmailMap';
+import { GroupEntityId, WorkmailGroup, UserEntityId, groupEntityIdString, userEntityIdString, groupEntityId, WorkmailListing, WorkmailUser, userEntityId } from '../src/WorkmailMap';
 import { EmailUser } from '../src/EmailMap';
 import * as Synchronize from '../src/Synchronize';
 import { AliasesFileAlias } from '../src/AliasesFile';
@@ -9,6 +9,31 @@ const domain = "domain";
 const user1 = emailFrom("user1", domain);
 const user2 = emailFrom("user2", domain);
 const aliasFoo = emailFrom("foo", domain);
+
+const groupPrefix = "groupPrefix"
+const aliasLimit = 2
+
+const config: Synchronize.Config = {
+  aliasesFileDomain: domain,
+  localEmailUserToEmail: {"user1": emailString(user1), "user2": emailString(user2)},
+  groupPrefix,
+  aliasLimit
+};
+
+const aliases: AliasesFileAlias[] = [];
+
+const user1EntityId = userEntityId("user1EntityId");
+const user2EntityId = userEntityId("user2EntityId");
+
+const workmailUser1: WorkmailUser = {kind: 'WorkmailUser', entityId: user1EntityId, name: "User1Name", email: user1};
+const workmailUser2: WorkmailUser = {kind: 'WorkmailUser', entityId: user2EntityId, name: "User2Name", email: user2};
+
+const minimalWorkmailListing: WorkmailListing = {groups: [], users: [{entity: workmailUser1, aliases: []}]};
+const twoUserWorkmailListing: WorkmailListing = {groups: [], users: [
+  {entity: workmailUser1, aliases: []}, {entity: workmailUser2, aliases: []}]};
+
+const groupEntityId1: GroupEntityId = groupEntityId("groupEntityId1");
+
 
 function mockWorkmail(): WorkmailUpdate {
   const createAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
@@ -24,28 +49,14 @@ function mockWorkmail(): WorkmailUpdate {
     jest.fn().mockReturnValue(Promise.resolve());
 
   const addGroup: (name: string, email: Email) => Promise<GroupEntityId> =
-    jest.fn().mockReturnValue(Promise.reject("not implemented"));
+    jest.fn().mockReturnValueOnce(Promise.resolve(groupEntityId1));
 
   return {
     createAlias, deleteAlias, removeGroup, associateMemberToGroup, addGroup
   };
 }
 
-const config: Synchronize.Config = {
-  aliasesFileDomain: domain,
-  localEmailUserToEmail: {"user1": emailString(user1), "user2": emailString(user2)},
-  groupPrefix: "prefix",
-  aliasLimit: 2
-};
-
-const aliases: AliasesFileAlias[] = [];
-
-const user1EntityId = userEntityId("user1EntityId");
-
-const workmailUser1: WorkmailUser = {kind: 'WorkmailUser', entityId: user1EntityId, name: "User1Name", email: user1};
-
 const update = mockWorkmail();
-const minimalWorkmailListing: WorkmailListing = {groups: [], users: [{entity: workmailUser1, aliases: []}]};
 
 describe('End to end test with mocked WorkMail', () => {
   it('accepts empty data and does nothing', () => {
@@ -70,8 +81,27 @@ describe('End to end test with mocked WorkMail', () => {
         expect(update.removeGroup).toBeCalledTimes(0);
         expect(update.associateMemberToGroup).toBeCalledTimes(0);
         expect(update.addGroup).toBeCalledTimes(0);
-        expect(Object.keys(listing.groups).length).toStrictEqual(0);
         const aliasAddedListing: WorkmailListing = {groups: [], users: [{entity: workmailUser1, aliases: [aliasFoo]}]};
+        expect(listing).toStrictEqual(aliasAddedListing);
+      });
+  });
+  it('Adds one group', () => {
+    const aliases = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
+    return Synchronize.synchronize(config, aliases, twoUserWorkmailListing, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(0);
+        expect(update.associateMemberToGroup).toBeCalledTimes(2);
+        expect(update.addGroup).toBeCalledTimes(1);
+        const group: WorkmailGroup = {
+          kind: "WorkmailGroup",
+          email: aliasFoo,
+          entityId: groupEntityId1,
+          name: groupPrefix + "-" + emailString(aliasFoo),
+          members: [workmailUser1.entityId, workmailUser2.entityId]};
+
+        const aliasAddedListing: WorkmailListing = {groups: [{entity: group, aliases: []}], users: twoUserWorkmailListing.users};
         expect(listing).toStrictEqual(aliasAddedListing);
       });
   });
