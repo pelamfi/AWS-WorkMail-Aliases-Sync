@@ -72,7 +72,7 @@ describe('End to end test with mocked WorkMail', () => {
         expect(update.addGroup).toBeCalledTimes(0);
         expect(Object.keys(listing.groups).length).toStrictEqual(0);
         const aliasAddedListing: WorkmailListing = {groups: [], users: [{entity: workmailUser1, aliases: [aliasFoo]}]};
-        expect(Object.keys(listing.users).length).toStrictEqual(aliasAddedListing);
+        expect(listing).toStrictEqual(aliasAddedListing);
       });
   });
 });

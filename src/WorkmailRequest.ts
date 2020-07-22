@@ -5,6 +5,7 @@ import { Email, emailString } from './Email';
 import {
   addGroupToEntityMap,
   removeGroupFromEntityMap,
+  addAliasToEntityMap,
 } from './WorkmailMapUpdate';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
@@ -42,9 +43,9 @@ export function createAwsWorkmailRequest(
     return workmail
       .addGroup(op.group.name, op.group.email)
       .then((entityId: GroupEntityId) => (entityMap: EntityMap) =>
-        addGroupToEntityMap(entityMap, 
+        addGroupToEntityMap(entityMap,
           {kind: "WorkmailGroup", entityId, members: [], name: op.group.name, email: op.group.email}),
-      );        
+      );
   }
   case 'AddGroupMember': {
     const group = resolveGroup(op.group.email);
@@ -68,7 +69,8 @@ export function createAwsWorkmailRequest(
     console.log(`add alias ${emailString(op.alias.email)} to user ${user.entity.name}`);
     return workmail
       .createAlias(user.entity.entityId, op.alias.email)
-      .then(noEntityMapUpdate);
+      .then(() => (entityMap: EntityMap) =>
+        addAliasToEntityMap(entityMap, op));
   }
   case 'RemoveGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
