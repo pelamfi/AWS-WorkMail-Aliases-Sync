@@ -5,10 +5,14 @@ export interface Email extends String {
 
 export function emailFrom(email: string, domain?: string): Email {
   if (domain === undefined) {
-    return email as unknown as Email;
+    return emailFromString(email)
   } else {
     return `${email}@${domain}` as unknown as Email;
   }
+}
+
+export function emailFromString(email: string): Email {
+  return email as unknown as Email;
 }
 
 export function emailString(email: Email): string {

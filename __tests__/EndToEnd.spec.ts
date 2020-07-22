@@ -41,7 +41,25 @@ const group: WorkmailGroup = {
   entityId: groupEntityId1,
   name: groupPrefix + "-" + emailString(aliasFoo),
   members: [workmailUser1.entityId, workmailUser2.entityId]};
+
 const listingWith1Group: WorkmailListing = {groups: [{entity: group, aliases: []}], users: twoUserWorkmailListing.users};
+
+const aliasOverflowGroupEmail = emailFrom(groupPrefix + "-alias-user1-0", domain)
+
+const aliasOverflowGroup: WorkmailGroup = {
+  kind: "WorkmailGroup",
+  email: aliasOverflowGroupEmail,
+  entityId: groupEntityId1,
+  name: emailLocal(aliasOverflowGroupEmail),
+  members: [workmailUser1.entityId]};
+
+const aliasOverflowListing: WorkmailListing = {
+  groups: [{entity: aliasOverflowGroup, aliases: [aliasFoo]}],
+  users: [
+    {entity: workmailUser1, aliases: [aliasBar, aliasBaz]},
+    {entity: workmailUser2, aliases: []}]};
+
+const aliases1Group: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
 
 function mockWorkmail(): WorkmailUpdate {
   const createAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
@@ -63,7 +81,6 @@ function mockWorkmail(): WorkmailUpdate {
     createAlias, deleteAlias, removeGroup, associateMemberToGroup, addGroup
   };
 }
-
 
 describe('End to end test with mocked WorkMail', () => {
   it('accepts empty data and does nothing', () => {
@@ -96,8 +113,7 @@ describe('End to end test with mocked WorkMail', () => {
   });
   it('Adds one group', () => {
     const update = mockWorkmail();
-    const aliases: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
-    return Synchronize.synchronize(config, aliases, twoUserWorkmailListing, update)
+    return Synchronize.synchronize(config, aliases1Group, twoUserWorkmailListing, update)
       .then((listing) => {
         expect(update.createAlias).toBeCalledTimes(0);
         expect(update.deleteAlias).toBeCalledTimes(0);
@@ -137,25 +153,21 @@ describe('End to end test with mocked WorkMail', () => {
         expect(update.removeGroup).toBeCalledTimes(1);
         expect(update.associateMemberToGroup).toBeCalledTimes(1);
         expect(update.addGroup).toBeCalledTimes(1);
-
-        const email = emailFrom(groupPrefix + "-alias-user1-0", domain)
-
-        const group: WorkmailGroup = {
-          kind: "WorkmailGroup",
-          email: email,
-          entityId: groupEntityId1,
-          name: emailLocal(email),
-          members: [workmailUser1.entityId]};
-
-        const expectedListing: WorkmailListing = {
-          groups: [{entity: group, aliases: [aliasFoo]}],
-          users: [
-            {entity: workmailUser1, aliases: [aliasBar, aliasBaz]},
-            {entity: workmailUser2, aliases: []}]};
-
-        expect(listing).toStrictEqual(expectedListing);
+        expect(listing).toStrictEqual(aliasOverflowListing);
       });
   });
 
+  it('Removes overflowing aliases, adds 1 group', () => {
+    const update = mockWorkmail();
+    return Synchronize.synchronize(config, aliases1Group, aliasOverflowListing, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(3); // TODO: No need to remove aliases from a group to be deleted
+        expect(update.removeGroup).toBeCalledTimes(1);
+        expect(update.associateMemberToGroup).toBeCalledTimes(2);
+        expect(update.addGroup).toBeCalledTimes(1);
+        expect(listing).toStrictEqual(listingWith1Group);
+      });
+  });
 });
 
