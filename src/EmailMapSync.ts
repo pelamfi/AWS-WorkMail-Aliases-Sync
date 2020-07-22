@@ -27,7 +27,7 @@ export function emailMapSync(
 
 function removalOperations(currentMap: EmailMap, targetMap: EmailMap): EmailOperation[] {
   return filterUndef(
-    R.keys(currentMap)
+    Object.keys(currentMap)
       .map(emailFromString)
       .map(removalOperation(currentMap, targetMap)))
     .sort(operationOrder);
@@ -82,7 +82,7 @@ function removalOperation(currentMap: EmailMap, targetMap: EmailMap): (value: Em
 
 function additionOperations(targetMap: EmailMap, currentMap: EmailMap): EmailOperation[] {
   return filterUndef(R.flatten(
-    R.keys(targetMap)
+    Object.keys(targetMap)
       .map(emailFromString)
       .map(additionOperation(targetMap, currentMap))))
     .sort(operationOrder);
