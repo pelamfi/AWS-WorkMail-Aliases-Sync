@@ -136,7 +136,7 @@ function workmailEntitiesAndAliases<T extends WorkmailEntity>(
   entities: T[]
 ): Promise<{entity: T, aliases: Email[]}[]> {
   const promises: (() => Promise<{entity: T, aliases: Email[]}>)[] = entities.map(entity => () =>
-      workmailEntityAliases(workmail, entity).then((aliases: Email[]) => ({entity, aliases}))
+    workmailEntityAliases(workmail, entity).then((aliases: Email[]) => ({entity, aliases}))
   );
   
   return serialPromises(promises)

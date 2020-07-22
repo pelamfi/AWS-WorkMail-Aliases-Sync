@@ -66,43 +66,43 @@ export function emailMapSync(
       const target = targetMap[email];
       const current = currentMap[email];
       switch (target.kind) {
-        case 'EmailGroupAlias':
-          if (
-            current == undefined ||
+      case 'EmailGroupAlias':
+        if (
+          current == undefined ||
             (current.kind == 'EmailGroupAlias' &&
               current.group.email != target.group.email)
-          ) {
-            return [{ kind: 'AddGroupAlias', alias: target }];
-          }
-          break;
-        case 'EmailUserAlias':
-          if (
-            current == undefined ||
+        ) {
+          return [{ kind: 'AddGroupAlias', alias: target }];
+        }
+        break;
+      case 'EmailUserAlias':
+        if (
+          current == undefined ||
             (current.kind == 'EmailUserAlias' &&
               current.user.email != target.user.email)
-          ) {
-            return [{ kind: 'AddUserAlias', alias: target }];
-          }
-          break;
-        case 'EmailGroup':
-          if (
-            current == undefined ||
+        ) {
+          return [{ kind: 'AddUserAlias', alias: target }];
+        }
+        break;
+      case 'EmailGroup':
+        if (
+          current == undefined ||
             current.kind !== 'EmailGroup' ||
             !groupsEqual(current, target)
-          ) {
-            const group: EmailGroup = target;
-            const members: AddGroupMember[] = target.members.map((member) => ({
-              kind: 'AddGroupMember',
-              group,
-              member,
-            }));
-            return [{ kind: 'AddGroup', group }, ...members];
-          }
-          break;
-        default:
-          if (current == undefined || current.kind !== target.kind) {
-            throw `unsupported, can't currently add ${target.kind}`;
-          }
+        ) {
+          const group: EmailGroup = target;
+          const members: AddGroupMember[] = target.members.map((member) => ({
+            kind: 'AddGroupMember',
+            group,
+            member,
+          }));
+          return [{ kind: 'AddGroup', group }, ...members];
+        }
+        break;
+      default:
+        if (current == undefined || current.kind !== target.kind) {
+          throw `unsupported, can't currently add ${target.kind}`;
+        }
       }
       return undefined;
     }),
