@@ -4,7 +4,7 @@
   "description": "This project provides a way to sync a traditional UNIX `/etc/aliases` file to AWS WorkMail email service.",
   "repository": "git@github.com:pelamfi/AWS-WorkMail-Aliases-Sync.git",
   "engines": {
-    "node": ">= 12.13 <13"
+    "node": ">= 12.13"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
