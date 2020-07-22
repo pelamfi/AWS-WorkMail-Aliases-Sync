@@ -12,31 +12,25 @@ const user1: EmailUser = { kind: 'EmailUser', email: userEmail1 };
 const user2: EmailUser = { kind: 'EmailUser', email: userEmail2 };
 
 function mockWorkmail(): WorkmailUpdate {
-  function createAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
-    return Promise.resolve()
-  }
+  const createAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
+    jest.fn().mockReturnValue(Promise.resolve());
 
-  function deleteAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
-    return Promise.resolve()
-  }
+  const deleteAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
+    jest.fn().mockReturnValue(Promise.resolve());
 
-  function removeGroup(groupEntityId: GroupEntityId) {
-    return Promise.resolve()
-  }
+  const removeGroup: (groupEntityId: GroupEntityId) => Promise<void> =
+    jest.fn().mockReturnValue(Promise.resolve());
 
-  function associateMemberToGroup(groupEntityId: GroupEntityId, userEntityId: UserEntityId) {
-    return Promise.resolve()
-  }
+  const associateMemberToGroup: (groupEntityId: GroupEntityId, userEntityId: UserEntityId) => Promise<void> =
+    jest.fn().mockReturnValue(Promise.resolve());
 
-  function addGroup(name: string, email: Email): Promise<GroupEntityId> {
-    return Promise.reject("foo")
-  }
+  const addGroup: (name: string, email: Email) => Promise<GroupEntityId> =
+    jest.fn().mockReturnValue(Promise.reject("not implemented"));
 
   return {
     createAlias, deleteAlias, removeGroup, associateMemberToGroup, addGroup
   };
 }
-
 
 const config: Synchronize.Config = {
   aliasesFileDomain: "domain",
@@ -52,9 +46,14 @@ const currentWorkmailListing: WorkmailListing = {groups: [], users: []};
 const update = mockWorkmail();
 
 describe('End to end test with mocked WorkMail', () => {
-  it('accepts empty data', () => {
+  it('accepts empty data and does nothing', () => {
     return Synchronize.synchronize(config, aliases, currentWorkmailListing, update)
       .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(0);
+        expect(update.associateMemberToGroup).toBeCalledTimes(0);
+        expect(update.addGroup).toBeCalledTimes(0);
         expect(Object.keys(listing.groups).length).toStrictEqual(0);
         expect(Object.keys(listing.users).length).toStrictEqual(0);
       });
