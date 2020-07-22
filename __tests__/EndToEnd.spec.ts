@@ -34,6 +34,13 @@ const twoUserWorkmailListing: WorkmailListing = {groups: [], users: [
 
 const groupEntityId1: GroupEntityId = groupEntityId("groupEntityId1");
 
+const group: WorkmailGroup = {
+  kind: "WorkmailGroup",
+  email: aliasFoo,
+  entityId: groupEntityId1,
+  name: groupPrefix + "-" + emailString(aliasFoo),
+  members: [workmailUser1.entityId, workmailUser2.entityId]};
+const listingWith1Group: WorkmailListing = {groups: [{entity: group, aliases: []}], users: twoUserWorkmailListing.users};
 
 function mockWorkmail(): WorkmailUpdate {
   const createAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
@@ -86,7 +93,7 @@ describe('End to end test with mocked WorkMail', () => {
       });
   });
   it('Adds one group', () => {
-    const aliases = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
+    const aliases: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
     return Synchronize.synchronize(config, aliases, twoUserWorkmailListing, update)
       .then((listing) => {
         expect(update.createAlias).toBeCalledTimes(0);
@@ -94,15 +101,20 @@ describe('End to end test with mocked WorkMail', () => {
         expect(update.removeGroup).toBeCalledTimes(0);
         expect(update.associateMemberToGroup).toBeCalledTimes(2);
         expect(update.addGroup).toBeCalledTimes(1);
-        const group: WorkmailGroup = {
-          kind: "WorkmailGroup",
-          email: aliasFoo,
-          entityId: groupEntityId1,
-          name: groupPrefix + "-" + emailString(aliasFoo),
-          members: [workmailUser1.entityId, workmailUser2.entityId]};
+        expect(listing).toStrictEqual(listingWith1Group);
+      });
+  });
 
-        const aliasAddedListing: WorkmailListing = {groups: [{entity: group, aliases: []}], users: twoUserWorkmailListing.users};
-        expect(listing).toStrictEqual(aliasAddedListing);
+  it('Removes one group', () => {
+    const aliases: AliasesFileAlias[] = [];
+    return Synchronize.synchronize(config, aliases, listingWith1Group, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(1);
+        expect(update.associateMemberToGroup).toBeCalledTimes(0);
+        expect(update.addGroup).toBeCalledTimes(0);
+        expect(listing).toStrictEqual(twoUserWorkmailListing);
       });
   });
 });
