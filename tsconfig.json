@@ -20,7 +20,6 @@
     "incremental": true
   },
   "include": [
-    "src/**/*",
-    "__tests_/**/*"
+    "src/**/*"
   ]
 }
