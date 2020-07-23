@@ -21,6 +21,7 @@ function config(
     aliasesFileDomain: 'domain',
     localUserToEmail,
     groupPrefix: 'groupPrefix',
+    verbose: false,
   };
 }
 
