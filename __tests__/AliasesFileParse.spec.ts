@@ -1,4 +1,7 @@
-import { parseAliasesFile, AliasesFileParseError } from '../src/AliasesFileParse';
+import {
+  parseAliasesFile,
+  AliasesFileParseError,
+} from '../src/AliasesFileParse';
 
 describe('Parsing aliases file', () => {
   it('accepts empty file', () => {
@@ -19,7 +22,9 @@ describe('Parsing aliases file', () => {
 
   it('detects error', () => {
     expect(parseAliasesFile('\nunknown stuff!!!\nfoo: bar\n\n')).toStrictEqual(
-      new AliasesFileParseError('Unrecognized aliases file line: unknown stuff!!!'),
+      new AliasesFileParseError(
+        'Unrecognized aliases file line: unknown stuff!!!',
+      ),
     );
   });
 

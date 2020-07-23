@@ -14,18 +14,25 @@ const commentRegex = /^\s*#.*$/;
 const lineSplitRegex = /[\r\n]+/;
 const targetsSplitRegex = /\s*,\s*/;
 
-export function parseAliasesFile(input: string): AliasesFile | AliasesFileParseError {
+export function parseAliasesFile(
+  input: string,
+): AliasesFile | AliasesFileParseError {
   const aliasesOrUndefs = filterUndef(
     input
       .split(lineSplitRegex)
       .filter((line) => line !== '')
-      .map((line: string): AliasesFileAlias | AliasesFileParseError | undefined => {
+      .map((line: string):
+        | AliasesFileAlias
+        | AliasesFileParseError
+        | undefined => {
         const match = line.match(aliasRegex);
         if (match == null) {
           if (line.match(commentRegex)) {
             return undefined;
           } else {
-            return new AliasesFileParseError(`Unrecognized aliases file line: ${line}`);
+            return new AliasesFileParseError(
+              `Unrecognized aliases file line: ${line}`,
+            );
           }
         } else {
           const [, alias, targetsPart] = match;
@@ -35,19 +42,22 @@ export function parseAliasesFile(input: string): AliasesFile | AliasesFileParseE
       }),
   );
 
-  const aliasesOrErrors: (AliasesFileAlias | AliasesFileParseError)[] = filterUndef(
-    aliasesOrUndefs,
-  );
+  const aliasesOrErrors: (
+    | AliasesFileAlias
+    | AliasesFileParseError
+  )[] = filterUndef(aliasesOrUndefs);
 
   const errors: AliasesFileParseError[] = aliasesOrErrors.filter(
-    (x: AliasesFileParseError | AliasesFileAlias) => x instanceof AliasesFileParseError,
+    (x: AliasesFileParseError | AliasesFileAlias) =>
+      x instanceof AliasesFileParseError,
   ) as AliasesFileParseError[];
 
   if (errors.length > 0) {
     return errors[0];
   } else {
     const aliases: AliasesFileAlias[] = aliasesOrErrors.filter(
-      (x: AliasesFileParseError | AliasesFileAlias) => !(x instanceof AliasesFileParseError),
+      (x: AliasesFileParseError | AliasesFileAlias) =>
+        !(x instanceof AliasesFileParseError),
     ) as AliasesFileAlias[];
     return { aliases };
   }

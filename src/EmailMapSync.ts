@@ -18,29 +18,44 @@ export function emailMapSync(
   currentMap: EmailMap,
   targetMap: EmailMap,
 ): EmailOperation[] {
-
-  const removals = removalOperations(currentMap, targetMap)
+  const removals = removalOperations(currentMap, targetMap);
   const additions = additionOperations(targetMap, currentMap);
 
   return [...removals, ...additions];
 }
 
-function removalOperations(currentMap: EmailMap, targetMap: EmailMap): EmailOperation[] {
+function removalOperations(
+  currentMap: EmailMap,
+  targetMap: EmailMap,
+): EmailOperation[] {
   return filterUndef(
     Object.keys(currentMap)
       .map(emailFromString)
       .sort(emailOrd)
-      .map(removalOperation(currentMap, targetMap)))
-    .sort(operationOrder);
+      .map(removalOperation(currentMap, targetMap)),
+  ).sort(operationOrder);
 }
 
-const operationKindOrder = ['RemoveGroupAlias', 'RemoveGroup', 'RemoveUserAlias', 'AddGroup', 'AddGroupMember', 'AddGroupAlias', 'AddUserAlias']
+const operationKindOrder = [
+  'RemoveGroupAlias',
+  'RemoveGroup',
+  'RemoveUserAlias',
+  'AddGroup',
+  'AddGroupMember',
+  'AddGroupAlias',
+  'AddUserAlias',
+];
 
 function operationOrder(a: EmailOperation, b: EmailOperation) {
-  return operationKindOrder.indexOf(a.kind) - operationKindOrder.indexOf(b.kind)
+  return (
+    operationKindOrder.indexOf(a.kind) - operationKindOrder.indexOf(b.kind)
+  );
 }
 
-function removalOperation(currentMap: EmailMap, targetMap: EmailMap): (value: Email) => EmailOperation | undefined {
+function removalOperation(
+  currentMap: EmailMap,
+  targetMap: EmailMap,
+): (value: Email) => EmailOperation | undefined {
   return (email) => {
     const current = currentMap[emailString(email)];
     const target = targetMap[emailString(email)];
@@ -51,29 +66,33 @@ function removalOperation(currentMap: EmailMap, targetMap: EmailMap): (value: Em
 
     const differentKinds = current.kind != target?.kind;
 
-    if (current.kind == 'EmailGroupAlias' &&
+    if (
+      current.kind == 'EmailGroupAlias' &&
       ((target?.kind == 'EmailGroupAlias' &&
         target?.group.email != current.group.email) ||
-        differentKinds)) {
+        differentKinds)
+    ) {
       return { kind: 'RemoveGroupAlias', alias: current };
-    }
-    else if (current.kind == 'EmailGroup' &&
+    } else if (
+      current.kind == 'EmailGroup' &&
       (target === undefined ||
-        target.kind !== 'EmailGroup' || // TODO: We could update the group members
-        !groupsEqual(current, target))) {
+      target.kind !== 'EmailGroup' || // TODO: We could update the group members
+        !groupsEqual(current, target))
+    ) {
       return { kind: 'RemoveGroup', group: current };
-    }
-    else if (current.kind == 'EmailUserAlias' &&
+    } else if (
+      current.kind == 'EmailUserAlias' &&
       ((target?.kind == 'EmailUserAlias' &&
         target?.user.email != current.user.email) ||
-        differentKinds)) {
+        differentKinds)
+    ) {
       return { kind: 'RemoveUserAlias', alias: current };
-    }
-    else if (current.kind == 'EmailUser' &&
+    } else if (
+      current.kind == 'EmailUser' &&
       target !== undefined &&
-      ((target.kind == 'EmailUser' &&
-        target.email != current.email) ||
-        differentKinds)) {
+      ((target.kind == 'EmailUser' && target.email != current.email) ||
+        differentKinds)
+    ) {
       throw `Email ${current.email} is configured as ${current.kind}. Removing/changing the user is currently not supported. Please fix manually. It is expected to be ${target.kind} ${target.email}`; // can this happen?
     }
 
@@ -81,39 +100,57 @@ function removalOperation(currentMap: EmailMap, targetMap: EmailMap): (value: Em
   };
 }
 
-function additionOperations(targetMap: EmailMap, currentMap: EmailMap): EmailOperation[] {
-  return filterUndef(R.flatten(
-    Object.keys(targetMap)
-      .map(emailFromString)
-      .sort(emailOrd)
-      .map(additionOperation(targetMap, currentMap))))
-    .sort(operationOrder);
+function additionOperations(
+  targetMap: EmailMap,
+  currentMap: EmailMap,
+): EmailOperation[] {
+  return filterUndef(
+    R.flatten(
+      Object.keys(targetMap)
+        .map(emailFromString)
+        .sort(emailOrd)
+        .map(additionOperation(targetMap, currentMap)),
+    ),
+  ).sort(operationOrder);
 }
 
-function additionOperation(targetMap: EmailMap, currentMap: EmailMap): (value: Email, index: number, array: Email[]) => EmailOperation[] | undefined {
+function additionOperation(
+  targetMap: EmailMap,
+  currentMap: EmailMap,
+): (
+  value: Email,
+  index: number,
+  array: Email[],
+) => EmailOperation[] | undefined {
   return (email) => {
     const target = targetMap[emailString(email)];
     const current = currentMap[emailString(email)];
     const differentKinds = target.kind != current?.kind;
     switch (target.kind) {
     case 'EmailGroupAlias':
-      if (differentKinds ||
+      if (
+        differentKinds ||
           (current.kind == 'EmailGroupAlias' &&
-            current.group.email != target.group.email)) {
+            current.group.email != target.group.email)
+      ) {
         return [{ kind: 'AddGroupAlias', alias: target }];
       }
       break;
     case 'EmailUserAlias':
-      if (differentKinds ||
+      if (
+        differentKinds ||
           (current.kind == 'EmailUserAlias' &&
-            current.user.email != target.user.email)) {
+            current.user.email != target.user.email)
+      ) {
         return [{ kind: 'AddUserAlias', alias: target }];
       }
       break;
     case 'EmailGroup':
-      if (differentKinds ||
+      if (
+        differentKinds ||
           current.kind !== 'EmailGroup' ||
-          !groupsEqual(current, target)) {
+          !groupsEqual(current, target)
+      ) {
         const group: EmailGroup = target;
         const members: AddGroupMember[] = target.members.map((member) => ({
           kind: 'AddGroupMember',
@@ -131,4 +168,3 @@ function additionOperation(targetMap: EmailMap, currentMap: EmailMap): (value: E
     return undefined;
   };
 }
-

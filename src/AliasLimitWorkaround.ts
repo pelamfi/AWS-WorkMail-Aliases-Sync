@@ -44,8 +44,8 @@ export function aliasLimitWorkaround(
   userAliases: EmailUserAlias[],
   config: WorkaroundConfig,
 ): EmailItem[] {
-  const groupByUserEmail = R.groupBy(
-    (email: EmailUserAlias): string => emailString(email.user.email),
+  const groupByUserEmail = R.groupBy((email: EmailUserAlias): string =>
+    emailString(email.user.email),
   );
 
   const groupedByUser: { [index: string]: EmailUserAlias[] } = groupByUserEmail(
@@ -81,7 +81,11 @@ export function aliasLimitWorkaround(
       const groupIndices = R.range(0, overflowing.length);
       const groups: EmailGroup[] = groupIndices.map(
         (groupIndex): EmailGroup => {
-          const name = generateWorkaroundGroupName(user.email, groupIndex, config)
+          const name = generateWorkaroundGroupName(
+            user.email,
+            groupIndex,
+            config,
+          );
           const email = emailFrom(name, config.aliasesFileDomain);
           return { kind: 'EmailGroup', email, members: [user], name };
         },

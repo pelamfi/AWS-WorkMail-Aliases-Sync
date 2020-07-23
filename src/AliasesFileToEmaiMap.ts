@@ -51,7 +51,10 @@ export function aliasesFileToEmailMap(
   const aliases = R.flatten(emails.map((x) => x[1]));
 
   // To check if there are multiple aliases but for different users
-  const allAliasesByEmail = R.groupBy((alias) => emailString(alias.email), aliases);
+  const allAliasesByEmail = R.groupBy(
+    (alias) => emailString(alias.email),
+    aliases,
+  );
 
   // Aliases that target multiple users are "groups"
   const [groups, regularAliases] = R.partition(

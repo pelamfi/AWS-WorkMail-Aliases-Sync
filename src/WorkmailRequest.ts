@@ -1,6 +1,11 @@
 import { WorkmailUpdate } from './AwsWorkMailUtil';
 import { EmailOperation } from './EmailOperation';
-import { EntityMap,  WorkmailUserAliases,  WorkmailGroupAliases, GroupEntityId } from './WorkmailMap';
+import {
+  EntityMap,
+  WorkmailUserAliases,
+  WorkmailGroupAliases,
+  GroupEntityId,
+} from './WorkmailMap';
 import { Email, emailString } from './Email';
 import * as R from 'ramda';
 import {
@@ -19,9 +24,8 @@ export function createAwsWorkmailRequest(
   workmail: WorkmailUpdate,
   entityMap: EntityMap,
   op: EmailOperation,
-  verbose: boolean
+  verbose: boolean,
 ): Promise<EntityMapUpdate> {
-
   function resolveUser(email: Email): WorkmailUserAliases {
     const entityId = entityMap.usersByEmail[emailString(email)];
     if (entityId !== undefined) {
@@ -43,23 +47,31 @@ export function createAwsWorkmailRequest(
   switch (op.kind) {
   case 'AddGroup': {
     if (verbose) {
-      console.log(`add group ${op.group.name} (${emailString(op.group.email)})`);
+      console.log(
+        `add group ${op.group.name} (${emailString(op.group.email)})`,
+      );
     }
 
     return workmail
       .addGroup(op.group.name, op.group.email)
       .then((entityId: GroupEntityId) => (entityMap: EntityMap) =>
         addGroupToEntityMap(
-          {kind: "WorkmailGroup", entityId, members: [], name: op.group.name, email: op.group.email}, entityMap),
+          {
+            kind: 'WorkmailGroup',
+            entityId,
+            members: [],
+            name: op.group.name,
+            email: op.group.email,
+          },
+          entityMap,
+        ),
       );
   }
   case 'AddGroupMember': {
     const group = resolveGroup(op.group.email);
     const user = resolveUser(op.member.email);
     if (verbose) {
-      console.log(
-        `add group member ${op.member.email} to ${op.group.name}`,
-      );
+      console.log(`add group member ${op.member.email} to ${op.group.name}`);
     }
 
     return workmail
@@ -69,7 +81,11 @@ export function createAwsWorkmailRequest(
   case 'AddGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
     if (verbose) {
-      console.log(`add alias ${emailString(op.alias.email)} to group to ${op.alias.group.name}`);
+      console.log(
+        `add alias ${emailString(op.alias.email)} to group to ${
+          op.alias.group.name
+        }`,
+      );
     }
 
     return workmail
@@ -79,7 +95,11 @@ export function createAwsWorkmailRequest(
   case 'AddUserAlias': {
     const user = resolveUser(op.alias.user.email);
     if (verbose) {
-      console.log(`add alias ${emailString(op.alias.email)} to user ${user.entity.name}`);
+      console.log(
+        `add alias ${emailString(op.alias.email)} to user ${
+          user.entity.name
+        }`,
+      );
     }
 
     return workmail
@@ -89,19 +109,29 @@ export function createAwsWorkmailRequest(
   case 'RemoveGroupAlias': {
     const group = resolveGroup(op.alias.group.email);
     if (verbose) {
-      console.log(`remove alias ${emailString(op.alias.email)} from group ${group.entity.name}`);
+      console.log(
+        `remove alias ${emailString(op.alias.email)} from group ${
+          group.entity.name
+        }`,
+      );
     }
 
-    return workmail
-      .deleteAlias(group.entity.entityId, op.alias.email)
+    return (
+      workmail
+        .deleteAlias(group.entity.entityId, op.alias.email)
       // Not needed currently for groups because the whole group gets removed and recreated.
       // However the alias limit workaround code generates more granular alias updates.
-      .then(() => R.curry(removeGroupAliasFromEntityMap)(op));
+        .then(() => R.curry(removeGroupAliasFromEntityMap)(op))
+    );
   }
   case 'RemoveUserAlias': {
     const user = resolveUser(op.alias.user.email);
     if (verbose) {
-      console.log(`remove alias ${emailString(op.alias.email)} from user ${user.entity.name}`);
+      console.log(
+        `remove alias ${emailString(op.alias.email)} from user ${
+          user.entity.name
+        }`,
+      );
     }
 
     return workmail
@@ -118,10 +148,7 @@ export function createAwsWorkmailRequest(
     return workmail
       .removeGroup(group.entity.entityId)
       .then(() => (entityMap: EntityMap) =>
-        removeGroupFromEntityMap(
-          group.entity.email,
-          entityMap
-        )
+        removeGroupFromEntityMap(group.entity.email, entityMap),
       );
   }
   }

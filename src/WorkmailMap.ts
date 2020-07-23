@@ -5,41 +5,45 @@ import R from 'ramda';
 
 export interface EntityId extends String {
   _AwsWorkmailEntityIdEmailBrand: string;
-};
+}
 
 export interface UserEntityId extends EntityId {
   _AwsWorkmailUserEntityIdEmailBrand: string;
-};
+}
 
-export function userEntityId(id: AWS.WorkMail.WorkMailIdentifier): UserEntityId {
-  return id as unknown as UserEntityId
+export function userEntityId(
+  id: AWS.WorkMail.WorkMailIdentifier,
+): UserEntityId {
+  return (id as unknown) as UserEntityId;
 }
 
 export function userEntityIdString(id: UserEntityId): string {
-  return id as unknown as string
+  return (id as unknown) as string;
 }
 
 export interface GroupEntityId extends EntityId {
   _AwsWorkmailGroupEntityIdEmailBrand: string;
-};
+}
 
-export function groupEntityId(id: AWS.WorkMail.WorkMailIdentifier): GroupEntityId {
-  return id as unknown as GroupEntityId
+export function groupEntityId(
+  id: AWS.WorkMail.WorkMailIdentifier,
+): GroupEntityId {
+  return (id as unknown) as GroupEntityId;
 }
 
 export function groupEntityIdString(id: GroupEntityId): string {
-  return id as unknown as string
+  return (id as unknown) as string;
 }
 
 export function entityIdString(id: EntityId): string {
-  return id as unknown as string
+  return (id as unknown) as string;
 }
 
 // This represents the information contained in an AWS WorkMail account
 // that this program is interested in.
 export type WorkmailListing = {
-  readonly groups: WorkmailGroupAliases[]
-  readonly users: WorkmailUserAliases[]
+  readonly groups: WorkmailGroupAliases[];
+  readonly users: WorkmailUserAliases[];
 };
 
 // WorkmailMap includes an EmailMap and adds information about Workmail entitites
@@ -77,67 +81,80 @@ export type WorkmailGroup = {
 // for a user or a group and the list of email aliases bound to that
 // entity
 export type WorkmailEntityAliases = {
-  readonly entity: WorkmailEntity,
-  readonly aliases: Email[]
+  readonly entity: WorkmailEntity;
+  readonly aliases: Email[];
 };
 
 export type WorkmailUserAliases = {
-  readonly entity: WorkmailUser,
-  readonly aliases: Email[]
+  readonly entity: WorkmailUser;
+  readonly aliases: Email[];
 };
 
 export type WorkmailGroupAliases = {
-  readonly entity: WorkmailGroup,
-  readonly aliases: Email[]
+  readonly entity: WorkmailGroup;
+  readonly aliases: Email[];
 };
 
-export function workmailListingFromMap(workmailMap: WorkmailMap): WorkmailListing {
+export function workmailListingFromMap(
+  workmailMap: WorkmailMap,
+): WorkmailListing {
   return sortedWorkmailListing({
     groups: Object.values(workmailMap.entityMap.groupsByEmail),
     users: Object.values(workmailMap.entityMap.usersByEmail),
   });
 }
 
-export function sortedWorkmailListing(listing: WorkmailListing): WorkmailListing {
+export function sortedWorkmailListing(
+  listing: WorkmailListing,
+): WorkmailListing {
   return {
     groups: sortedEntityAliases(listing.groups),
-    users: sortedEntityAliases(listing.users)
-  }
+    users: sortedEntityAliases(listing.users),
+  };
 }
 
-function sortedEntityAliases<T extends WorkmailEntityAliases>(groups: T[]): T[] {
-  return groups.map((g): T => ({...g, aliases: g.aliases.sort(emailOrd)})).sort(workmailEntityAliasesOrd);
+function sortedEntityAliases<T extends WorkmailEntityAliases>(
+  groups: T[],
+): T[] {
+  return groups
+    .map((g): T => ({ ...g, aliases: g.aliases.sort(emailOrd) }))
+    .sort(workmailEntityAliasesOrd);
 }
 
-function workmailEntityAliasesOrd<T extends WorkmailEntityAliases>(a: T, b: T): number {
+function workmailEntityAliasesOrd<T extends WorkmailEntityAliases>(
+  a: T,
+  b: T,
+): number {
   return emailOrd(a.entity.email, b.entity.email);
 }
 
-export function workmailMapFromListing(
-  listing: WorkmailListing,
-): WorkmailMap {
-
-  const entities = R.concat<WorkmailEntityAliases>(listing.groups, listing.users);
+export function workmailMapFromListing(listing: WorkmailListing): WorkmailMap {
+  const entities = R.concat<WorkmailEntityAliases>(
+    listing.groups,
+    listing.users,
+  );
 
   const userById = R.zipObj(
-    listing.users.map(user => entityIdString(user.entity.entityId)),
-    listing.users.map(user => user.entity),
+    listing.users.map((user) => entityIdString(user.entity.entityId)),
+    listing.users.map((user) => user.entity),
   );
 
   const usersByEmail = R.zipObj(
-    listing.users.map(user => emailString(user.entity.email)),
-    listing.users
+    listing.users.map((user) => emailString(user.entity.email)),
+    listing.users,
   );
 
   const groupsByEmail = R.zipObj(
-    listing.groups.map(user => emailString(user.entity.email)),
-    listing.groups
+    listing.groups.map((user) => emailString(user.entity.email)),
+    listing.groups,
   );
 
   const entityMap: EntityMap = { usersByEmail, groupsByEmail };
 
-  const emailMapParts = entities.map((entityAliases): EmailItem[] | undefined => {
-    const {entity, aliases} = entityAliases;
+  const emailMapParts = entities.map((entityAliases):
+    | EmailItem[]
+    | undefined => {
+    const { entity, aliases } = entityAliases;
     const mainEmail = entity.email;
     if (mainEmail === undefined) {
       return undefined;
@@ -145,7 +162,10 @@ export function workmailMapFromListing(
     switch (entity.kind) {
     case 'WorkmailGroup': {
       const members: EmailUser[] = filterUndef(
-        entity.members.map((entityId: UserEntityId) => userById[entityIdString(entityId)]?.email),
+        entity.members.map(
+          (entityId: UserEntityId) =>
+              userById[entityIdString(entityId)]?.email,
+        ),
       ).map(
         (email): EmailUser => {
           return { kind: 'EmailUser', email };

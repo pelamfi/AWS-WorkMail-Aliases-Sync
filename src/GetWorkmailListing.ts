@@ -28,9 +28,8 @@ export interface GetWorkmailListingConfig extends GroupNameConfig {
 // for easier and faster lookups.
 export async function getWorkmailListing(
   workmail: Workmail,
-  config: GetWorkmailListingConfig
+  config: GetWorkmailListingConfig,
 ): Promise<WorkmailListing> {
-
   const plainUsers = await getWorkmailUsers(workmail);
 
   if (config.verbose) {
@@ -46,33 +45,42 @@ export async function getWorkmailListing(
   const users = await workmailEntitiesAndAliases(workmail, plainUsers);
 
   if (config.verbose) {
-    console.log(`Got ${R.sum(users.map(x => x.aliases.length))} aliases for users`);
+    console.log(
+      `Got ${R.sum(users.map((x) => x.aliases.length))} aliases for users`,
+    );
   }
 
   const groups = await workmailEntitiesAndAliases(workmail, plainGroups);
 
   if (config.verbose) {
-    console.log(`Got ${R.sum(groups.map(x => x.aliases.length))} aliases for groups`);
+    console.log(
+      `Got ${R.sum(groups.map((x) => x.aliases.length))} aliases for groups`,
+    );
   }
 
-  return sortedWorkmailListing({users, groups});
+  return sortedWorkmailListing({ users, groups });
 }
 
-async function workmailEntityAliases<
-  T extends WorkmailGroup | WorkmailUser
->(workmail: Workmail, entity: T): Promise<Email[]> {
-  return retry(() => workmail.service
-    .listAliases({
-      EntityId: entityIdString(entity.entityId),
-      OrganizationId: workmail.organizationId,
-    })
-    .promise(), `list aliases for ${entity.name}`)
+async function workmailEntityAliases<T extends WorkmailGroup | WorkmailUser>(
+  workmail: Workmail,
+  entity: T,
+): Promise<Email[]> {
+  return retry(
+    () =>
+      workmail.service
+        .listAliases({
+          EntityId: entityIdString(entity.entityId),
+          OrganizationId: workmail.organizationId,
+        })
+        .promise(),
+    `list aliases for ${entity.name}`,
+  )
     .then(eitherThrow)
     .then((response: AWS.WorkMail.ListAliasesResponse): Email[] => {
       // console.log("workmailEntityWithAliases response", entity.name)
       const aliases: Email[] =
-        response.Aliases?.filter(alias => emailFrom(alias) != entity.email) // also the primary email is returned as an alias
-          .map(alias => emailFrom(alias)) ?? [];
+        response.Aliases?.filter((alias) => emailFrom(alias) != entity.email) // also the primary email is returned as an alias
+          .map((alias) => emailFrom(alias)) ?? [];
       return aliases;
     });
 }
@@ -81,20 +89,24 @@ async function workmailGroupWithMembers(
   workmail: Workmail,
   group: WorkmailGroup,
 ): Promise<WorkmailGroup> {
-  return retry(() => workmail.service
-    .listGroupMembers({
-      GroupId: entityIdString(group.entityId),
-      OrganizationId: workmail.organizationId,
-    })
-    .promise(), `list group members of ${group.name}`)
+  return retry(
+    () =>
+      workmail.service
+        .listGroupMembers({
+          GroupId: entityIdString(group.entityId),
+          OrganizationId: workmail.organizationId,
+        })
+        .promise(),
+    `list group members of ${group.name}`,
+  )
     .then(eitherThrow)
     .then(
       (response: AWS.WorkMail.ListGroupMembersResponse): WorkmailGroup => {
         // console.log("workmailGroupWithMembers response", group)
 
         const members = filterUndef(
-          response.Members?.map(member => member?.Id) ?? [])
-          .map(userEntityId);
+          response.Members?.map((member) => member?.Id) ?? [],
+        ).map(userEntityId);
 
         return { ...group, members };
       },
@@ -104,8 +116,8 @@ async function workmailGroupWithMembers(
 function convertEntityCommon<T extends EntityId>(
   kind: string,
   entity: AWS.WorkMail.User | AWS.WorkMail.Group,
-  brandId: (id: AWS.WorkMail.WorkMailIdentifier) => T
-): WorkmailEntityCommon & {entityId : T} | undefined {
+  brandId: (id: AWS.WorkMail.WorkMailIdentifier) => T,
+): (WorkmailEntityCommon & { entityId: T }) | undefined {
   if (entity.State === 'DELETED') {
     return undefined; // filter out ghosts
   }
@@ -135,7 +147,7 @@ function convertEntityCommon<T extends EntityId>(
 function convertGroup(group: AWS.WorkMail.Group): WorkmailGroup | undefined {
   const kind = 'WorkmailGroup' as const;
   const common = convertEntityCommon(kind, group, groupEntityId);
-  return mapUndef(common => ({ ...common, kind, members: [] }), common); // members are fetched separately
+  return mapUndef((common) => ({ ...common, kind, members: [] }), common); // members are fetched separately
 }
 
 function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
@@ -145,49 +157,63 @@ function convertUser(user: AWS.WorkMail.User): WorkmailUser | undefined {
 
   const kind = 'WorkmailUser' as const;
   const common = convertEntityCommon(kind, user, userEntityId);
-  return mapUndef(common => ({ ...common, kind }), common);
+  return mapUndef((common) => ({ ...common, kind }), common);
 }
 
 function workmailEntitiesAndAliases<T extends WorkmailEntity>(
   workmail: Workmail,
-  entities: T[]
-): Promise<{entity: T, aliases: Email[]}[]> {
-  const promises: (() => Promise<{entity: T, aliases: Email[]}>)[] = entities.map(entity => () =>
-    workmailEntityAliases(workmail, entity).then((aliases: Email[]) => ({entity, aliases}))
+  entities: T[],
+): Promise<{ entity: T; aliases: Email[] }[]> {
+  const promises: (() => Promise<{
+    entity: T;
+    aliases: Email[];
+  }>)[] = entities.map((entity) => () =>
+    workmailEntityAliases(workmail, entity).then((aliases: Email[]) => ({
+      entity,
+      aliases,
+    })),
   );
 
-  return serialPromises(promises)
+  return serialPromises(promises);
 }
 
 async function groupsWithMembers(
   workmail: Workmail,
   groups: WorkmailGroup[],
 ): Promise<WorkmailGroup[]> {
-  const promises: (() => Promise<WorkmailGroup>)[] = groups.map(group => () =>
+  const promises: (() => Promise<WorkmailGroup>)[] = groups.map((group) => () =>
     workmailGroupWithMembers(workmail, group),
   );
   return serialPromises(promises);
 }
 
 async function getWorkmailUsers(workmail: Workmail): Promise<WorkmailUser[]> {
-  return retry(() => workmail.service
-    .listUsers({ OrganizationId: workmail.organizationId })
-    .promise(), "list users")
+  return retry(
+    () =>
+      workmail.service
+        .listUsers({ OrganizationId: workmail.organizationId })
+        .promise(),
+    'list users',
+  )
     .then(eitherThrow)
-    .then(response => filterUndef(response.Users?.map(convertUser) ?? []));
+    .then((response) => filterUndef(response.Users?.map(convertUser) ?? []));
 }
 
 async function getWorkmailGroups(
   workmail: Workmail,
-  config: GroupNameConfig
+  config: GroupNameConfig,
 ): Promise<WorkmailGroup[]> {
-  return retry(() => workmail.service
-    .listGroups({ OrganizationId: workmail.organizationId })
-    .promise(), "list groups")
+  return retry(
+    () =>
+      workmail.service
+        .listGroups({ OrganizationId: workmail.organizationId })
+        .promise(),
+    'list groups',
+  )
     .then(eitherThrow)
-    .then(response => response.Groups ?? [])
+    .then((response) => response.Groups ?? [])
     .then(filterUndef)
-    .then(groups =>
+    .then((groups) =>
       // This script only manages groups with a name
       // that indicates that the group was generated by this script.
       // Here we filter out groups not generated by this script
@@ -196,6 +222,5 @@ async function getWorkmailGroups(
     )
     .then(R.map(convertGroup))
     .then(filterUndef)
-    .then(groups => groupsWithMembers(workmail, groups));
+    .then((groups) => groupsWithMembers(workmail, groups));
 }
-

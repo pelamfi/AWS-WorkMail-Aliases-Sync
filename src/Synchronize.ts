@@ -4,7 +4,13 @@ import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
 import { Email } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
-import { EntityMap, WorkmailMap, workmailMapFromListing, WorkmailListing, workmailListingFromMap } from './WorkmailMap';
+import {
+  EntityMap,
+  WorkmailMap,
+  workmailMapFromListing,
+  WorkmailListing,
+  workmailListingFromMap,
+} from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
 import { WorkmailUpdate } from './AwsWorkMailUtil';
 
@@ -21,8 +27,8 @@ export async function synchronize(
   config: Config,
   aliases: AliasesFileAlias[],
   currentWorkmailListing: WorkmailListing,
-  workmailUpdate: WorkmailUpdate): Promise<WorkmailListing> {
-
+  workmailUpdate: WorkmailUpdate,
+): Promise<WorkmailListing> {
   const aliasesFileUsers = aliasesPerUser(aliases);
 
   function localUserToEmail(localUser: string): Email | undefined {
@@ -42,45 +48,59 @@ export async function synchronize(
 
   const targetAwsEmailMap = emailMapAliasLimitWorkaround(
     targetAwsEmailMapIdeal,
-    config);
+    config,
+  );
 
   if (config.verbose) {
     console.log(
       `Computing operations to sync aliases file with ${
-        Object.keys(targetAwsEmailMap).length} aliases to WorkMail with`);
+        Object.keys(targetAwsEmailMap).length
+      } aliases to WorkMail with`,
+    );
   }
 
   const syncOperations = emailMapSync(
     currentWorkmailMap.emailMap,
-    targetAwsEmailMap);
+    targetAwsEmailMap,
+  );
 
   const initialPromise: Promise<EntityMap> = Promise.resolve<EntityMap>(
-    currentWorkmailMap.entityMap);
+    currentWorkmailMap.entityMap,
+  );
 
   function reductionStep(
     prev: Promise<EntityMap>,
-    op: EmailOperation): Promise<EntityMap> {
+    op: EmailOperation,
+  ): Promise<EntityMap> {
     return prev.then((entityMap) => {
-      return createAwsWorkmailRequest(workmailUpdate, entityMap, op, config.verbose).then(
-        (entityMapUpdate) => {
-          return entityMapUpdate(entityMap);
-        });
+      return createAwsWorkmailRequest(
+        workmailUpdate,
+        entityMap,
+        op,
+        config.verbose,
+      ).then((entityMapUpdate) => {
+        return entityMapUpdate(entityMap);
+      });
     });
   }
 
-
   if (config.dryRun) {
-    console.log(`Not executing ${syncOperations.length} operations due to the dry run option.`);
+    console.log(
+      `Not executing ${syncOperations.length} operations due to the dry run option.`,
+    );
     return currentWorkmailListing;
   }
 
   if (config.verbose) {
-    console.log(`Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`);
+    console.log(
+      `Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`,
+    );
   }
 
   const finalEntityMap = await syncOperations.reduce(
     reductionStep,
-    initialPromise);
+    initialPromise,
+  );
 
   const finalMap: WorkmailMap = {
     entityMap: finalEntityMap,
@@ -90,8 +110,9 @@ export async function synchronize(
   if (config.verbose) {
     console.log(
       `${syncOperations.length} operations completed, users: ${
-        Object.keys(finalMap.entityMap.usersByEmail).length} groups: ${
-        Object.keys(finalMap.entityMap.groupsByEmail).length}`);
+        Object.keys(finalMap.entityMap.usersByEmail).length
+      } groups: ${Object.keys(finalMap.entityMap.groupsByEmail).length}`,
+    );
   }
 
   return workmailListingFromMap(finalMap);

@@ -17,6 +17,10 @@ export function generateGroupName(email: Email, config: GroupNameConfig) {
   return config.groupPrefix + '-' + emailLocal(email);
 }
 
-export function generateWorkaroundGroupName(email: Email, groupIndex: number, config: GroupNameConfig) {
+export function generateWorkaroundGroupName(
+  email: Email,
+  groupIndex: number,
+  config: GroupNameConfig,
+) {
   return `${config.groupPrefix}-alias-${emailLocal(email)}-${groupIndex}`;
 }

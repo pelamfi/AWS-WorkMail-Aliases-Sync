@@ -1,26 +1,25 @@
-
 export interface Email extends String {
   _EmailBrand: string;
-};
+}
 
 export function emailOrd(a: Email, b: Email): number {
-  return emailString(a) < emailString(b) ? -1 : 1
+  return emailString(a) < emailString(b) ? -1 : 1;
 }
 
 export function emailFrom(email: string, domain?: string): Email {
   if (domain === undefined) {
-    return emailFromString(email)
+    return emailFromString(email);
   } else {
-    return `${email}@${domain}` as unknown as Email;
+    return (`${email}@${domain}` as unknown) as Email;
   }
 }
 
 export function emailFromString(email: string): Email {
-  return email as unknown as Email;
+  return (email as unknown) as Email;
 }
 
 export function emailString(email: Email): string {
-  return email as unknown as string;
+  return (email as unknown) as string;
 }
 
 export function emailDomain(email: Email): string {
