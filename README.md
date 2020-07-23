@@ -20,9 +20,11 @@ run the program to synchronize the changes to AWS WorkMail.
 
 ### Check the script help
 
-<code>
+```shell
 $ yarn run sync --help
+```
 
+```
 Options:
   --help                    Show help                                  [boolean]
   --version                 Show version number                        [boolean]
@@ -86,7 +88,7 @@ Options:
     Of course you could also run it just once to upload a legacy
     aliases file.
 
-</code>
+```
 
 ## How it works
 
@@ -98,11 +100,11 @@ The following steps describe the basic operation of this program:
   4. computes a sequence of operations to modify the AWS WorkMail to match the aliases file
   5. executes the operations on the AWS WorkMail organization
 
-  + Removing groups
-  + Adding groups
-  + Removing aliases from users and groups
-  + Adding aliases to users and groups
-  + (Note that the program does not add/remove users)
+- Removing groups
+- Adding groups
+- Removing aliases from users and groups
+- Adding aliases to users and groups
+- (Note that the program does not add/remove users)
 
 Note that this "synchronization behavior" of this program means that
 it will delete groups and aliases that are not in the input `aliases`
@@ -123,6 +125,7 @@ is run again with the same input file.)
 This project is intended to be used with the latest Active LTS release of [Node.js][nodejs]. 
 
 To start you need to install dependencies using the following command:
+
 ```sh
 npm install
 ```
@@ -131,26 +134,26 @@ The code is in the `src` and tests are in the `__tests__` directory.
 
 ## Project setup:
 
-+ [TypeScript](https://www.typescriptlang.org/)
-+ [TSLint](https://www.npmjs.com/package/tslint) with [Microsoft rules](https://github.com/Microsoft/tslint-microsoft-contrib)
-+ [Jest](https://jestjs.io/) unit testing and code coverage,
-+ Type definitions for Node.js and Jest,
-+ [Prettier](https://prettier.io/) to enforce a consistent code style,
-+ [NPM scripts for common operations](#available-scripts),
-+ a simple example of TypeScript code and unit test,
-+ .editorconfig for consistent file format.
+- [TypeScript](https://www.typescriptlang.org/)
+- [TSLint](https://www.npmjs.com/package/tslint) with [Microsoft rules](https://github.com/Microsoft/tslint-microsoft-contrib)
+- [Jest](https://jestjs.io/) unit testing and code coverage,
+- Type definitions for Node.js and Jest,
+- [Prettier](https://prettier.io/) to enforce a consistent code style,
+- [NPM scripts for common operations](#available-scripts),
+- a simple example of TypeScript code and unit test,
+- .editorconfig for consistent file format.
 
 ## Available scripts
 
-+ `sync` - run the release build of the main script
-+ `sync:dev` - run the developer build of the main script
-+ `clean` - remove coverage data, Jest cache and transpiled files,
-+ `build` - transpile TypeScript to ES6,
-+ `build:watch` - interactive watch mode to automatically transpile source files,
-+ `lint` - lint source files and tests,
-+ `test` - run tests,
-+ `test:watch` - interactive watch mode to automatically re-run tests
-+ `prettier` - run Prettier on the source files
+- `sync` - run the release build of the main script
+- `sync:dev` - run the developer build of the main script
+- `clean` - remove coverage data, Jest cache and transpiled files,
+- `build` - transpile TypeScript to ES6,
+- `build:watch` - interactive watch mode to automatically transpile source files,
+- `lint` - lint source files and tests,
+- `test` - run tests,
+- `test:watch` - interactive watch mode to automatically re-run tests
+- `prettier` - run Prettier on the source files
 
 ## About the original boilerplate, copyright and the license
 
@@ -163,10 +166,11 @@ as a starting point for this project. The unmodified parts present in that boile
 remain under their original copyright and License APLv2. See the [APACHE-2-LICENSE](https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE) file for details.
 
 ## Random links used as a reference
-  * [AWS NodeJS Samples, basic configuration](https://github.com/aws-samples/aws-nodejs-sample#basic-configuration)
-  * [AWS SDK for Javascript, Developer Guide, Loading Credentials from a file](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-json-file.html)
-  * [AWS NodeJS Samples, S3 sample.js](https://github.com/aws-samples/aws-nodejs-sample/blob/master/sample.js)
-  * [AWS Javascript SDK docs, WorkMail](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/WorkMail.html)
-  * [AWS Docs, API Reference, WorkMail, AssociateMemberToGroup](https://docs.aws.amazon.com/workmail/latest/APIReference/API_AssociateMemberToGroup.html)
-  * [AWS Docs, Code Samples for TypeScript page](https://docs.aws.amazon.com/code-samples/latest/catalog/code-catalog-typescript.html)
-  * [SO answer, How to read JSON safely in TypeScript](https://stackoverflow.com/a/52591988/1148030)
+
+- [AWS NodeJS Samples, basic configuration](https://github.com/aws-samples/aws-nodejs-sample#basic-configuration)
+- [AWS SDK for Javascript, Developer Guide, Loading Credentials from a file](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-json-file.html)
+- [AWS NodeJS Samples, S3 sample.js](https://github.com/aws-samples/aws-nodejs-sample/blob/master/sample.js)
+- [AWS Javascript SDK docs, WorkMail](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/WorkMail.html)
+- [AWS Docs, API Reference, WorkMail, AssociateMemberToGroup](https://docs.aws.amazon.com/workmail/latest/APIReference/API_AssociateMemberToGroup.html)
+- [AWS Docs, Code Samples for TypeScript page](https://docs.aws.amazon.com/code-samples/latest/catalog/code-catalog-typescript.html)
+- [SO answer, How to read JSON safely in TypeScript](https://stackoverflow.com/a/52591988/1148030)
