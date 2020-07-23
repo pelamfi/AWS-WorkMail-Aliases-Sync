@@ -7,6 +7,7 @@ import { AliasesFileAlias } from '../src/AliasesFile';
 const domain = "domain";
 const user1 = emailFrom("user1", domain);
 const user2 = emailFrom("user2", domain);
+const user3 = emailFrom("user3", domain);
 const aliasFoo = emailFrom("foo", domain);
 const aliasBar = emailFrom("bar", domain);
 const aliasBaz = emailFrom("baz", domain);
@@ -17,7 +18,7 @@ const aliasLimit = 2
 
 const config: Synchronize.Config = {
   aliasesFileDomain: domain,
-  localEmailUserToEmail: {"user1": emailString(user1), "user2": emailString(user2)},
+  localEmailUserToEmail: {"user1": emailString(user1), "user2": emailString(user2), "user3": emailString(user3)},
   groupPrefix,
   aliasLimit
 };
@@ -26,13 +27,15 @@ const aliases: AliasesFileAlias[] = [];
 
 const user1EntityId = userEntityId("user1EntityId");
 const user2EntityId = userEntityId("user2EntityId");
+const user3EntityId = userEntityId("user3EntityId");
 
 const workmailUser1: WorkmailUser = {kind: 'WorkmailUser', entityId: user1EntityId, name: "User1Name", email: user1};
 const workmailUser2: WorkmailUser = {kind: 'WorkmailUser', entityId: user2EntityId, name: "User2Name", email: user2};
+const workmailUser3: WorkmailUser = {kind: 'WorkmailUser', entityId: user3EntityId, name: "User3Name", email: user3};
 
 const minimalWorkmailListing: WorkmailListing = {groups: [], users: [{entity: workmailUser1, aliases: []}]};
-const twoUserWorkmailListing: WorkmailListing = {groups: [], users: [
-  {entity: workmailUser1, aliases: []}, {entity: workmailUser2, aliases: []}]};
+const threeUserWorkmailListing: WorkmailListing = {groups: [], users: [
+  {entity: workmailUser1, aliases: []}, {entity: workmailUser2, aliases: []}, {entity: workmailUser3, aliases: []}]};
 
 const groupEntityId1: GroupEntityId = groupEntityId("groupEntityId1");
 
@@ -43,7 +46,18 @@ const group: WorkmailGroup = {
   name: groupPrefix + "-" + emailString(aliasFoo),
   members: [workmailUser1.entityId, workmailUser2.entityId]};
 
-const listingWith1Group: WorkmailListing = {groups: [{entity: group, aliases: []}], users: twoUserWorkmailListing.users};
+const group2: WorkmailGroup = {
+  kind: "WorkmailGroup",
+  email: aliasFoo,
+  entityId: groupEntityId1,
+  name: groupPrefix + "-" + emailString(aliasFoo),
+  members: [workmailUser1.entityId, workmailUser3.entityId]};
+
+const listingWith1Group: WorkmailListing = {groups: [{entity: group, aliases: []}], users: threeUserWorkmailListing.users};
+
+const listingWith1Group2: WorkmailListing = {
+  groups: [{entity: group2, aliases: []}],
+  users: threeUserWorkmailListing.users};
 
 const aliasOverflowGroupEmail = emailFrom(groupPrefix + "-alias-user1-0", domain)
 
@@ -58,15 +72,21 @@ const aliasOverflowListing: WorkmailListing = {
   groups: [{entity: aliasOverflowGroup, aliases: [aliasFoo]}],
   users: [
     {entity: workmailUser1, aliases: [aliasBar, aliasBaz]},
-    {entity: workmailUser2, aliases: []}]};
+    {entity: workmailUser2, aliases: []},
+    {entity: workmailUser3, aliases: []}
+  ]};
 
 const aliasOverflowListing2: WorkmailListing = {
   groups: [{entity: aliasOverflowGroup, aliases: [aliasQuux]}],
   users: [
     {entity: workmailUser1, aliases: [aliasBaz, aliasFoo]},
-    {entity: workmailUser2, aliases: []}]};
+    {entity: workmailUser2, aliases: []},
+    {entity: workmailUser3, aliases: []},
+  ]};
 
 const aliases1Group: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
+
+const aliases1Group2: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user3)]}];
 
 const overflowingAliases = [
   {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
@@ -135,7 +155,7 @@ describe('The synchronization mechanism', () => {
 
   it('Adds one group', () => {
     const update = mockWorkmail();
-    return Synchronize.synchronize(config, aliases1Group, twoUserWorkmailListing, update)
+    return Synchronize.synchronize(config, aliases1Group, threeUserWorkmailListing, update)
       .then((listing) => {
         expect(update.createAlias).toBeCalledTimes(0);
         expect(update.deleteAlias).toBeCalledTimes(0);
@@ -156,7 +176,7 @@ describe('The synchronization mechanism', () => {
         expect(update.removeGroup).toBeCalledTimes(1);
         expect(update.associateMemberToGroup).toBeCalledTimes(0);
         expect(update.addGroup).toBeCalledTimes(0);
-        expect(listing).toStrictEqual(twoUserWorkmailListing);
+        expect(listing).toStrictEqual(threeUserWorkmailListing);
       });
   });
 
@@ -224,6 +244,21 @@ describe('The synchronization mechanism', () => {
         expect(update.associateMemberToGroup).toBeCalledTimes(0);
         expect(update.addGroup).toBeCalledTimes(0);
         expect(listing).toStrictEqual(aliasOverflowListing2);
+      });
+  });
+
+  it('Changes group members', () => {
+    const update = mockWorkmail();
+
+    return Synchronize.synchronize(config, aliases1Group2, listingWith1Group, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        // TODO: it would be better to disassociate 1 member and associate another instead of recreating the group.
+        expect(update.removeGroup).toBeCalledTimes(1);
+        expect(update.associateMemberToGroup).toBeCalledTimes(2);
+        expect(update.addGroup).toBeCalledTimes(1);
+        expect(listing).toStrictEqual(listingWith1Group2);
       });
   });
 });
