@@ -30,16 +30,19 @@ dev-build/
 # Misc
 .DS_Store
 
-# Protect credentials from ending up in git
+# Protect credentials and other sensitive information from ending up in git
 aws-sdk-config.json
 aliases-sync-config.json
+aliases-user-emails.json
 
 # Don't put an aliases file that user may be syncing into git
 aliases
 
+# The default WorkMail state file
+workmail-state.json
+
+# Emacs
 *~
 
-# Temporary debug files
-current-workmail-listing.json
-final-map.json
-target-map.json
+# Keep some debug config files etc. locally for a while
+misc-debug-files/
