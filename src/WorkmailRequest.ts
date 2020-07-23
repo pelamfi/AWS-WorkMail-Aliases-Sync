@@ -15,9 +15,6 @@ import {
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
 
-const noEntityMapUpdate: (_: unknown) => EntityMapUpdate = () => (entityMap) =>
-  entityMap;
-
 export function createAwsWorkmailRequest(
   workmail: WorkmailUpdate,
   entityMap: EntityMap,
