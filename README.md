@@ -90,6 +90,15 @@ Options:
 
 ```
 
+### TODO:
+
+- Improve getting started info in README.md
+- Fix the message `Local email user 'x' is not in the configuration file *localEmailUserToEmail map*. Ignored.`
+  Make it show up also in non verbose mode.
+- Fix the message `Computing operations to sync aliases file with 262 aliases to WorkMail w*ith*`
+- Make the `forceQuery` option to work
+- Various deeper TODOs in the code...
+
 ## How it works
 
 The following steps describe the basic operation of this program:
@@ -174,3 +183,4 @@ remain under their original copyright and License APLv2. See the [APACHE-2-LICEN
 - [AWS Docs, API Reference, WorkMail, AssociateMemberToGroup](https://docs.aws.amazon.com/workmail/latest/APIReference/API_AssociateMemberToGroup.html)
 - [AWS Docs, Code Samples for TypeScript page](https://docs.aws.amazon.com/code-samples/latest/catalog/code-catalog-typescript.html)
 - [SO answer, How to read JSON safely in TypeScript](https://stackoverflow.com/a/52591988/1148030)
+
