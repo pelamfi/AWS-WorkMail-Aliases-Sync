@@ -1,4 +1,4 @@
-import { Email, emailString } from './Email';
+import { Email, emailString, emailOrd } from './Email';
 import { EmailMap, EmailGroup, EmailItem, EmailUser } from './EmailMap';
 import { filterUndef } from './UndefUtil';
 import R from 'ramda';
@@ -62,7 +62,7 @@ export interface WorkmailEntityCommon {
   readonly email: Email;
 }
 
-export type WorkmailUser = { 
+export type WorkmailUser = {
   readonly kind: 'WorkmailUser';
   readonly entityId: UserEntityId;
 } & WorkmailEntityCommon;
@@ -87,15 +87,30 @@ export type WorkmailUserAliases = {
 };
 
 export type WorkmailGroupAliases = {
-  entity: WorkmailGroup,
-  aliases: Email[]
+  readonly entity: WorkmailGroup,
+  readonly aliases: Email[]
 };
 
 export function workmailListingFromMap(workmailMap: WorkmailMap): WorkmailListing {
-  return {
+  return sortedWorkmailListing({
     groups: Object.values(workmailMap.entityMap.groupsByEmail),
     users: Object.values(workmailMap.entityMap.usersByEmail),
+  });
+}
+
+export function sortedWorkmailListing(listing: WorkmailListing): WorkmailListing {
+  return {
+    groups: sortedEntityAliases(listing.groups),
+    users: sortedEntityAliases(listing.users)
   }
+}
+
+function sortedEntityAliases<T extends WorkmailEntityAliases>(groups: T[]): T[] {
+  return groups.map((g): T => ({...g, aliases: g.aliases.sort(emailOrd)})).sort(workmailEntityAliasesOrd);
+}
+
+function workmailEntityAliasesOrd<T extends WorkmailEntityAliases>(a: T, b: T): number {
+  return emailOrd(a.entity.email, b.entity.email);
 }
 
 export function workmailMapFromListing(
@@ -103,7 +118,7 @@ export function workmailMapFromListing(
 ): WorkmailMap {
 
   const entities = R.concat<WorkmailEntityAliases>(listing.groups, listing.users);
-  
+
   const userById = R.zipObj(
     listing.users.map(user => entityIdString(user.entity.entityId)),
     listing.users.map(user => user.entity),
@@ -117,7 +132,7 @@ export function workmailMapFromListing(
   const groupsByEmail = R.zipObj(
     listing.groups.map(user => emailString(user.entity.email)),
     listing.groups
-  );  
+  );
 
   const entityMap: EntityMap = { usersByEmail, groupsByEmail };
 

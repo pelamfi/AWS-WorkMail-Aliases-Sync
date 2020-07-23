@@ -9,6 +9,7 @@ import {
   groupEntityId,
   EntityId,
   entityIdString,
+  sortedWorkmailListing,
 } from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
@@ -28,21 +29,21 @@ export async function getWorkmailListing(
 
   const plainUsers = await getWorkmailUsers(workmail);
 
-  console.log(`Got ${plainUsers.length} users`)
+  console.log(`Got ${plainUsers.length} users`);
 
   const plainGroups = await getWorkmailGroups(workmail, config);
 
-  console.log(`Got ${plainGroups.length} groups`)
+  console.log(`Got ${plainGroups.length} groups`);
 
   const users = await workmailEntitiesAndAliases(workmail, plainUsers);
 
-  console.log(`Got ${R.sum(users.map(x => x.aliases.length))} aliases for users`)
+  console.log(`Got ${R.sum(users.map(x => x.aliases.length))} aliases for users`);
 
   const groups = await workmailEntitiesAndAliases(workmail, plainGroups);
 
-  console.log(`Got ${R.sum(groups.map(x => x.aliases.length))} aliases for groups`)
+  console.log(`Got ${R.sum(groups.map(x => x.aliases.length))} aliases for groups`);
 
-  return {users, groups}
+  return sortedWorkmailListing({users, groups});
 }
 
 async function workmailEntityAliases<

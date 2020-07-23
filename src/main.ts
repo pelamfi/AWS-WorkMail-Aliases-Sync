@@ -4,7 +4,7 @@ import { getWorkmailListing } from './GetWorkmailListing';
 import { parseAliasesFile, AliasesFileParseError } from './AliasesFileParse';
 import { openWorkmail, Workmail } from './AwsWorkMailUtil';
 import { synchronize } from './Synchronize';
-import { WorkmailListing } from './WorkmailMap';
+import { WorkmailListing, sortedWorkmailListing } from './WorkmailMap';
 import { writeFileAtomic, readFile, exists } from './FsUtil';
 
 console.log('Script starting');
@@ -53,7 +53,7 @@ async function getCurrentWorkmailListing(scriptConfig: Config, workmail: Workmai
     const data = await readFile(scriptConfig.stateFile, 'utf8');
     // tslint:disable-next-line: no-suspicious-comment
     // TODO: Actual validation...
-    return JSON.parse(data.toString()) as WorkmailListing;
+    return sortedWorkmailListing(JSON.parse(data.toString()) as WorkmailListing);
   } else {
     console.log('Fetching the current users, groups and aliases from AWS');
     const currentWorkmailListing = await getWorkmailListing(workmail, scriptConfig);

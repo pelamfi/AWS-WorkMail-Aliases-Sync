@@ -2,7 +2,7 @@ import { EmailOperation, AddGroupMember } from './EmailOperation';
 import * as R from 'ramda';
 import { filterUndef } from './UndefUtil';
 import { EmailMap, EmailGroup } from './EmailMap';
-import { emailFromString, emailString, Email } from './Email';
+import { emailFromString, emailString, Email, emailOrd } from './Email';
 
 function groupsEqual(a: EmailGroup, b: EmailGroup): boolean {
   const aMemberEmails = a.members.map((x) => x.email).sort();
@@ -29,6 +29,7 @@ function removalOperations(currentMap: EmailMap, targetMap: EmailMap): EmailOper
   return filterUndef(
     Object.keys(currentMap)
       .map(emailFromString)
+      .sort(emailOrd)
       .map(removalOperation(currentMap, targetMap)))
     .sort(operationOrder);
 }
@@ -84,6 +85,7 @@ function additionOperations(targetMap: EmailMap, currentMap: EmailMap): EmailOpe
   return filterUndef(R.flatten(
     Object.keys(targetMap)
       .map(emailFromString)
+      .sort(emailOrd)
       .map(additionOperation(targetMap, currentMap))))
     .sort(operationOrder);
 }

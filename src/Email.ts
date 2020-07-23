@@ -3,6 +3,10 @@ export interface Email extends String {
   _EmailBrand: string;
 };
 
+export function emailOrd(a: Email, b: Email): number {
+  return emailString(a) < emailString(b) ? -1 : 1
+}
+
 export function emailFrom(email: string, domain?: string): Email {
   if (domain === undefined) {
     return emailFromString(email)

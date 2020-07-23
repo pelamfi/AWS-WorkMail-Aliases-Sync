@@ -5,6 +5,7 @@ import {
   EmailGroup,
   EmailItem,
   EmailGroupAlias,
+  emailItemOrd,
 } from './EmailMap';
 import { emailFrom, emailString, emailLocal } from './Email';
 
@@ -22,7 +23,7 @@ export function emailMapAliasLimitWorkaround(
 ): EmailMap {
   const [userAliasesUncast, otherEmails] = R.partition(
     (email) => email.kind == 'EmailUserAlias',
-    Object.values(emails),
+    Object.values(emails).sort(emailItemOrd),
   );
 
   const userAliases = userAliasesUncast as EmailUserAlias[]; // ugh

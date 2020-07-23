@@ -1,4 +1,4 @@
-import { Email } from './Email';
+import { Email, emailOrd } from './Email';
 
 // EmailMap and its item types model email aliases and users.
 export type EmailMap = { readonly [index: string]: EmailItem };
@@ -8,6 +8,10 @@ export type EmailItem =
   | EmailUserAlias
   | EmailGroup
   | EmailGroupAlias;
+
+export function emailItemOrd(a: EmailItem, b: EmailItem): number {
+  return emailOrd(a.email, b.email);
+}
 
 export interface EmailUser {
   readonly kind: 'EmailUser';

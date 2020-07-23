@@ -61,6 +61,12 @@ const aliasOverflowListing: WorkmailListing = {
 
 const aliases1Group: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
 
+const overflowingAliases = [
+  {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
+  {alias: emailLocal(aliasBar), localEmails: [emailLocal(user1)]},
+  {alias: emailLocal(aliasBaz), localEmails: [emailLocal(user1)]}
+];
+
 function mockWorkmail(): WorkmailUpdate {
   const createAlias: (entityId: GroupEntityId | UserEntityId, alias: Email) => Promise<void> =
     jest.fn().mockReturnValue(Promise.resolve());
@@ -82,8 +88,9 @@ function mockWorkmail(): WorkmailUpdate {
   };
 }
 
-describe('End to end test with mocked WorkMail', () => {
-  it('accepts empty data and does nothing', () => {
+describe('The synchronization mechanism', () => {
+
+  it('Accepts empty data and does nothing', () => {
     const update = mockWorkmail();
     const emptyWorkmailListing: WorkmailListing = {groups: [], users: []};
     return Synchronize.synchronize(config, aliases, emptyWorkmailListing, update)
@@ -97,6 +104,7 @@ describe('End to end test with mocked WorkMail', () => {
         expect(Object.keys(listing.users).length).toStrictEqual(0);
       });
   });
+
   it('Adds one alias', () => {
     const update = mockWorkmail();
     const aliases = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]}];
@@ -111,6 +119,7 @@ describe('End to end test with mocked WorkMail', () => {
         expect(listing).toStrictEqual(aliasAddedListing);
       });
   });
+
   it('Adds one group', () => {
     const update = mockWorkmail();
     return Synchronize.synchronize(config, aliases1Group, twoUserWorkmailListing, update)
@@ -138,15 +147,10 @@ describe('End to end test with mocked WorkMail', () => {
       });
   });
 
-  it('Adds overflowing aliases, remove 1 group', () => {
+  it('Adds overflowing aliases, removes 1 group', () => {
     const update = mockWorkmail();
-    const aliases = [
-      {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
-      {alias: emailLocal(aliasBar), localEmails: [emailLocal(user1)]},
-      {alias: emailLocal(aliasBaz), localEmails: [emailLocal(user1)]}
-    ];
 
-    return Synchronize.synchronize(config, aliases, listingWith1Group, update)
+    return Synchronize.synchronize(config, overflowingAliases, listingWith1Group, update)
       .then((listing) => {
         expect(update.createAlias).toBeCalledTimes(3);
         expect(update.deleteAlias).toBeCalledTimes(0);
