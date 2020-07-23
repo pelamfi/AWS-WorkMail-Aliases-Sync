@@ -2,6 +2,8 @@ import * as AWS from 'aws-sdk';
 import { Config } from './ScriptConfig';
 import { GroupEntityId, UserEntityId, entityIdString, groupEntityIdString, groupEntityId, userEntityIdString } from './WorkmailMap';
 import { Email, emailString } from './Email';
+import { retry } from './Retry';
+import { eitherThrow } from './EitherUtil';
 
 export interface Workmail {
   service: AWS.WorkMail, // TODO: Add a wrapper for querying too
@@ -24,43 +26,48 @@ export function openWorkmail(scriptConfig: Config): Workmail {
   const organizationId = scriptConfig.workmailOrganizationId;
   
   function createAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
-    return service
+    return retry(() => service
       .createAlias({OrganizationId: organizationId, EntityId: entityIdString(entityId), Alias: emailString(alias)})
-      .promise()
+      .promise(), "createAlias")
+      .then(eitherThrow)
       .then(() => Promise.resolve())
   }
   
   function deleteAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
-    return service
+    return retry(() => service
       .deleteAlias({OrganizationId: organizationId, 
         EntityId: entityIdString(entityId), 
         Alias: emailString(alias)})
-      .promise()
+      .promise(), "deleteAlias")
+      .then(eitherThrow)
       .then(() => Promise.resolve())
   }
 
   function removeGroup(groupEntityId: GroupEntityId) {
-    return service
+    return retry(() => service
       .deregisterFromWorkMail({OrganizationId: organizationId, EntityId: groupEntityIdString(groupEntityId)})
-      .promise()
-      .then(() => service.deleteGroup({OrganizationId: organizationId, 
-        GroupId: groupEntityIdString(groupEntityId)}).promise())
+      .promise(), "removeGroup/deregister")
+      .then(eitherThrow)
+      .then(() => retry(() => service.deleteGroup({OrganizationId: organizationId,
+        GroupId: groupEntityIdString(groupEntityId)}).promise(), "removeGroup/delete")
+        .then(eitherThrow))
       .then(() => Promise.resolve())
   }
 
   function associateMemberToGroup(groupEntityId: GroupEntityId, userEntityId: UserEntityId) {
-    return service
+    return retry(() => service
       .associateMemberToGroup({OrganizationId: organizationId, 
         GroupId: groupEntityIdString(groupEntityId), 
         MemberId: userEntityIdString(userEntityId)})
-      .promise()
+      .promise(), "associateMemberToGroup")
       .then(() => Promise.resolve())
   }
 
   function addGroup(name: string, email: Email): Promise<GroupEntityId> {
-    return service
+    return retry(() => service
       .createGroup({OrganizationId: organizationId, Name: name})
-      .promise()
+      .promise(), "addGroup/create")
+      .then(eitherThrow)
       .then((result) => {
         const rawEntityId = result.GroupId  
         if (rawEntityId === undefined) {
@@ -68,9 +75,10 @@ export function openWorkmail(scriptConfig: Config): Workmail {
           return Promise.reject(new Error(message));
         
         } else {
-          return service
+          return retry(() => service
             .registerToWorkMail({OrganizationId: organizationId, EntityId: rawEntityId, Email: emailString(email)})
-            .promise()
+            .promise(), "addGroup/register")
+            .then(eitherThrow)
             .then(() => Promise.resolve(groupEntityId(rawEntityId)))
         }
       });
