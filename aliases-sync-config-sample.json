@@ -1,12 +1,5 @@
 {
-    "awsConfigFile": "aws-sdk-config.json",
     "workmailOrganizationId": "m-a123a123a123a123a123a123a123a123",
-    "aliasesFile": "aliases",
     "groupPrefix": "my-prefix",
-    "aliasesFileDomain": "example.com",
-    "aliasLimit": 80,
-    "localEmailUserToEmail": {
-        "user": "user@example.com",
-        "user2": "user2@example.com"
-    }
+    "aliasesFileDomain": "example.com"
 }

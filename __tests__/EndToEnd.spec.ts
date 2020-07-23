@@ -18,9 +18,10 @@ const aliasLimit = 2
 
 const config: Synchronize.Config = {
   aliasesFileDomain: domain,
-  localEmailUserToEmail: {"user1": emailString(user1), "user2": emailString(user2), "user3": emailString(user3)},
+  localEmailUserToEmail: {"user1": user1, "user2": user2, "user3": user3},
   groupPrefix,
-  aliasLimit
+  aliasLimit,
+  dryRun: false
 };
 
 const aliases: AliasesFileAlias[] = [];

@@ -2,7 +2,7 @@ import { aliasesFileToEmailMap } from './AliasesFileToEmaiMap';
 import { aliasesPerUser, AliasesFileAlias } from './AliasesFile';
 import { emailMapSync } from './EmailMapSync';
 import { createAwsWorkmailRequest } from './WorkmailRequest';
-import { Email, emailFrom } from './Email';
+import { Email } from './Email';
 import { emailMapAliasLimitWorkaround } from './AliasLimitWorkaround';
 import { EntityMap, WorkmailMap, workmailMapFromListing, WorkmailListing, workmailListingFromMap } from './WorkmailMap';
 import { EmailOperation } from './EmailOperation';
@@ -10,9 +10,10 @@ import { WorkmailUpdate } from './AwsWorkMailUtil';
 
 export interface Config {
   aliasesFileDomain: string;
-  readonly localEmailUserToEmail: { readonly [index: string]: string };
+  readonly localEmailUserToEmail: { readonly [index: string]: Email };
   groupPrefix: string;
   readonly aliasLimit: number;
+  readonly dryRun: boolean;
 }
 
 export async function synchronize(
@@ -28,7 +29,7 @@ export async function synchronize(
     if (localEmail === undefined) {
       return undefined;
     }
-    return emailFrom(localEmail);
+    return localEmail;
   }
 
   const targetAwsEmailMapIdeal = aliasesFileToEmailMap(aliasesFileUsers, {
@@ -62,6 +63,12 @@ export async function synchronize(
           return entityMapUpdate(entityMap);
         });
     });
+  }
+
+
+  if (config.dryRun) {
+    console.log(`Not executing ${syncOperations.length} operations due to the dry run option.`);
+    return currentWorkmailListing;
   }
 
   console.log(`Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`);

@@ -1,5 +1,4 @@
 import * as AWS from 'aws-sdk';
-import { Config } from './ScriptConfig';
 import { GroupEntityId, UserEntityId, entityIdString, groupEntityIdString, groupEntityId, userEntityIdString } from './WorkmailMap';
 import { Email, emailString } from './Email';
 import { retry } from './Retry';
@@ -19,11 +18,17 @@ export interface WorkmailUpdate {
   addGroup(name: string, email: Email): Promise<GroupEntityId>;
 }
 
-export function openWorkmail(scriptConfig: Config): Workmail {
-  configureAws(scriptConfig);
+export interface WorkMailConfig {
+  readonly workmailOrganizationId: string;
+  readonly workmailEndpoint?: string;
+  readonly awsConfigFile: string;
+}
 
-  const service = createWorkmailService(scriptConfig);
-  const organizationId = scriptConfig.workmailOrganizationId;
+export function openWorkmail(config: WorkMailConfig): Workmail {
+  configureAws(config);
+
+  const service = createWorkmailService(config);
+  const organizationId = config.workmailOrganizationId;
 
   function createAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
     return retry(() => service
@@ -91,18 +96,18 @@ export function openWorkmail(scriptConfig: Config): Workmail {
   };
 }
 
-function configureAws(scriptConfig: Config): void {
+function configureAws(config: WorkMailConfig): void {
   console.log('Configuring the AWS connection.')
 
   AWS.config.setPromisesDependency(null);
-  AWS.config.loadFromPath(scriptConfig.awsConfigFile);
+  AWS.config.loadFromPath(config.awsConfigFile);
   AWS.config.httpOptions = {...AWS.config.httpOptions, connectTimeout: 8000}; // 8s is hopeless and we can retry
   AWS.config.workmail = {...AWS.config.workmail, httpOptions: {...AWS.config?.workmail?.httpOptions, connectTimeout: 8000}};
 }
 
-function createWorkmailService(scriptConfig: Config): AWS.WorkMail {
-  return new AWS.WorkMail({
-    endpoint: scriptConfig.workmailEndpoint,
-  });
+function createWorkmailService(config: WorkMailConfig): AWS.WorkMail {
+  return new AWS.WorkMail(config.workmailEndpoint !== undefined ? {
+    endpoint: config.workmailEndpoint,
+  } : undefined);
 }
 

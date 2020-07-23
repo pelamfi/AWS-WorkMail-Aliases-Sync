@@ -13,7 +13,7 @@ import {
 } from './WorkmailMap';
 import { serialPromises } from './PromiseUtil';
 import { mapUndef, filterUndef } from './UndefUtil';
-import { isGeneratedGroupName, Config } from './GroupNameUtil';
+import { isGeneratedGroupName, GroupNameConfig } from './GroupNameUtil';
 import { emailFrom, Email } from './Email';
 import R from 'ramda';
 import { retry } from './Retry';
@@ -24,7 +24,7 @@ import { eitherThrow } from './EitherUtil';
 // for easier and faster lookups.
 export async function getWorkmailListing(
   workmail: Workmail,
-  config: Config
+  config: GroupNameConfig
 ): Promise<WorkmailListing> {
 
   const plainUsers = await getWorkmailUsers(workmail);
@@ -167,7 +167,7 @@ async function getWorkmailUsers(workmail: Workmail): Promise<WorkmailUser[]> {
 
 async function getWorkmailGroups(
   workmail: Workmail,
-  config: Config
+  config: GroupNameConfig
 ): Promise<WorkmailGroup[]> {
   return retry(() => workmail.service
     .listGroups({ OrganizationId: workmail.organizationId })
