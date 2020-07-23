@@ -8,7 +8,7 @@ import { eitherThrow } from './EitherUtil';
 export interface Workmail {
   service: AWS.WorkMail, // TODO: Add a wrapper for querying too
   organizationId: string,
-  update: WorkmailUpdate  
+  update: WorkmailUpdate
 }
 
 export interface WorkmailUpdate {
@@ -18,13 +18,13 @@ export interface WorkmailUpdate {
   associateMemberToGroup(groupEntityId: GroupEntityId, userEntityId: UserEntityId): Promise<void>;
   addGroup(name: string, email: Email): Promise<GroupEntityId>;
 }
-  
+
 export function openWorkmail(scriptConfig: Config): Workmail {
   configureAws(scriptConfig);
 
-  const service = createWorkmailService(scriptConfig);     
+  const service = createWorkmailService(scriptConfig);
   const organizationId = scriptConfig.workmailOrganizationId;
-  
+
   function createAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
     return retry(() => service
       .createAlias({OrganizationId: organizationId, EntityId: entityIdString(entityId), Alias: emailString(alias)})
@@ -32,11 +32,11 @@ export function openWorkmail(scriptConfig: Config): Workmail {
       .then(eitherThrow)
       .then(() => Promise.resolve())
   }
-  
+
   function deleteAlias(entityId: GroupEntityId | UserEntityId, alias: Email) {
     return retry(() => service
-      .deleteAlias({OrganizationId: organizationId, 
-        EntityId: entityIdString(entityId), 
+      .deleteAlias({OrganizationId: organizationId,
+        EntityId: entityIdString(entityId),
         Alias: emailString(alias)})
       .promise(), "deleteAlias")
       .then(eitherThrow)
@@ -56,8 +56,8 @@ export function openWorkmail(scriptConfig: Config): Workmail {
 
   function associateMemberToGroup(groupEntityId: GroupEntityId, userEntityId: UserEntityId) {
     return retry(() => service
-      .associateMemberToGroup({OrganizationId: organizationId, 
-        GroupId: groupEntityIdString(groupEntityId), 
+      .associateMemberToGroup({OrganizationId: organizationId,
+        GroupId: groupEntityIdString(groupEntityId),
         MemberId: userEntityIdString(userEntityId)})
       .promise(), "associateMemberToGroup")
       .then(() => Promise.resolve())
@@ -69,11 +69,11 @@ export function openWorkmail(scriptConfig: Config): Workmail {
       .promise(), "addGroup/create")
       .then(eitherThrow)
       .then((result) => {
-        const rawEntityId = result.GroupId  
+        const rawEntityId = result.GroupId
         if (rawEntityId === undefined) {
-          const message = `adding group ${name} failed, no entityId received`;  
+          const message = `adding group ${name} failed, no entityId received`;
           return Promise.reject(new Error(message));
-        
+
         } else {
           return retry(() => service
             .registerToWorkMail({OrganizationId: organizationId, EntityId: rawEntityId, Email: emailString(email)})
@@ -86,7 +86,7 @@ export function openWorkmail(scriptConfig: Config): Workmail {
 
   return {
     organizationId,
-    service,  
+    service,
     update: {createAlias, deleteAlias, removeGroup, associateMemberToGroup, addGroup}
   };
 }
@@ -96,6 +96,8 @@ function configureAws(scriptConfig: Config): void {
 
   AWS.config.setPromisesDependency(null);
   AWS.config.loadFromPath(scriptConfig.awsConfigFile);
+  AWS.config.httpOptions = {...AWS.config.httpOptions, connectTimeout: 8000}; // 8s is hopeless and we can retry
+  AWS.config.workmail = {...AWS.config.workmail, httpOptions: {...AWS.config?.workmail?.httpOptions, connectTimeout: 8000}};
 }
 
 function createWorkmailService(scriptConfig: Config): AWS.WorkMail {
