@@ -68,6 +68,8 @@ The code is in the `src` and tests are in the `__tests__` directory.
 
 ## Available scripts
 
++ `sync` - run the release build of the main script
++ `sync:dev` - run the developer build of the main script
 + `clean` - remove coverage data, Jest cache and transpiled files,
 + `build` - transpile TypeScript to ES6,
 + `build:watch` - interactive watch mode to automatically transpile source files,
