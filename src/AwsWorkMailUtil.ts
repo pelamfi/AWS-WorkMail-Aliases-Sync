@@ -22,6 +22,7 @@ export interface WorkMailConfig {
   readonly workmailOrganizationId: string;
   readonly workmailEndpoint?: string;
   readonly awsConfigFile: string;
+  readonly verbose: boolean;
 }
 
 export function openWorkmail(config: WorkMailConfig): Workmail {
@@ -97,7 +98,9 @@ export function openWorkmail(config: WorkMailConfig): Workmail {
 }
 
 function configureAws(config: WorkMailConfig): void {
-  console.log('Configuring the AWS connection.')
+  if (config.verbose) {
+    console.log('Configuring the AWS connection.')
+  }
 
   AWS.config.setPromisesDependency(null);
   AWS.config.loadFromPath(config.awsConfigFile);

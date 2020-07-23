@@ -16,7 +16,6 @@ const config = {
   aliasesFileDomain: 'domain',
   aliasLimit: 1,
 };
-// const config2 = {groupPrefix: "prefix", aliasesFileDomain: "domain", aliasLimit: 2}
 
 const userEmail1 = emailFrom('user1@bar');
 const alias1Email = emailFrom('alias1@bar');
@@ -24,7 +23,6 @@ const alias2Email = emailFrom('alias2@bar');
 const alias3Email = emailFrom('alias1@bar');
 const alias4Email = emailFrom('alias2@bar');
 const userEmail2 = emailFrom('user2@bar');
-//const email1 = new EmailAddr("foo@bar")
 const user1: EmailUser = { kind: 'EmailUser', email: userEmail1 };
 const alias1: EmailUserAlias = {
   kind: 'EmailUserAlias',

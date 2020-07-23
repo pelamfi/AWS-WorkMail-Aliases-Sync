@@ -1,5 +1,6 @@
 {
     "workmailOrganizationId": "m-a123a123a123a123a123a123a123a123",
     "groupPrefix": "my-prefix",
-    "aliasesFileDomain": "example.com"
+    "aliasesFileDomain": "example.com",
+    "verbose": true
 }

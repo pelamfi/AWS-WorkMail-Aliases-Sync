@@ -1,7 +1,7 @@
-import { Email, emailString } from './Email';
+import { Email, emailLocal } from './Email';
 
 export interface GroupNameConfig {
-  groupPrefix: string;
+  readonly groupPrefix: string;
 }
 
 // Looks like a name made with the generatedGroupName function below.
@@ -14,5 +14,9 @@ export function isGeneratedGroupName(
 
 // Default group name based on email address.
 export function generateGroupName(email: Email, config: GroupNameConfig) {
-  return config.groupPrefix + '-' + emailString(email);
+  return config.groupPrefix + '-' + emailLocal(email);
+}
+
+export function generateWorkaroundGroupName(email: Email, groupIndex: number, config: GroupNameConfig) {
+  return `${config.groupPrefix}-alias-${emailLocal(email)}-${groupIndex}`;
 }

@@ -14,6 +14,7 @@ export interface Config {
   groupPrefix: string;
   readonly aliasLimit: number;
   readonly dryRun: boolean;
+  readonly verbose: boolean;
 }
 
 export async function synchronize(
@@ -43,9 +44,11 @@ export async function synchronize(
     targetAwsEmailMapIdeal,
     config);
 
-  console.log(
-    `Computing operations to sync aliases file with ${
-      Object.keys(targetAwsEmailMap).length} aliases to WorkMail with`);
+  if (config.verbose) {
+    console.log(
+      `Computing operations to sync aliases file with ${
+        Object.keys(targetAwsEmailMap).length} aliases to WorkMail with`);
+  }
 
   const syncOperations = emailMapSync(
     currentWorkmailMap.emailMap,
@@ -58,7 +61,7 @@ export async function synchronize(
     prev: Promise<EntityMap>,
     op: EmailOperation): Promise<EntityMap> {
     return prev.then((entityMap) => {
-      return createAwsWorkmailRequest(workmailUpdate, entityMap, op).then(
+      return createAwsWorkmailRequest(workmailUpdate, entityMap, op, config.verbose).then(
         (entityMapUpdate) => {
           return entityMapUpdate(entityMap);
         });
@@ -71,7 +74,9 @@ export async function synchronize(
     return currentWorkmailListing;
   }
 
-  console.log(`Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`);
+  if (config.verbose) {
+    console.log(`Executing ${syncOperations.length} operations to synchronize AWS WorkMail aliases.`);
+  }
 
   const finalEntityMap = await syncOperations.reduce(
     reductionStep,
@@ -82,10 +87,12 @@ export async function synchronize(
     emailMap: targetAwsEmailMap,
   };
 
-  console.log(
-    `${syncOperations.length} operations completed, users: ${
-      Object.keys(finalMap.entityMap.usersByEmail).length} groups: ${
-      Object.keys(finalMap.entityMap.groupsByEmail).length}`);
+  if (config.verbose) {
+    console.log(
+      `${syncOperations.length} operations completed, users: ${
+        Object.keys(finalMap.entityMap.usersByEmail).length} groups: ${
+        Object.keys(finalMap.entityMap.groupsByEmail).length}`);
+  }
 
   return workmailListingFromMap(finalMap);
 }

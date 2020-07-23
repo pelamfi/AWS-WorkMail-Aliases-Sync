@@ -1,4 +1,4 @@
-import { emailFrom, emailString, emailLocal, Email } from '../src/Email';
+import { emailFrom, emailLocal, Email } from '../src/Email';
 import { WorkmailUpdate } from '../src/AwsWorkMailUtil';
 import { GroupEntityId, WorkmailGroup, UserEntityId, groupEntityId, WorkmailListing, WorkmailUser, userEntityId } from '../src/WorkmailMap';
 import * as Synchronize from '../src/Synchronize';
@@ -21,7 +21,8 @@ const config: Synchronize.Config = {
   localEmailUserToEmail: {"user1": user1, "user2": user2, "user3": user3},
   groupPrefix,
   aliasLimit,
-  dryRun: false
+  dryRun: false,
+  verbose: false
 };
 
 const aliases: AliasesFileAlias[] = [];
@@ -44,14 +45,14 @@ const group: WorkmailGroup = {
   kind: "WorkmailGroup",
   email: aliasFoo,
   entityId: groupEntityId1,
-  name: groupPrefix + "-" + emailString(aliasFoo),
+  name: groupPrefix + "-" + emailLocal(aliasFoo),
   members: [workmailUser1.entityId, workmailUser2.entityId]};
 
 const group2: WorkmailGroup = {
   kind: "WorkmailGroup",
   email: aliasFoo,
   entityId: groupEntityId1,
-  name: groupPrefix + "-" + emailString(aliasFoo),
+  name: groupPrefix + "-" + emailLocal(aliasFoo),
   members: [workmailUser1.entityId, workmailUser3.entityId]};
 
 const listingWith1Group: WorkmailListing = {groups: [{entity: group, aliases: []}], users: threeUserWorkmailListing.users};

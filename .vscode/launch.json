@@ -24,6 +24,7 @@
             "request": "launch",
             "name": "main.ts",
             "program": "${workspaceFolder}/src/main.ts",
+            //"args": ["--help"],
             "runtimeArgs": [
                 "--trace-warnings"
             ],

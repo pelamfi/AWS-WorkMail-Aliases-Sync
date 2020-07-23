@@ -13,9 +13,10 @@ import { generateGroupName } from './GroupNameUtil';
 import { Email, emailFrom, emailString } from './Email';
 
 export interface Config {
-  aliasesFileDomain: string;
-  localUserToEmail: (localUser: string) => Email | undefined;
-  groupPrefix: string;
+  readonly aliasesFileDomain: string;
+  readonly localUserToEmail: (localUser: string) => Email | undefined;
+  readonly groupPrefix: string;
+  readonly verbose: boolean;
 }
 
 export function aliasesFileToEmailMap(
@@ -27,9 +28,11 @@ export function aliasesFileToEmailMap(
   ): [EmailUser, EmailUserAlias[]] | undefined {
     const localUserEmail = config.localUserToEmail(localUser.localEmail);
     if (localUserEmail === undefined) {
-      console.log(
-        `Local email user '${localUser.localEmail}' is not in the configuration file localEmailUserToEmail map. Ignored.`,
-      );
+      if (config.verbose) {
+        console.log(
+          `Local email user '${localUser.localEmail}' is not in the configuration file localEmailUserToEmail map. Ignored.`,
+        );
+      }
       return undefined;
     }
     const user: EmailUser = { kind: 'EmailUser', email: localUserEmail };
