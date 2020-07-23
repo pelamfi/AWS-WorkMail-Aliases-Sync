@@ -23,6 +23,7 @@
     "typescript": "~3.9.7"
   },
   "scripts": {
+    "sync": "node build/src/main.js",
     "clean": "rimraf coverage build tmp dev-build",
     "build": "tsc -p tsconfig.json",
     "build:release": "tsc -p tsconfig.release.json",
