@@ -173,5 +173,32 @@ describe('The synchronization mechanism', () => {
         expect(listing).toStrictEqual(listingWith1Group);
       });
   });
+
+  it('Does nothing when overflowing aliases are already handled', () => {
+    const update = mockWorkmail();
+    return Synchronize.synchronize(config, overflowingAliases, aliasOverflowListing, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(0);
+        expect(update.associateMemberToGroup).toBeCalledTimes(0);
+        expect(update.addGroup).toBeCalledTimes(0);
+        expect(listing).toStrictEqual(aliasOverflowListing);
+      });
+  });
+
+  it('Does nothing when the group is already handled', () => {
+    const update = mockWorkmail();
+    return Synchronize.synchronize(config, aliases1Group, listingWith1Group, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(0);
+        expect(update.deleteAlias).toBeCalledTimes(0);
+        expect(update.removeGroup).toBeCalledTimes(0);
+        expect(update.associateMemberToGroup).toBeCalledTimes(0);
+        expect(update.addGroup).toBeCalledTimes(0);
+        expect(listing).toStrictEqual(listingWith1Group);
+      });
+  });
+
 });
 
