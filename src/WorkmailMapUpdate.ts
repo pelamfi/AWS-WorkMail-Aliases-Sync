@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { WorkmailGroup, EntityMap, WorkmailGroupAliases, WorkmailUserAliases, WorkmailUser  } from './WorkmailMap';
+import { WorkmailGroup, EntityMap, WorkmailGroupAliases, WorkmailUser, WorkmailEntityAliases } from './WorkmailMap';
 import { emailString, Email } from './Email';
 import { AddUserAlias, AddGroupMember, AddGroupAlias, RemoveUserAlias, RemoveGroupAlias } from './EmailOperation';
 
@@ -7,49 +7,85 @@ export function addGroupToEntityMap(
   group: WorkmailGroup,
   entityMap: EntityMap
 ): EntityMap {
-  const groupsByEmail = R.assoc(emailString(group.email), {entity: group, aliases: []}, entityMap.groupsByEmail);
-  const usersByEmail = entityMap.usersByEmail;
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap, groupsByEmail: assocEntityAliases(entityMap.groupsByEmail, {entity: group, aliases: []}) };
+}
+
+export function removeGroupFromEntityMap(
+  groupEmail: Email,
+  entityMap: EntityMap,
+): EntityMap {
+  return { ...entityMap, groupsByEmail: dissocEntityAliases(entityMap.groupsByEmail, groupEmail)};
 }
 
 export function addUserAliasToEntityMap(
   op: AddUserAlias,
   entityMap: EntityMap
 ): EntityMap {
-  const groupsByEmail = entityMap.groupsByEmail;
-  const userEmail = emailString(op.alias.user.email)
-  const usersByEmail = R.assoc(userEmail, addAliasToUser(entityMap.usersByEmail[userEmail], op), entityMap.usersByEmail);
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap,
+    usersByEmail: updateEntityAliases(entityMap.usersByEmail, op.alias.user.email, addAlias(op.alias.email)) };
 }
 
 export function addGroupAliasToEntityMap(
   op: AddGroupAlias,
   entityMap: EntityMap
 ): EntityMap {
-  const groupEmail = emailString(op.alias.group.email)
-  const groupsByEmail = R.assoc(groupEmail, addAliasToGroup(entityMap.groupsByEmail[groupEmail], op), entityMap.groupsByEmail);
-  const usersByEmail = entityMap.usersByEmail;
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap,
+    groupsByEmail: updateEntityAliases(entityMap.groupsByEmail, op.alias.group.email, addAlias(op.alias.email)) };
 }
 
 export function removeUserAliasFromEntityMap(
   op: RemoveUserAlias,
   entityMap: EntityMap
 ): EntityMap {
-  const userEmail = emailString(op.alias.user.email)
-  const groupsByEmail = entityMap.groupsByEmail;
-  const usersByEmail = R.assoc(userEmail, removeAliasFromUser(entityMap.usersByEmail[userEmail], op), entityMap.usersByEmail);
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap,
+    usersByEmail: updateEntityAliases(entityMap.usersByEmail, op.alias.user.email, removeAlias(op.alias.email)) };
 }
 
 export function removeGroupAliasFromEntityMap(
   op: RemoveGroupAlias,
   entityMap: EntityMap
 ): EntityMap {
-  const groupEmail = emailString(op.alias.group.email)
-  const groupsByEmail = R.assoc(groupEmail, removeAliasFromGroup(entityMap.groupsByEmail[groupEmail], op), entityMap.groupsByEmail);
-  const usersByEmail = entityMap.usersByEmail;
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap,
+    groupsByEmail: updateEntityAliases(entityMap.groupsByEmail, op.alias.group.email, removeAlias(op.alias.email)) };
+}
+
+export function updateEntityAliases<T extends WorkmailEntityAliases>(
+  byEmail: { readonly [index: string]: T}, email: Email, update: (x: T)=> T): { readonly [index: string]: T} {
+  const prev = byEmail[emailString(email)];
+  return assocEntityAliases(byEmail, update(prev));
+}
+
+function assocEntityAliases<T extends WorkmailEntityAliases>(
+  byEmail: { readonly [index: string]: T}, entityAliases: T): { readonly [index: string]: T} {
+  const email = entityAliases.entity.email;
+  return R.assoc(emailString(email), entityAliases, byEmail);
+}
+
+function dissocEntityAliases<T extends WorkmailEntityAliases>(
+  byEmail: { readonly [index: string]: T}, email: Email): { readonly [index: string]: T} {
+  return R.dissoc(emailString(email), byEmail);
+}
+
+function addAlias<T extends WorkmailEntityAliases>(email: Email): (aliases: T) => T {
+  return (aliases: T) => {
+    const index = aliases.aliases.findIndex(x => x >= email);
+    if (index == -1) {
+      return {...aliases, aliases: [...aliases.aliases, email]}
+    } else {
+      const next = aliases.aliases[index];
+      if (next == email) {
+        return aliases; // exists already
+      } else {
+        return {...aliases, aliases: R.insert(index, email, aliases.aliases)}
+      }
+    }
+  }
+}
+
+function removeAlias<T extends WorkmailEntityAliases>(email: Email): (aliases: T) => T {
+  return (aliases: T) => {
+    return {...aliases, aliases: aliases.aliases.filter(x => x != email)}
+  }
 }
 
 export function addGroupAssociationToEntityMap(
@@ -57,40 +93,11 @@ export function addGroupAssociationToEntityMap(
   op: AddGroupMember,
   entityMap: EntityMap
 ): EntityMap {
-  const groupEmail = emailString(op.group.email)
-  const groupsByEmail = R.assoc(groupEmail, addMemberToGroup(entityMap.groupsByEmail[groupEmail], user), entityMap.groupsByEmail);
-  const usersByEmail = entityMap.usersByEmail;
-  return { usersByEmail, groupsByEmail };
+  return { ...entityMap,
+    groupsByEmail: updateEntityAliases(entityMap.groupsByEmail, op.group.email, addGroupAssociation(user)) };
 }
 
-function addAliasToUser(userAliases: WorkmailUserAliases, op: AddUserAlias): WorkmailUserAliases {
-  return {entity: userAliases.entity, aliases: [...userAliases.aliases, op.alias.email]}
-}
-
-function removeAliasFromUser(userAliases: WorkmailUserAliases, op: RemoveUserAlias): WorkmailUserAliases {
-  return {entity: userAliases.entity, aliases: userAliases.aliases.filter(x => x != op.alias.email)}
-}
-
-function removeAliasFromGroup(aliases: WorkmailGroupAliases, op: RemoveGroupAlias): WorkmailGroupAliases {
-  return {entity: aliases.entity, aliases: aliases.aliases.filter(x => x != op.alias.email)}
-}
-
-function addAliasToGroup(aliases: WorkmailGroupAliases, op: AddGroupAlias): WorkmailGroupAliases {
-  return {entity: aliases.entity, aliases: [...aliases.aliases, op.alias.email]}
-}
-
-function addMemberToGroup(groupAliases: WorkmailGroupAliases, user: WorkmailUser): WorkmailGroupAliases {
-  return {entity: {...groupAliases.entity, members: [...groupAliases.entity.members, user.entityId]}, aliases: groupAliases.aliases}
-}
-
-export function removeGroupFromEntityMap(
-  groupEmail: Email,
-  entityMap: EntityMap,
-): EntityMap {
-  const groupsByEmail: { readonly [index: string]: WorkmailGroupAliases } = R.dissoc(
-    emailString(groupEmail),
-    entityMap.groupsByEmail,
-  );
-  const usersByEmail = entityMap.usersByEmail;
-  return { usersByEmail, groupsByEmail };
+function addGroupAssociation(user: WorkmailUser): (groupAliases: WorkmailGroupAliases) => WorkmailGroupAliases {
+  return (groupAliases: WorkmailGroupAliases) => (
+    {...groupAliases, entity: {...groupAliases.entity, members: [...groupAliases.entity.members, user.entityId]}});
 }
