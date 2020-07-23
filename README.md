@@ -94,11 +94,11 @@ Options:
 
 The following steps describe the basic operation of this program:
 
-  1. reads its configuration files specifying an AWS WorkMail organization and other details
-  2. scans the WorkMail user, group and aliases data
-  3. parses an `/etc/aliases` style file
-  4. computes a sequence of operations to modify the AWS WorkMail to match the aliases file
-  5. executes the operations on the AWS WorkMail organization
+1. reads its configuration files specifying an AWS WorkMail organization and other details
+2. scans the WorkMail user, group and aliases data
+3. parses an `/etc/aliases` style file
+4. computes a sequence of operations to modify the AWS WorkMail to match the aliases file
+5. executes the operations on the AWS WorkMail organization
 
 - Removing groups
 - Adding groups
@@ -122,7 +122,7 @@ is run again with the same input file.)
 
 ## Quick start
 
-This project is intended to be used with the latest Active LTS release of [Node.js][nodejs]. 
+This project is intended to be used with the latest Active LTS release of [Node.js][nodejs].
 
 To start you need to install dependencies using the following command:
 
