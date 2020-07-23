@@ -10,6 +10,7 @@ import {
   addGroupAliasToEntityMap,
   addGroupAssociationToEntityMap,
   removeUserAliasFromEntityMap,
+  removeGroupAliasFromEntityMap,
 } from './WorkmailMapUpdate';
 
 export type EntityMapUpdate = (_: EntityMap) => EntityMap;
@@ -80,7 +81,9 @@ export function createAwsWorkmailRequest(
     console.log(`remove alias ${emailString(op.alias.email)} from group ${group.entity.name}`);
     return workmail
       .deleteAlias(group.entity.entityId, op.alias.email)
-      .then(noEntityMapUpdate); // TODO: Not needed because the whole group gets removed
+      // Not needed currently for groups because the whole group gets removed and recreated.
+      // However the alias limit workaround code generates more granular alias updates.
+      .then(() => R.curry(removeGroupAliasFromEntityMap)(op));
   }
   case 'RemoveUserAlias': {
     const user = resolveUser(op.alias.user.email);

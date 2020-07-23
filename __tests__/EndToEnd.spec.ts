@@ -10,6 +10,7 @@ const user2 = emailFrom("user2", domain);
 const aliasFoo = emailFrom("foo", domain);
 const aliasBar = emailFrom("bar", domain);
 const aliasBaz = emailFrom("baz", domain);
+const aliasQuux = emailFrom("quux", domain);
 
 const groupPrefix = "groupPrefix"
 const aliasLimit = 2
@@ -59,11 +60,23 @@ const aliasOverflowListing: WorkmailListing = {
     {entity: workmailUser1, aliases: [aliasBar, aliasBaz]},
     {entity: workmailUser2, aliases: []}]};
 
+const aliasOverflowListing2: WorkmailListing = {
+  groups: [{entity: aliasOverflowGroup, aliases: [aliasQuux]}],
+  users: [
+    {entity: workmailUser1, aliases: [aliasBaz, aliasFoo]},
+    {entity: workmailUser2, aliases: []}]};
+
 const aliases1Group: AliasesFileAlias[] = [{alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1), emailLocal(user2)]}];
 
 const overflowingAliases = [
   {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
   {alias: emailLocal(aliasBar), localEmails: [emailLocal(user1)]},
+  {alias: emailLocal(aliasBaz), localEmails: [emailLocal(user1)]}
+];
+
+const overflowingAliases2 = [
+  {alias: emailLocal(aliasFoo), localEmails: [emailLocal(user1)]},
+  {alias: emailLocal(aliasQuux), localEmails: [emailLocal(user1)]},
   {alias: emailLocal(aliasBaz), localEmails: [emailLocal(user1)]}
 ];
 
@@ -200,5 +213,18 @@ describe('The synchronization mechanism', () => {
       });
   });
 
+  it('Changes overflowing aliases', () => {
+    const update = mockWorkmail();
+
+    return Synchronize.synchronize(config, overflowingAliases2, aliasOverflowListing, update)
+      .then((listing) => {
+        expect(update.createAlias).toBeCalledTimes(2);
+        expect(update.deleteAlias).toBeCalledTimes(2);
+        expect(update.removeGroup).toBeCalledTimes(0);
+        expect(update.associateMemberToGroup).toBeCalledTimes(0);
+        expect(update.addGroup).toBeCalledTimes(0);
+        expect(listing).toStrictEqual(aliasOverflowListing2);
+      });
+  });
 });
 

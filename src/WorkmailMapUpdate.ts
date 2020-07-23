@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import { WorkmailGroup, EntityMap, WorkmailGroupAliases, WorkmailUserAliases, WorkmailUser  } from './WorkmailMap';
 import { emailString, Email } from './Email';
-import { AddUserAlias, AddGroupMember, AddGroupAlias, RemoveUserAlias } from './EmailOperation';
+import { AddUserAlias, AddGroupMember, AddGroupAlias, RemoveUserAlias, RemoveGroupAlias } from './EmailOperation';
 
 export function addGroupToEntityMap(
   group: WorkmailGroup,
@@ -42,6 +42,16 @@ export function removeUserAliasFromEntityMap(
   return { usersByEmail, groupsByEmail };
 }
 
+export function removeGroupAliasFromEntityMap(
+  op: RemoveGroupAlias,
+  entityMap: EntityMap
+): EntityMap {
+  const groupEmail = emailString(op.alias.group.email)
+  const groupsByEmail = R.assoc(groupEmail, removeAliasFromGroup(entityMap.groupsByEmail[groupEmail], op), entityMap.groupsByEmail);
+  const usersByEmail = entityMap.usersByEmail;
+  return { usersByEmail, groupsByEmail };
+}
+
 export function addGroupAssociationToEntityMap(
   user: WorkmailUser,
   op: AddGroupMember,
@@ -59,6 +69,10 @@ function addAliasToUser(userAliases: WorkmailUserAliases, op: AddUserAlias): Wor
 
 function removeAliasFromUser(userAliases: WorkmailUserAliases, op: RemoveUserAlias): WorkmailUserAliases {
   return {entity: userAliases.entity, aliases: userAliases.aliases.filter(x => x != op.alias.email)}
+}
+
+function removeAliasFromGroup(aliases: WorkmailGroupAliases, op: RemoveGroupAlias): WorkmailGroupAliases {
+  return {entity: aliases.entity, aliases: aliases.aliases.filter(x => x != op.alias.email)}
 }
 
 function addAliasToGroup(aliases: WorkmailGroupAliases, op: AddGroupAlias): WorkmailGroupAliases {
