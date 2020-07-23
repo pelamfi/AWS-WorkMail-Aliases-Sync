@@ -6,15 +6,28 @@ import { openWorkmail, Workmail } from './AwsWorkMailUtil';
 import { synchronize } from './Synchronize';
 import { WorkmailListing, sortedWorkmailListing } from './WorkmailMap';
 import { writeFileAtomic, readFile, exists } from './FsUtil';
-import * as yargs from 'yargs'
 import { GroupNameConfig } from './GroupNameUtil';
 
 console.log('Script starting');
 
+async function checkDefaultConfigFile() {
+  if (!process.argv.includes("--config") && !process.argv.includes("--help") && !process.argv.includes("--version"))  {
+    console.log(`Loading default config file ${defaultConfigFile}`);
+    const data = await readFile(defaultConfigFile);
+    return JSON.parse(data.toString());
+  }
+
+  return {};
+}
+
 async function main() {
 
-  const scriptConfig = yargs
-    .help()
+  const defaultConfigFileContents = await checkDefaultConfigFile();
+
+  // https://stackoverflow.com/a/45077802/1148030
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const scriptConfig = require('yargs')
+    .config(defaultConfigFileContents)
     .config('config', `The location of the script configuration file. The default location is ${defaultConfigFile}.`)
     .option('awsConfigFile', {
       type: 'string',
@@ -31,7 +44,7 @@ async function main() {
       description: "The ID of your WorkMail organization. Something like 'm-f31c1261be2a4629a0a18a12da03a7f1'",
       demand: true
     })
-    .option('aliasesFile', {
+    .option('aliases-file', {
       type: 'string',
       normalize: true,
       description: "The location of a UNIX style (simple) aliases file to be synchronized into WorkMail groups and aliases.",
@@ -81,7 +94,7 @@ async function main() {
       description: "Enable logging",
       demand: false
     })
-    .option('dryRun', {
+    .option('dry-run', {
       alias: 'n',
       type: 'boolean',
       default: false,
