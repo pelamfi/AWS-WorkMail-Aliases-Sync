@@ -1,9 +1,10 @@
 import { readFile } from './FsUtil';
 import { Email } from './Email';
+import yargs from 'yargs';
 
 export interface Config {
   readonly awsConfigFile: string;
-  readonly workmailEndpoint: string;
+  readonly workmailEndpoint?: string;
   readonly workmailOrganizationId: string;
   readonly groupPrefix: string;
   readonly aliasesFile: string;
@@ -36,9 +37,7 @@ export async function loadAliasesUserEmails(
 export async function loadScriptConfiguration(): Promise<Config> {
   const defaultConfigFileContents = await checkDefaultConfigFile();
 
-  // https://stackoverflow.com/a/45077802/1148030
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const scriptConfig = require('yargs')
+  const scriptConfig = yargs
     .config(defaultConfigFileContents)
     .config(
       'config',
@@ -62,7 +61,7 @@ export async function loadScriptConfiguration(): Promise<Config> {
         "The ID of your WorkMail organization. Something like 'm-f31c1261be2a4629a0a18a12da03a7f1'",
       demand: true,
     })
-    .option('aliases-file', {
+    .option('aliasesFile', {
       type: 'string',
       normalize: true,
       description:
@@ -117,7 +116,7 @@ export async function loadScriptConfiguration(): Promise<Config> {
       description: 'Enable logging',
       demand: false,
     })
-    .option('dry-run', {
+    .option('dryRun', {
       alias: 'n',
       type: 'boolean',
       default: false,
