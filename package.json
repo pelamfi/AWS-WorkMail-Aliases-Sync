@@ -37,7 +37,7 @@
   "author": "Peter Lamberg",
   "license": "UNLICENSED",
   "dependencies": {
-    "aws-sdk": ">=2.717.0",
+    "aws-sdk": ">=2.814.0",
     "eslint-plugin-jest": "^23.16.0",
     "fp-ts": "^2.7.1",
     "ramda": "^0.27.0",
